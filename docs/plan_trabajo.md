@@ -28,41 +28,27 @@ python -m pip install -r requirements.txt
 nbstripout --install
 ```
 
-## Estructura del repositorio (propuesta, pendiente de confirmar)
+## Estructura del repositorio
 
-```
-ojo-de-aguila/
-├── CLAUDE.md
-├── README.md
-├── .gitignore            # data/, .env, *.parquet, .venv/
-├── .env.example          # STATSBOMB_USER=, STATSBOMB_PASSWORD= (sin valores)
-├── requirements.txt
-├── config/params.yaml    # todos los umbrales del framework
-├── docs/                 # propuesta, framework, plan, referencias de API
-├── data/                 # nunca en git
-│   ├── raw/{api}/...     # JSON tal como llega (gzip)
-│   └── processed/        # parquet limpios
-├── src/ojo/
-│   ├── ingest/           # client.py + un módulo por API
-│   ├── framework.py      # posesiones, fases, transiciones, tramos, contexto
-│   ├── metrics/          # proveedor, grafos, voronoi, huella, dos_bandas, balon_parado
-│   ├── models/           # contexto, sustituciones, validacion
-│   ├── simulation.py
-│   └── viz/
-├── scripts/              # 00_prueba_humo.py, 01_inspector.py, 02_descarga.py, ...
-├── notebooks/            # exploración numerada
-├── reports/              # informe.qmd y salidas sin datos crudos
-└── tests/
-```
+La estructura definitiva y sus reglas viven en el `README.md` (una sola fuente). Decisiones respecto a la propuesta inicial:
 
-## Cliente de la API (`src/ojo/ingest/client.py`)
+- **El paquete sigue las capas de la propuesta** (`ingesta`, `framework`, `lentes`, `salidas`), así el código cuenta la misma historia que el reporte. Nombres en español, como el dominio.
+- **Nueva capa `datos/`**: la propuesta no decía quién convierte el JSON crudo en parquet ni quién lo lee. Un único punto de acceso evita que cada notebook lea archivos a su manera.
+- **`framework/` es paquete, no un solo archivo**: tendrá un módulo por unidad que se prueba (orientación, tramos, marcador, posesiones).
+- **`metrics/`, `models/`, `simulation.py` y `viz/` se reparten** entre `lentes/` y `salidas/`, y sus módulos se crean cuando haya código, no antes.
+- **Instalación editable** (`-e .` dentro de `requirements.txt`): siguen siendo 3 comandos y nadie toca `sys.path`.
+- **`outputs/` fuera de git** para todo lo generado; `reports/` solo guarda fuentes y resúmenes revisados.
+- **Se agregan `pytest` e `ipykernel`**, que faltaban en la lista de librerías (pruebas y kernel de Jupyter en VS Code).
+- **`params.yaml` solo guarda umbrales analíticos**; versiones de API, dominios y pausas viven en `src/ojo/ingesta/`.
+
+## Cliente de la API (`src/ojo/ingesta/cliente.py`)
 
 - Credenciales desde `.env` (`STATSBOMB_USER`, `STATSBOMB_PASSWORD`); nunca en código, logs ni salidas.
 - Autenticación: HTTP Basic (supuesto; confirmar en la prueba de humo).
 - Caché en disco: la ruta depende de la API y sus parámetros; si el archivo existe, no se hace la solicitud. Opción `force` para volver a bajar un partido actualizado (`last_updated` en Matches).
 - Pausa configurable entre solicitudes (1 s por defecto) y reintentos con espera creciente ante 429 y 5xx; no reintentar 401/403.
 - Prueba ambos dominios (`data.statsbombservices.com` y `data.statsbomb.com`) y recuerda cuál respondió para cada endpoint.
-- Versiones de API en un solo lugar (diccionario o `params.yaml`).
+- Versiones de API y dominios en un solo lugar dentro de `src/ojo/ingesta/` (no en `params.yaml`, que es solo para umbrales analíticos).
 - Registro de cada solicitud: endpoint, estado, bytes, si vino de caché (sin credenciales).
 
 ## Prueba de humo (`scripts/00_prueba_humo.py`, la corre Samuel)
@@ -101,7 +87,7 @@ Genera `reports/inspeccion_api.md` con resúmenes, sin filas de datos:
 
 ## Orden de construcción después de la ingesta
 
-1. `framework.py` y `params.yaml` con valores confirmados.
+1. `src/ojo/framework/` y `params.yaml` con valores confirmados.
 2. Perfil por partido (Team Match Stats) y percentiles contra la liga.
 3. Lentes: redes por posición, huella de pases, Voronoi (regla de corte el 14 de octubre).
 4. Lectura a dos bandas por tramo y efecto América.

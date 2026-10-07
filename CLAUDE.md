@@ -46,7 +46,8 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 ## Estado actual (actualizar al avanzar)
 
 - [x] Convocatoria analizada, propuesta base y framework v0 escritos.
-- [ ] Repo privado creado y entorno instalado.
+- [x] Repo privado creado y estructura definida (ver `README.md`).
+- [ ] Entorno instalado en la laptop de Samuel (`python -m pytest` pasa).
 - [ ] Prueba de humo de la API (`scripts/00_prueba_humo.py`).
 - [ ] Inspector de contenido (`scripts/01_inspector.py`) y ajustes al framework.
 - [ ] Descarga completa con caché.
@@ -58,7 +59,8 @@ Preguntas abiertas: ¿la tabla de evaluación publicada (predictiva 30 %, causal
 
 - `docs/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.
 - `docs/framework.md`: definiciones de objetos, contexto, supuestos, límites y propuesta de `params.yaml`.
-- `docs/plan_trabajo.md`: ecosistema, estructura del repo, cliente de la API, prueba de humo, inspector, descarga, orden de construcción.
+- `README.md`: estructura del repo, instalación y reglas de la estructura (capas, acceso único a datos).
+- `docs/plan_trabajo.md`: ecosistema, decisiones de estructura, cliente de la API, prueba de humo, inspector, descarga, orden de construcción.
 - `docs/api/README.md`: índice de las 10 APIs con endpoints y qué archivo leer para cada tarea.
 - `docs/api/*.md`: referencia condensada de cada API (campos, tipos, catálogos de ids).
 
