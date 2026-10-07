@@ -27,6 +27,7 @@ from ojo.ingesta.cliente import ClienteStatsBomb, ErrorAPI, ErrorAutenticacion
 
 # Texto para encontrar el caso en los catálogos; los ids salen de aquí hacia params.yaml
 BUSCAR_LIGA = "liga mx"
+BUSCAR_GENERO = "male"  # competition_gender; "liga mx" también encuentra la Liga MX Femenil
 BUSCAR_EQUIPO = "america"
 BUSCAR_ENTRENADOR = "jardine"
 
@@ -79,27 +80,33 @@ def paso_competiciones(cliente: ClienteStatsBomb) -> list[dict]:
     competiciones = cliente.obtener("competitions")
     print(f"  Combinaciones competición-temporada con licencia: {len(competiciones)}")
     print(f"  Campos: {sorted(competiciones[0]) if competiciones else '—'}")
-    liga = [c for c in competiciones if BUSCAR_LIGA in normalizar(c.get("competition_name"))]
-    if not liga:
+    coinciden = [c for c in competiciones if BUSCAR_LIGA in normalizar(c.get("competition_name"))]
+    if not coinciden:
         nombres = sorted({c.get("competition_name") for c in competiciones})
         raise ErrorAPI(f"No encuentro '{BUSCAR_LIGA}'. Competiciones disponibles: {nombres}")
-    print(f"  {'competition_id':>14} {'season_id':>9}  season_name")
-    for c in sorted(liga, key=lambda c: str(c.get("season_name"))):
-        print(f"  {c['competition_id']:>14} {c['season_id']:>9}  {c.get('season_name')}")
+    print(f"  {'competition_id':>14} {'season_id':>9}  {'season_name':<11}  {'gender':<6}  competition_name")
+    for c in sorted(coinciden, key=lambda c: (str(c.get("season_name")), c["competition_id"])):
+        print(f"  {c['competition_id']:>14} {c['season_id']:>9}  {str(c.get('season_name')):<11}  "
+              f"{str(c.get('competition_gender')):<6}  {c.get('competition_name')}")
+    liga = [c for c in coinciden if normalizar(c.get("competition_gender")) == BUSCAR_GENERO]
+    if not liga:
+        generos = sorted({str(c.get("competition_gender")) for c in coinciden})
+        raise ErrorAPI(f"Ninguna fila con competition_gender '{BUSCAR_GENERO}'; valores: {generos}")
+    print(f"  Se usan solo las de competition_gender '{BUSCAR_GENERO}': {len(liga)} de {len(coinciden)}")
     return liga
 
 
 def paso_partidos(cliente: ClienteStatsBomb, liga: list[dict]) -> list[dict]:
     titulo("2. Matches: partidos por temporada (¿season_id = torneo o año?)")
     todos: list[dict] = []
-    print(f"  {'season':<12} {'partidos':>8} {'Complete':>8} {'360 disp.':>9}  fechas")
-    for c in sorted(liga, key=lambda c: str(c.get("season_name"))):
+    print(f"  {'season':<12} {'comp.':>5} {'partidos':>8} {'Complete':>8} {'360 disp.':>9}  fechas")
+    for c in sorted(liga, key=lambda c: (str(c.get("season_name")), c["competition_id"])):
         partidos = cliente.obtener("matches", competition_id=c["competition_id"], season_id=c["season_id"])
         fechas = sorted(p.get("match_date", "") for p in partidos)
         completos = sum(p.get("collection_status") == "Complete" for p in partidos)
         con_360 = sum(p.get("match_status_360") == "available" for p in partidos)
         rango = f"{fechas[0]} → {fechas[-1]}" if fechas else "—"
-        print(f"  {str(c.get('season_name')):<12} {len(partidos):>8} {completos:>8} {con_360:>9}  {rango}")
+        print(f"  {str(c.get('season_name')):<12} {c['competition_id']:>5} {len(partidos):>8} {completos:>8} {con_360:>9}  {rango}")
         todos.extend(partidos)
     if todos:
         print(f"  Campos de Matches: {sorted(todos[0])}")

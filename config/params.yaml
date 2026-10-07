@@ -2,10 +2,16 @@
 # Valores iniciales (framework v0); se confirman con la prueba de humo y el inspector.
 # Solo parámetros analíticos: la configuración técnica de la API vive en src/ojo/ingesta/.
 
-# Se completa después de la prueba de humo (ids reales de la API)
-equipo: {nombre: "América", team_id: null}
-entrenador: {nombre: "André Jardine", manager_id: null}
-liga: {competition_name: "Liga MX", season_ids: []}
+# Ids reales de la API (prueba de humo, 2026-10-07). season_id es el año: junta Apertura y Clausura;
+# el torneo se separa con competition_stage.name.
+equipo: {nombre: "América", team_id: 1229}
+entrenador: {nombre: "André Jardine", manager_id: 1000116}   # 2023-07-01 → 2026-05-11
+predecesores:
+  - {nombre: "Santiago Solari", manager_id: 25}             # 2021-07-23 → 2022-03-02
+  - {nombre: "Fernando Ortiz", manager_id: 1001173}         # 2022-03-06 → 2023-05-22
+# 108 = 2021/22, 235 = 2022/23, 281 = 2023/24, 317 = 2024/25, 318 = 2025/26.
+# 351 (2026/27, en curso, sin Jardine) queda fuera.
+liga: {competition_name: "Liga MX", competition_id: 73, season_ids: [108, 235, 281, 317, 318]}
 
 campo: {largo: 120, ancho: 80, porteria: [120, 40]}
 tercios: {defensivo_max_x: 40, final_min_x: 80}

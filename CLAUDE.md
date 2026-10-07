@@ -12,7 +12,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 
 ## Decisiones tomadas
 
-- Entrenador: André Jardine. Comparaciones: el rival en el mismo partido ("lectura a dos bandas"), sus predecesores en el América (Solari y Ortiz, por confirmar en Matches), la Liga MX y el cambio de entrenador CL23 → AP23 como experimento natural.
+- Entrenador: André Jardine. Comparaciones: el rival en el mismo partido ("lectura a dos bandas"), sus predecesores en el América (Solari y Ortiz, confirmados en Matches). Entrenadores del análisis: solo Solari, Ortiz y Jardine (ids en `config/params.yaml`); quedan fuera Diego Cervantes (interino, 2 partidos en enero de 2025) y Jorge Almada (sucesor, 2026/27), la Liga MX y el cambio de entrenador CL23 → AP23 como experimento natural.
 - Lentes propias: control territorial con Voronoi (360), redes de pases por posición (no por jugador), huella de pases (60 clusters de StatsBomb). Además, métricas del proveedor: xG, OBV, PPDA, Phases of Play.
 - Regla del framework: si StatsBomb define un objeto, se adopta; si no, se define en `contexto/framework.md`. Todos los umbrales viven en `config/params.yaml`.
 - Tiempo real: solo visión a futuro. Nada en vivo, sin video ni tracking durante el hackathon.
@@ -51,14 +51,13 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 
 - [x] Convocatoria analizada, propuesta base y framework v0 escritos.
 - [x] Repo privado creado y estructura definida (ver `README.md`).
-- [ ] Entorno instalado en la laptop de Samuel (`python -m pytest` pasa).
-- [ ] Prueba de humo de la API (`scripts/00_prueba_humo.py`).
+- [x] Entorno instalado en la laptop de Samuel (`python -m pytest` pasa).
+- [x] Prueba de humo de la API (`scripts/00_prueba_humo.py`): ids en `config/params.yaml`, diferencias en `contexto/api/matches.md`.
 - [ ] Inspector de contenido (`scripts/01_inspector.py`) y ajustes al framework.
 - [ ] Descarga completa con caché.
 - [ ] Framework en código, métricas, lentes, dos bandas, contexto, simulación, ficha, reporte, video.
 
-Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025?, ¿límites de consumo de la API?
-
+Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025? (en un partido de 2026 `control_degree` aparece en el 83.8 % de eventos; falta revisar temporadas anteriores en el inspector), ¿límites de consumo de la API?, ¿se amplía la ventana de Jardine a AP25–CL26? (Matches lo muestra hasta el 2026-05-11, 129 partidos)
 ## Documentos (léelos solo cuando la tarea lo pida)
 
 - `contexto/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.
