@@ -60,8 +60,18 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 | Localía | Local o visitante según Matches; `neutral_ground` aparte |
 | Fuerza del rival | Tercil del rival en el torneo según xG diferencial por partido (`team_season_np_xgd_pg`) |
 | Momento | Bloques de 15 minutos: 1–15, 16–30, 31–45+, 46–60, 61–75, 76–90+ |
+| Torneo | Apertura (jul–dic) o Clausura (ene–may) dentro de una temporada (`season_id` es el año). Se toma del prefijo de `competition_stage.name`; si no lo trae, de `match_date` |
 | Fase del torneo | `competition_stage` (fase regular contra liguilla) |
-| Entrenador | Id del entrenador en Matches |
+| Entrenador | Id del entrenador en Matches (`home_team.managers` / `away_team.managers`) |
+
+## Validación y decisión
+
+- **Partición temporal.** Entrenamiento: los torneos de Jardine del Apertura 2023 al Apertura 2025. Prueba: el Clausura 2026, que no se usa para definir principios, umbrales ni modelos hasta la evaluación final.
+- **Qué se predice.** El comportamiento de Jardine por situación (las filas de la matriz de situaciones): métricas por tramo según marcador, localía, fuerza del rival y momento.
+- **Línea base.** El promedio de la liga en la misma situación y el promedio general de Jardine sin contexto. Si los principios no mejoran a la línea base, se reporta así.
+- **Sin fuga.** Todo lo que alimenta una predicción o una ficha del Clausura 2026 se calcula con partidos anteriores a ese día; la fuerza del rival se recalcula con partidos previos en vez de usar la estadística de la temporada completa.
+- **Monte Carlo.** Dos usos separados: resultado merecido con el xG de los tiros del propio partido (descriptivo, posterior) y rangos de incertidumbre de la predicción (solo con datos de entrenamiento).
+- **Decisión real.** Decisiones observables del Clausura 2026 (sustituciones tácticas, cambios de formación, con minuto y marcador) frente a lo que recomendaba la herramienta con datos previos; lo que pasó después se reporta como correlación.
 
 ## Supuestos explícitos
 
@@ -80,10 +90,12 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 ## Propuesta inicial de `config/params.yaml`
 
 ```yaml
-# Se completa después de la prueba de humo (ids reales de la API)
-equipo: {nombre: "América", team_id: null}
-entrenador: {nombre: "André Jardine", manager_id: null}
-liga: {competition_name: "Liga MX", season_ids: []}
+# Ids reales de la API (prueba de humo, 2026-10-07); valores vigentes en config/params.yaml
+equipo: {nombre: "América", team_id: 1229}
+entrenador: {nombre: "André Jardine", manager_id: 1000116}
+predecesores: [{nombre: "Santiago Solari", manager_id: 25}, {nombre: "Fernando Ortiz", manager_id: 1001173}]
+liga: {competition_name: "Liga MX", competition_id: 73, season_ids: [108, 235, 281, 317, 318]}
+validacion: {season_id_prueba: 318, torneo_prueba: "Clausura"}
 
 campo: {largo: 120, ancho: 80, porteria: [120, 40]}
 tercios: {defensivo_max_x: 40, final_min_x: 80}

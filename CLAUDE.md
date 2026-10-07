@@ -18,6 +18,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - Tiempo real: solo visión a futuro. Nada en vivo, sin video ni tracking durante el hackathon.
 - Regla de corte: si el 14 de octubre Voronoi no da hallazgos claros, pasa a lente de apoyo.
 - Rúbrica: nos apegamos a la tabla de evaluación publicada (predictiva 30 %, causal 25 %, interpretabilidad 25 %, valor operativo 20 %) y el objetivo se adapta a ella (supuesto hasta que los organizadores confirmen). La interpretabilidad se cubre con la capa "Decide en 90 segundos" (`contexto/propuesta_base.md`).
+- Predicción y decisión: entrenamiento AP23–AP25, prueba en el Clausura 2026 (intocable hasta la evaluación final, sin fuga de información). El valor operativo ("la herramienta cambia una decisión real") se demuestra con casos de decisión del CL26 frente a lo que recomendaba la herramienta con datos previos. Monte Carlo: resultado merecido (descriptivo) y rangos de incertidumbre (predictivo), nunca mezclados. Voronoi es eje central, recortado a `visible_area`.
 
 ## Reglas no negociables
 

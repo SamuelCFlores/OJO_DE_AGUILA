@@ -1,6 +1,6 @@
 # Ojo de Águila — Propuesta base
 
-Versión del 5 de octubre de 2026 · Samuel de María Cabrera Flores. El documento editable vive en Claude Docs; este archivo es una copia para Claude Code.
+Versión del 5 de octubre de 2026, actualizada el 7 de octubre (ventana AP23–CL26, predicción, decisión) · Samuel de María Cabrera Flores. El documento editable vive en Claude Docs; este archivo es una copia para Claude Code.
 
 ## Resumen
 
@@ -20,7 +20,7 @@ El Hackathon ISAC 2026 con el Club América pide explicar, con eventos StatsBomb
 
 ## Objetivo
 
-**Objetivo general.** Construir Ojo de Águila, un motor analítico reutilizable sobre las APIs de StatsBomb, y usarlo para explicar cuáles son los principios de juego del América de André Jardine, qué tan estables son, cómo interactúan con lo que hace el rival a lo largo del mismo partido, cómo los ajusta según marcador, localía, rival y momento, y en qué se distinguen de sus predecesores y del resto de la Liga MX, de forma que un cuerpo técnico lo entienda sin ver un solo video.
+**Objetivo general.** Construir Ojo de Águila, un motor analítico reutilizable sobre las APIs de StatsBomb, y usarlo para contar la historia de André Jardine en el América (Apertura 2023 – Clausura 2026): sus principios de juego, qué tan estables fueron, cómo interactúan con lo que hace el rival en cada partido y cómo los ajustó según marcador, localía, rival y momento. Mediremos qué cambió con su llegada frente a Solari y Ortiz, usando el relevo como experimento natural, y validaremos que sus principios anticipan su comportamiento en un torneo que el modelo no vio (Clausura 2026), de forma que un cuerpo técnico lo entienda sin ver un solo video y tome con él decisiones que sin él no tomaría.
 
 **Objetivos específicos**
 
@@ -28,8 +28,10 @@ El Hackathon ISAC 2026 con el Club América pide explicar, con eventos StatsBomb
 2. **Estabilidad:** medir qué tan constantes son a lo largo de los 6 torneos de Jardine.
 3. **Interacción con el rival:** leer en paralelo a ambos equipos en cada partido, tramo a tramo: quién domina, cuándo cambia y cómo responde cada uno.
 4. **Contexto:** cuantificar los ajustes por marcador, localía, fuerza del rival y momento del partido.
-5. **Comparación:** contrastar a Jardine con sus predecesores en el club y con el resto de la Liga MX.
-6. **Herramienta:** dejar el motor listo para cualquier equipo y generar la ficha de 10 segundos.
+5. **Comparación y efecto del relevo:** contrastar a Jardine con Solari, Ortiz y el resto de la Liga MX, y estimar el efecto del cambio de entrenador CL23 → AP23 frente al cambio promedio de la liga.
+6. **Predicción:** con lo aprendido en AP23–AP25, anticipar el comportamiento de Jardine en el Clausura 2026 y medir si supera a una línea base.
+7. **Decisión:** mostrar con casos concretos del Clausura 2026 dónde la herramienta, usada antes del partido o en el descanso, habría cambiado una decisión real del cuerpo técnico.
+8. **Herramienta:** dejar el motor listo para cualquier equipo y generar la ficha de 10 segundos.
 
 **Cómo cubre el alcance que pide la convocatoria**
 
@@ -39,6 +41,26 @@ El Hackathon ISAC 2026 con el Club América pide explicar, con eventos StatsBomb
 | Tendencias del entrenador | 5 | Comparación con predecesores y liga; cambio de entrenador como experimento natural | Mapa de estilos y “huella Jardine” |
 | Ajustes según contexto | 3, 4 | Lectura a dos bandas, comparaciones dentro del partido, cambios tácticos de ambos equipos | Tabla “si el rival hace X, Jardine hace Y” |
 | Diferencias entre partidos o momentos | 2, 3 | Partidos atípicos, tramos de 15 minutos, evolución por torneo, simulación Monte Carlo | Línea de tiempo con partidos anómalos explicados |
+
+**Cómo cubre la tabla de evaluación** (supuesto: aplica a este reto, hasta que los organizadores lo confirmen)
+
+| Criterio | Peso | Objetivos | Cómo lo demostramos |
+| --- | --- | --- | --- |
+| Predictiva | 30 % | 6 | Entrenamiento AP23–AP25, prueba en el Clausura 2026 sin tocarlo antes; error frente a una línea base (promedio de la liga en la misma situación y promedio general de Jardine). Monte Carlo da los rangos de incertidumbre |
+| Causal | 25 % | 5, 4 | Relevo CL23 → AP23 frente al cambio promedio de la liga; comparaciones dentro del mismo partido y emparejadas por minuto y marcador. Lo que sea correlación se etiqueta como tal |
+| Interpretabilidad | 25 % | 1, 3 | Capa "Decide en 90 segundos", Voronoi como imagen de cancha y lenguaje de cancha |
+| Valor operativo | 20 % | 7, 8 | Casos de decisión del Clausura 2026 y ficha de 10 segundos por rival |
+
+## La herramienta cambia una decisión real
+
+La tabla de evaluación pide que la herramienta cambie una decisión real del entrenador. Con datos históricos no podemos verlo en vivo, así que lo demostramos de forma retrospectiva y sin trampa, sobre el Clausura 2026:
+
+1. **Decisiones observables.** Del Clausura 2026 tomamos las decisiones que deja ver el dato: sustituciones tácticas (no por lesión), cambios de formación, su minuto y el marcador en que ocurrieron.
+2. **Qué decía la herramienta antes.** Para cada caso armamos la ficha y la matriz de situaciones solo con partidos anteriores a ese día (sin información del propio partido).
+3. **Comparación.** Si la herramienta recomendaba algo distinto o antes, lo mostramos junto con lo que pasó después en el partido (xG, OBV y control territorial por tramo).
+4. **Resultado.** Una lista corta de casos del tipo "la ficha marcaba X; Jardine hizo Y en el minuto Z; tras el cambio pasó W", y cuántas veces coincidió la herramienta con el entrenador.
+
+Lo que pasó después de una decisión es correlación, no prueba de que la recomendación habría ganado el partido, y así se presenta. Pregunta para los organizadores: cómo evalúan este criterio (¿con los coach drills o con casos como estos?).
 
 ## Propuesta de valor
 
@@ -133,7 +155,7 @@ El criterio de interpretabilidad menciona "coach drills": el jurado, actuando co
 | Simulación Monte Carlo | Sección propia | 10–15 s o nada | Opcional |
 | Hoja de ruta (tiempo real) | Breve, como visión | Cierre de 15 s | Diapositiva final |
 
-La simulación Monte Carlo es el componente opcional de la convocatoria y no forma parte de los coach drills.
+La simulación Monte Carlo es el componente opcional de la convocatoria y no forma parte de los coach drills. Tiene dos usos, y no se mezclan: (a) **resultado merecido**, con el xG de los tiros del propio partido, que es un análisis posterior y no predice nada; (b) **rangos de incertidumbre** en la predicción del Clausura 2026, alimentada solo con lo aprendido en AP23–AP25.
 
 ## Alcance y hoja de ruta
 
@@ -162,7 +184,8 @@ La entrega es el 22 de octubre, y el 14 de octubre decidimos si Voronoi se queda
 
 | Riesgo | Mitigación |
 | --- | --- |
-| Phases of Play vacío en partidos históricos | Definición propia de transición en `params.yaml` (plan B) |
+| Phases of Play vacío en partidos históricos | Definición propia de transición en `params.yaml` (plan B). En un partido de 2026 viene en el 83.8 % de los eventos; falta revisar 2023–2025 |
+| Fuga de información en la predicción | Todo lo que alimenta una predicción del Clausura 2026 (incluida la fuerza del rival) se calcula solo con partidos anteriores |
 | Cobertura 360 incompleta | Métricas 360 solo con frames válidos; se reporta la cobertura |
 | Narrativa obvia para un jurado que conoce al equipo | Lectura a dos bandas y comparación contra la liga |
 | Falta de tiempo | Regla de corte del 14 de octubre; el modo repetición solo si sobra tiempo |
@@ -173,10 +196,10 @@ La entrega es el 22 de octubre, y el 14 de octubre decidimos si Voronoi se queda
 
 - [ ] Registrar al equipo (antes del 12 de octubre)
 - [ ] Enviar el correo a los organizadores: tabla de evaluación, elección del entrenador, límites de la API y reporte interactivo
-- [ ] Crear el repositorio privado y la carpeta local (fuera de OneDrive, o con `data/` excluida de la sincronización)
-- [ ] Correr la prueba de humo de la API
+- [x] Crear el repositorio privado y la carpeta local (`PROYECTOS\C_AMERICA`, bajo OneDrive con la sincronización inactiva)
+- [x] Correr la prueba de humo de la API (7 oct)
 - [ ] Diseñar el logo en Claude Design
-- [ ] Definir la estructura del repositorio en GitHub
+- [x] Definir la estructura del repositorio en GitHub
 
 **Preguntas sin resolver**
 
@@ -184,3 +207,5 @@ La entrega es el 22 de octubre, y el 14 de octubre decidimos si Voronoi se queda
 - ¿La elección de Jardine es libre?
 - ¿Phases of Play viene poblado en los partidos de 2023 a 2025?
 - ¿El modo repetición entra en la entrega o queda como visión?
+- ¿Aceptan datos del Apertura 2025 y el Clausura 2026? (la convocatoria habla de AP21–CL25; la API los entrega)
+- ¿Cómo evalúan que "la herramienta cambia una decisión real del entrenador"?
