@@ -14,7 +14,7 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 
 - Eventos: `collection_status = Complete` y `match_status = available`.
 - Métricas 360: además `match_status_360 = available`. Se reporta la cobertura (porcentaje de eventos con frame y con `visible_area`).
-- Equipo y entrenador: se filtran por `team_id` y por el id del entrenador en `home_team_manager` / `away_team_manager` (API Matches), no por fechas.
+- Equipo y entrenador: se filtran por `team_id` y por el id del entrenador en `home_team.managers` / `away_team.managers` (API Matches; la documentación decía `home_team_manager`), no por fechas.
 
 ## Objetos
 
@@ -30,6 +30,8 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 | Contraataque | `play_pattern = From Counter` | StatsBomb |
 | Contrapresión | `counterpress = TRUE` (acción de presión dentro de 5 s tras pérdida) | StatsBomb |
 | Presión | PPDA y distancia defensiva de Team Match Stats; presiones en campo rival (x ≥ 60); presión en último tercio (x ≥ 80) | StatsBomb + propia |
+| PPDA | Por partido, `team_match_ppda`. Por tramo: pases del rival con x < `presion.ppda_zona_max_x` (en su orientación) entre las acciones defensivas propias en esa misma zona (Duel tipo Tackle, Interception, Foul Committed, Block). Se valida que, agregada al partido, se acerque a `team_match_ppda` | StatsBomb (tramo: propia) |
+| Altura de recuperación | x promedio de las recuperaciones del equipo en juego abierto: Ball Recovery sin `recovery_failure` e Interception con `outcome` 4 Won, 15 Success o 16 Success In Play | Propia |
 | Pase completo | Evento Pass sin `outcome` | StatsBomb |
 | Pase progresivo | Pase completo en juego abierto que acerca el balón al centro de la portería (120, 40) al menos `pase_progresivo.avance_min_yd`, o que entra al área | Propia |
 | Balón parado | `play_pattern` From Corner, From Free Kick, From Throw In; fase con `set_piece_phase` (1 o 2). Lateral en zona de peligro: x ≥ 80 | StatsBomb + propia |
@@ -64,14 +66,39 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 | Fase del torneo | `competition_stage` (fase regular contra liguilla) |
 | Entrenador | Id del entrenador en Matches (`home_team.managers` / `away_team.managers`) |
 
-## Validación y decisión
+## Validación, causalidad y decisión
 
-- **Partición temporal.** Entrenamiento: los torneos de Jardine del Apertura 2023 al Apertura 2025. Prueba: el Clausura 2026, que no se usa para definir principios, umbrales ni modelos hasta la evaluación final.
-- **Qué se predice.** El comportamiento de Jardine por situación (las filas de la matriz de situaciones): métricas por tramo según marcador, localía, fuerza del rival y momento.
-- **Línea base.** El promedio de la liga en la misma situación y el promedio general de Jardine sin contexto. Si los principios no mejoran a la línea base, se reporta así.
-- **Sin fuga.** Todo lo que alimenta una predicción o una ficha del Clausura 2026 se calcula con partidos anteriores a ese día; la fuerza del rival se recalcula con partidos previos en vez de usar la estadística de la temporada completa.
-- **Monte Carlo.** Dos usos separados: resultado merecido con el xG de los tiros del propio partido (descriptivo, posterior) y rangos de incertidumbre de la predicción (solo con datos de entrenamiento).
-- **Decisión real.** Decisiones observables del Clausura 2026 (sustituciones tácticas, cambios de formación, con minuto y marcador) frente a lo que recomendaba la herramienta con datos previos; lo que pasó después se reporta como correlación.
+**Partición temporal**
+
+- Entrenamiento: los torneos de Jardine del Apertura 2023 al Apertura 2025. Prueba: el Clausura 2026 (`validacion` en `params.yaml`), que no se usa para definir principios, umbrales ni modelos hasta la evaluación final.
+- Plan B, si los organizadores no permiten datos posteriores al Clausura 2025: entrenamiento AP23–AP24 y prueba en el Clausura 2025 (`validacion.plan_b`).
+- Sin fuga: todo lo que alimenta una predicción o una ficha del torneo de prueba se calcula con partidos anteriores a ese día. La fuerza del rival se recalcula con partidos previos en vez de usar la estadística de la temporada completa.
+
+**Predicción del comportamiento (R²)**
+
+- Variables objetivo, por partido y por tramo: PPDA, field tilt, control territorial y altura de recuperación del América.
+- Variables explicativas: marcador, localía, fuerza del rival, momento y los principios estimados en entrenamiento.
+- Líneas base: el promedio de la liga en la misma situación y el América de Ortiz en la misma situación. Se reporta R² y error absoluto medio en el torneo de prueba; si los principios no mejoran a la línea base, se dice.
+
+**Predicción de resultados (Monte Carlo antes del partido)**
+
+- Para cada partido del torneo de prueba se estima el xG esperado a favor y en contra de cada equipo solo con información previa: forma reciente (últimos `simulacion.forma_partidos` partidos), perfil del rival, localía y, para el América, los principios de Jardine.
+- Se simulan `simulacion.repeticiones` marcadores y se obtienen las probabilidades de ganar, empatar o perder.
+- Se evalúa con log-loss y calibración sobre todos los partidos de la Liga MX del torneo de prueba, y aparte sobre los del América. Líneas base: las frecuencias históricas de resultados por localía y el xG reciente de cada equipo sin principios.
+
+**Monte Carlo después del partido (opcional, interpretativo)**
+
+- Con el xG de los tiros del propio partido se simula el marcador para medir qué tan merecido fue el resultado. No es predicción y no cuenta para la parte predictiva.
+
+**Efecto del relevo (causal)**
+
+- Relevo: cambio de `manager_id` de un equipo entre partidos consecutivos. Los interinatos de menos de `relevos.min_partidos` partidos no cuentan como relevo (por ejemplo, Diego Cervantes en enero de 2025).
+- Efecto de un relevo: cambio en las métricas del equipo entre los `relevos.ventana_partidos` partidos antes y después, menos el cambio promedio de la liga en las mismas fechas.
+- Ortiz → Jardine frente a: el placebo Solari → Ortiz (débil: 27 partidos de Solari y salida a mitad de torneo) y, si alcanza el tiempo, la distribución de todos los relevos de la Liga MX en la ventana. Si el efecto de Jardine queda dentro del rango típico, no se atribuye a su estilo.
+
+**Decisión real**
+
+- Decisiones observables del torneo de prueba (sustituciones tácticas, cambios de formación, con minuto y marcador) frente a lo que recomendaba la herramienta con datos previos. Se reporta cuántas veces coincidieron; lo que pasó después se reporta como correlación.
 
 ## Supuestos explícitos
 
@@ -95,16 +122,20 @@ equipo: {nombre: "América", team_id: 1229}
 entrenador: {nombre: "André Jardine", manager_id: 1000116}
 predecesores: [{nombre: "Santiago Solari", manager_id: 25}, {nombre: "Fernando Ortiz", manager_id: 1001173}]
 liga: {competition_name: "Liga MX", competition_id: 73, season_ids: [108, 235, 281, 317, 318]}
-validacion: {season_id_prueba: 318, torneo_prueba: "Clausura"}
+validacion:
+  season_id_prueba: 318          # 2025/26
+  torneo_prueba: "Clausura"
+  plan_b: {season_id_prueba: 317, torneo_prueba: "Clausura"}
+relevos: {min_partidos: 5, ventana_partidos: 10}
 
 campo: {largo: 120, ancho: 80, porteria: [120, 40]}
 tercios: {defensivo_max_x: 40, final_min_x: 80}
-presion: {campo_rival_min_x: 60, ultimo_tercio_min_x: 80}
+presion: {campo_rival_min_x: 60, ultimo_tercio_min_x: 80, ppda_zona_max_x: 72}   # 72 = 60 % de la cancha desde la portería del rival
 transicion: {fuente: "is_transition", plan_b_segundos: 10}
 pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
 tramos_min: 15            # 5 para lectura fina del flujo
 red_pases: {min_pases_arista: 3}
 voronoi: {min_dist_borde: 2.0, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
-simulacion: {repeticiones: 10000, semilla: 42}
+simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}
 ```

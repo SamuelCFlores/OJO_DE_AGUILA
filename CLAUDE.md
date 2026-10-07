@@ -6,19 +6,23 @@ Proyecto de Samuel de María Cabrera Flores (Ingeniería en Ciencia de Datos, BU
 
 Un **motor analítico reutilizable** sobre las APIs de StatsBomb (Liga MX, Apertura 2021 – Clausura 2026) y su primer caso: **el América de André Jardine** (Apertura 2023 – Clausura 2026).
 
-Objetivo: explicar los principios de juego de Jardine, qué tan estables son, cómo interactúan con lo que hace el rival a lo largo del mismo partido, cómo los ajusta según marcador, localía, rival y momento, y en qué se distinguen de sus predecesores y del resto de la Liga MX, de forma que un cuerpo técnico lo entienda sin ver un solo video.
+Objetivo: contar la historia de Jardine en el América: sus principios de juego, con el control del espacio como lente central; qué tan estables fueron; cómo interactúan con lo que hace el rival en cada partido y cómo los ajustó según marcador, localía, rival y momento. Medir qué cambió con su llegada frente a Solari y Ortiz (relevo como experimento natural) y validar en un torneo que el modelo no vio (Clausura 2026) que esos principios anticipan su comportamiento y sus resultados, de forma que un cuerpo técnico lo entienda sin ver un solo video y lo use para tomar decisiones. Texto completo en `contexto/propuesta_base.md`.
+
+Eje central, tres pilares: (1) **Espacio**: Voronoi sobre el 360, recortado a `visible_area`; (2) **Validación fuera de muestra**: comportamiento con R² y resultados con Monte Carlo antes del partido (log-loss y calibración); (3) **Del dato a la decisión**: casos de decisión del CL26 y ficha de 10 segundos. Nunca prometer que la herramienta "habría cambiado" una decisión: se muestra qué recomendaba frente a lo que se decidió.
 
 Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 minutos y una "ficha de 10 segundos" por rival. Finalistas: presentación de 10 diapositivas (11 de noviembre).
 
 ## Decisiones tomadas
 
-- Entrenador: André Jardine. Comparaciones: el rival en el mismo partido ("lectura a dos bandas"), sus predecesores en el América (Solari y Ortiz, confirmados en Matches). Entrenadores del análisis: solo Solari, Ortiz y Jardine (ids en `config/params.yaml`); quedan fuera Diego Cervantes (interino, 2 partidos en enero de 2025) y Jorge Almada (sucesor, 2026/27), la Liga MX y el cambio de entrenador CL23 → AP23 como experimento natural.
+- Entrenador: André Jardine. Comparaciones: el rival en el mismo partido ("lectura a dos bandas"), sus predecesores en el América (Solari y Ortiz, confirmados en Matches), la Liga MX y el cambio de entrenador CL23 → AP23 como experimento natural, con placebo Solari → Ortiz y, si alcanza, todos los relevos de la liga.
+- Entrenadores del análisis: solo Solari, Ortiz y Jardine (ids en `config/params.yaml`); quedan fuera Diego Cervantes (interino, 2 partidos en enero de 2025) y Jorge Almada (sucesor, 2026/27). De Solari solo hay datos desde el Apertura 2021.
 - Lentes propias: control territorial con Voronoi (360), redes de pases por posición (no por jugador), huella de pases (60 clusters de StatsBomb). Además, métricas del proveedor: xG, OBV, PPDA, Phases of Play.
 - Regla del framework: si StatsBomb define un objeto, se adopta; si no, se define en `contexto/framework.md`. Todos los umbrales viven en `config/params.yaml`.
 - Tiempo real: solo visión a futuro. Nada en vivo, sin video ni tracking durante el hackathon.
 - Regla de corte: si el 14 de octubre Voronoi no da hallazgos claros, pasa a lente de apoyo.
 - Rúbrica: nos apegamos a la tabla de evaluación publicada (predictiva 30 %, causal 25 %, interpretabilidad 25 %, valor operativo 20 %) y el objetivo se adapta a ella (supuesto hasta que los organizadores confirmen). La interpretabilidad se cubre con la capa "Decide en 90 segundos" (`contexto/propuesta_base.md`).
-- Predicción y decisión: entrenamiento AP23–AP25, prueba en el Clausura 2026 (intocable hasta la evaluación final, sin fuga de información). El valor operativo ("la herramienta cambia una decisión real") se demuestra con casos de decisión del CL26 frente a lo que recomendaba la herramienta con datos previos. Monte Carlo: resultado merecido (descriptivo) y rangos de incertidumbre (predictivo), nunca mezclados. Voronoi es eje central, recortado a `visible_area`.
+- Validación: entrenamiento AP23–AP25, prueba en el Clausura 2026 (intocable hasta la evaluación final, sin fuga de información). Plan B si los organizadores no permiten datos posteriores al CL25: AP23–AP24 y prueba en el CL25. Detalle en `contexto/framework.md`, "Validación, causalidad y decisión".
+- Monte Carlo: antes del partido es predictivo (cuenta para el 30 %, evaluado en toda la liga del CL26 y aparte el América); después del partido ("qué tan merecido fue") es interpretativo y opcional. Nunca se mezclan.
 
 ## Reglas no negociables
 
@@ -58,7 +62,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - [ ] Descarga completa con caché.
 - [ ] Framework en código, métricas, lentes, dos bandas, contexto, simulación, ficha, reporte, video.
 
-Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025? (en un partido de 2026 `control_degree` aparece en el 83.8 % de eventos; falta revisar temporadas anteriores en el inspector), ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, pero la API los entrega)
+Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025? (en un partido de 2026 `control_degree` aparece en el 83.8 % de eventos; falta revisar temporadas anteriores en el inspector), ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, al parecer heredado de ediciones anteriores; se usan, con plan B listo), ¿cómo evalúan "la herramienta cambia una decisión real"?, ¿qué implica la nota de que no se necesita programación avanzada? Samuel envía el correo a los organizadores el 8 de octubre.
 ## Documentos (léelos solo cuando la tarea lo pida)
 
 - `contexto/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.
