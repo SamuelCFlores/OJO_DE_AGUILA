@@ -20,6 +20,20 @@ Copy-Item .env.example .env         # y llena tus credenciales de StatsBomb en .
 
 Verificación: `python -m pytest` debe pasar completo.
 
+## Ramas: TESTS y FINAL
+
+| Rama | Papel | Cómo se actualiza |
+| --- | --- | --- |
+| `tests` | **TESTS**: trabajo diario, se actualiza constantemente | Commits directos o PR desde ramas de trabajo |
+| `main` | **FINAL**: solo cambios confirmados (pruebas pasan y se verificó en la laptop) | Únicamente por PR `tests → main` |
+
+Si algo en `tests` deja de funcionar, `main` sigue intacto y se puede volver a él (`git checkout main`). Se trabaja siempre en `tests`:
+
+```powershell
+git checkout tests
+git pull                            # antes de empezar, para traer lo último
+```
+
 ## Estructura
 
 ```
