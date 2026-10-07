@@ -7,7 +7,7 @@ Cómo se construye Ojo de Águila. El qué y el porqué están en `contexto/prop
 | Capa | Herramienta | Por qué |
 | --- | --- | --- |
 | Sistema | Windows (laptop de Samuel), PowerShell | Donde corre todo |
-| Lenguaje | Python 3.12 | Todas las librerías tienen versión para Windows |
+| Lenguaje | Python 3.13 | Todas las librerías tienen versión para Windows |
 | Entorno | `venv` + `requirements.txt` con versiones fijas | Mismo entorno para todo el equipo sin herramientas extra |
 | Editor | VS Code + Jupyter | Notebooks para explorar; el código reutilizable vive en `src/` |
 | Ingesta | `requests` + `python-dotenv` | Cliente propio (statsbombpy probablemente no cubre Events v11 ni 360 v2) |
@@ -22,7 +22,7 @@ Cómo se construye Ojo de Águila. El qué y el porqué están en `contexto/prop
 Comandos base (PowerShell):
 
 ```powershell
-py -3.12 -m venv .venv
+py -3.13 -m venv .venv
 .venv\Scripts\Activate.ps1          # si falla: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 python -m pip install -r requirements.txt
 nbstripout --install

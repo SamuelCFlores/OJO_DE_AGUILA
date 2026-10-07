@@ -1,4 +1,4 @@
-# Python 3.12. Versiones fijas, resueltas con wheels para Windows (x86_64).
+# Python 3.13. Versiones fijas, resueltas con wheels para Windows (x86_64).
 # Instalar desde la raíz del repo: python -m pip install -r requirements.txt
 
 # Ingesta y configuración

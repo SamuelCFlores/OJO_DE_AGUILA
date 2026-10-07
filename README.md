@@ -4,12 +4,12 @@ Motor analítico reutilizable sobre las APIs de StatsBomb (Liga MX, Apertura 202
 
 Repositorio privado. Los datos de StatsBomb son solo para la competencia: aquí se versiona código y resultados, **nunca datos ni credenciales**. Contexto completo en [`CLAUDE.md`](CLAUDE.md) y [`contexto/`](contexto/).
 
-## Instalación (Windows, PowerShell, Python 3.12)
+## Instalación (Windows, PowerShell, Python 3.13)
 
 Desde la raíz del repo:
 
 ```powershell
-py -3.12 -m venv .venv
+py -3.13 -m venv .venv
 .venv\Scripts\Activate.ps1          # si falla: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 python -m pip install -r requirements.txt
 nbstripout --install                # una vez por clon: guarda los notebooks sin salidas

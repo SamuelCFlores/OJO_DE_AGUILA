@@ -30,7 +30,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 
 ## Entorno
 
-- Windows + PowerShell, Python 3.12, `venv`, `requirements.txt` con versiones fijas, VS Code + Jupyter.
+- Windows + PowerShell, Python 3.13, `venv`, `requirements.txt` con versiones fijas, VS Code + Jupyter.
 - Librerías: requests, python-dotenv, pandas, pyarrow, duckdb, numpy, scipy, shapely, networkx, mplsoccer, matplotlib, scikit-learn, statsmodels, pyyaml, tqdm, nbstripout. Quarto después.
 - Rutas con `pathlib`; nada de rutas absolutas ni separadores fijos. Cuidado con OneDrive y rutas con acentos.
 - Activar el entorno: `.venv\Scripts\Activate.ps1` (si falla: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`).

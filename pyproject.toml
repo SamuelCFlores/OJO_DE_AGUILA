@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ojo-de-aguila"
 version = "0.1.0"
 description = "Motor analítico reutilizable sobre las APIs de StatsBomb; primer caso: el América de André Jardine."
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 # Las dependencias con versión fija viven solo en requirements.txt
 dependencies = []
 
