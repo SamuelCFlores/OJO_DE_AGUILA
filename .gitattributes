@@ -1,0 +1,7 @@
+# Normaliza finales de línea (Windows ↔ Linux)
+* text=auto
+*.ps1 text eol=crlf
+
+# Los notebooks se guardan sin salidas: las salidas pueden contener filas de datos.
+# El filtro se activa en cada clon con `nbstripout --install` (ver README).
+*.ipynb filter=nbstripout diff=ipynb

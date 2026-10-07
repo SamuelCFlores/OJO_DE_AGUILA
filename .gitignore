@@ -1,0 +1,58 @@
+# ============================================================
+# Datos y secretos: NUNCA en git (reglas no negociables 1 y 2)
+# ============================================================
+data/
+outputs/
+logs/
+.env
+.env.*
+!.env.example
+
+# Formatos de datos en cualquier carpeta: defensa ante exportes sueltos
+# desde notebooks o scripts. Las respuestas de la API son JSON, por eso
+# *.json se ignora en todo el repo salvo las excepciones de abajo.
+*.json
+!tests/fixtures/**/*.json
+!.vscode/*.json
+*.gz
+*.zip
+*.parquet
+*.feather
+*.arrow
+*.pkl
+*.pickle
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.duckdb
+*.duckdb.wal
+*.db
+*.sqlite
+*.log
+
+# Quarto: lo renderizado puede llevar tablas con datos; se genera, no se versiona
+reports/**/*.html
+reports/**/*_files/
+reports/.quarto/
+reports/_freeze/
+
+# ============================================================
+# Python y entorno
+# ============================================================
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ============================================================
+# Sistema operativo
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini

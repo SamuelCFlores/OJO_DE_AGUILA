@@ -1,0 +1,19 @@
+# Umbrales del framework analítico. Cada clave se define en docs/framework.md.
+# Valores iniciales (framework v0); se confirman con la prueba de humo y el inspector.
+# Solo parámetros analíticos: la configuración técnica de la API vive en src/ojo/ingesta/.
+
+# Se completa después de la prueba de humo (ids reales de la API)
+equipo: {nombre: "América", team_id: null}
+entrenador: {nombre: "André Jardine", manager_id: null}
+liga: {competition_name: "Liga MX", season_ids: []}
+
+campo: {largo: 120, ancho: 80, porteria: [120, 40]}
+tercios: {defensivo_max_x: 40, final_min_x: 80}
+presion: {campo_rival_min_x: 60, ultimo_tercio_min_x: 80}
+transicion: {fuente: "is_transition", plan_b_segundos: 10}
+pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
+balon_parado: {lateral_peligro_min_x: 80}
+tramos_min: 15            # 5 para lectura fina del flujo
+red_pases: {min_pases_arista: 3}
+voronoi: {min_dist_borde: 2.0, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
+simulacion: {repeticiones: 10000, semilla: 42}
