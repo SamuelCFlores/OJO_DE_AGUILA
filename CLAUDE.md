@@ -33,6 +33,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - Windows + PowerShell, Python 3.13, `venv`, `requirements.txt` con versiones fijas, VS Code + Jupyter.
 - Librerías: requests, python-dotenv, pandas, pyarrow, duckdb, numpy, scipy, shapely, networkx, mplsoccer, matplotlib, scikit-learn, statsmodels, pyyaml, tqdm, nbstripout. Quarto después.
 - Rutas con `pathlib`; nada de rutas absolutas ni separadores fijos. Cuidado con OneDrive y rutas con acentos.
+- Clon local de Samuel: `C:\Users\samue\OneDrive\Documentos\PROYECTOS\C_AMERICA`. Está bajo la carpeta de OneDrive pero la sincronización no está activa (todo queda en local); si se activa, excluir `data/` y `.venv/`.
 - Activar el entorno: `.venv\Scripts\Activate.ps1` (si falla: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`).
 
 ## Cómo trabajar
@@ -43,6 +44,8 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - Antes de cambios grandes, propone el plan y los archivos que tocarás.
 - Samuel corre la descarga en su laptop con sus credenciales; tú escribes y revisas el código.
 - Commits pequeños y descriptivos; nunca subir datos ni salidas con datos crudos.
+- Ramas: `tests` = TESTS (trabajo diario, se actualiza constantemente); `main` = FINAL (solo cambios confirmados, únicamente por PR `tests → main`). Nunca commits directos a `main`.
+- Dos sesiones de Claude Code: la local (en la laptop) corre scripts y notebooks; la de la nube mantiene y revisa el repo. `git pull` antes de empezar en cualquiera.
 
 ## Estado actual (actualizar al avanzar)
 
