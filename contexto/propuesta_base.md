@@ -4,7 +4,7 @@ Versión del 5 de octubre de 2026 · Samuel de María Cabrera Flores. El documen
 
 ## Resumen
 
-Ojo de Águila es un motor analítico reutilizable que convierte los eventos y datos 360 de StatsBomb en una narrativa táctica trazable. Su primer caso es el América de André Jardine (Apertura 2023 – Clausura 2025), leído siempre frente a lo que hace el rival en el mismo partido. Entregamos un reporte HTML, un video de 5 minutos y una ficha de 10 segundos para el cuerpo técnico.
+Ojo de Águila es un motor analítico reutilizable que convierte los eventos y datos 360 de StatsBomb en una narrativa táctica trazable. Su primer caso es el América de André Jardine (Apertura 2023 – Clausura 2026), leído siempre frente a lo que hace el rival en el mismo partido. Entregamos un reporte HTML, un video de 5 minutos y una ficha de 10 segundos para el cuerpo técnico.
 
 **En una línea:** Ojo de Águila usa datos 360, grafos y Voronoi para explicar los principios de Jardine y cómo los ajusta frente a cada rival.
 
@@ -12,7 +12,7 @@ Ojo de Águila es un motor analítico reutilizable que convierte los eventos y d
 
 ## El reto
 
-El Hackathon ISAC 2026 con el Club América pide explicar, con eventos StatsBomb 360, cómo juega un entrenador a lo largo de varios partidos. El registro cierra el 12 de octubre de 2026 y la entrega es el 22 de octubre de 2026. Los datos cubren 8 temporadas de Liga MX (Apertura 2021 – Clausura 2025) por API.
+El Hackathon ISAC 2026 con el Club América pide explicar, con eventos StatsBomb 360, cómo juega un entrenador a lo largo de varios partidos. El registro cierra el 12 de octubre de 2026 y la entrega es el 22 de octubre de 2026. La convocatoria habla de 8 torneos de Liga MX (Apertura 2021 – Clausura 2025); la API entrega de 2021/22 a 2026/27, y usamos Apertura 2021 – Clausura 2026 para cubrir completa la etapa de Jardine.
 
 **Pregunta central:** ¿cuáles son los principios que definen al equipo en fase ofensiva y defensiva, cómo se manifiestan a lo largo del tiempo y cómo ajusta el entrenador su comportamiento según el contexto (rival, marcador, localía o momento del juego)?
 
@@ -25,7 +25,7 @@ El Hackathon ISAC 2026 con el Club América pide explicar, con eventos StatsBomb
 **Objetivos específicos**
 
 1. **Principios:** identificar 4 a 6 principios ofensivos y defensivos, cada uno como hipótesis comprobable.
-2. **Estabilidad:** medir qué tan constantes son a lo largo de los 4 torneos de Jardine.
+2. **Estabilidad:** medir qué tan constantes son a lo largo de los 6 torneos de Jardine.
 3. **Interacción con el rival:** leer en paralelo a ambos equipos en cada partido, tramo a tramo: quién domina, cuándo cambia y cómo responde cada uno.
 4. **Contexto:** cuantificar los ajustes por marcador, localía, fuerza del rival y momento del partido.
 5. **Comparación:** contrastar a Jardine con sus predecesores en el club y con el resto de la Liga MX.
@@ -86,7 +86,7 @@ Comparar en cuatro niveles aísla la huella de Jardine y prueba que el motor es 
 | 3. Liga MX | Todos los equipos de cada torneo | Dónde se ubica el estilo de Jardine | Estadísticas por equipo |
 | 4. Experimento natural | El cambio de entrenador entre CL23 y AP23, frente al cambio promedio de la liga | El efecto del cambio de entrenador | Estadísticas por equipo y partido |
 
-Hasta donde sabemos, los predecesores en la ventana fueron Solari y Ortiz; la API de Matches lo confirma. Los fichajes del verano 2023 confunden el nivel 4, y lo declaramos como límite.
+Los predecesores en la ventana son Solari y Ortiz, confirmados en Matches; de Solari solo hay datos desde el Apertura 2021 (falta su Clausura 2021). Los fichajes del verano 2023 confunden el nivel 4, y lo declaramos como límite.
 
 ## Datos y framework
 

@@ -1,6 +1,6 @@
 # Ojo de Águila
 
-Motor analítico reutilizable sobre las APIs de StatsBomb (Liga MX, Apertura 2021 – Clausura 2025). Primer caso: el América de André Jardine (Apertura 2023 – Clausura 2025), para el Hackathon ISAC 2026 con el Club América.
+Motor analítico reutilizable sobre las APIs de StatsBomb (Liga MX, Apertura 2021 – Clausura 2026). Primer caso: el América de André Jardine (Apertura 2023 – Clausura 2026), para el Hackathon ISAC 2026 con el Club América.
 
 Repositorio privado. Los datos de StatsBomb son solo para la competencia: aquí se versiona código y resultados, **nunca datos ni credenciales**. Contexto completo en [`CLAUDE.md`](CLAUDE.md) y [`contexto/`](contexto/).
 

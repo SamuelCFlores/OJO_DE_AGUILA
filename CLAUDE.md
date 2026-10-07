@@ -4,7 +4,7 @@ Proyecto de Samuel de María Cabrera Flores (Ingeniería en Ciencia de Datos, BU
 
 ## Qué construimos
 
-Un **motor analítico reutilizable** sobre las APIs de StatsBomb (Liga MX, Apertura 2021 – Clausura 2025) y su primer caso: **el América de André Jardine** (Apertura 2023 – Clausura 2025).
+Un **motor analítico reutilizable** sobre las APIs de StatsBomb (Liga MX, Apertura 2021 – Clausura 2026) y su primer caso: **el América de André Jardine** (Apertura 2023 – Clausura 2026).
 
 Objetivo: explicar los principios de juego de Jardine, qué tan estables son, cómo interactúan con lo que hace el rival a lo largo del mismo partido, cómo los ajusta según marcador, localía, rival y momento, y en qué se distinguen de sus predecesores y del resto de la Liga MX, de forma que un cuerpo técnico lo entienda sin ver un solo video.
 
@@ -57,7 +57,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - [ ] Descarga completa con caché.
 - [ ] Framework en código, métricas, lentes, dos bandas, contexto, simulación, ficha, reporte, video.
 
-Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025? (en un partido de 2026 `control_degree` aparece en el 83.8 % de eventos; falta revisar temporadas anteriores en el inspector), ¿límites de consumo de la API?, ¿se amplía la ventana de Jardine a AP25–CL26? (Matches lo muestra hasta el 2026-05-11, 129 partidos)
+Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025? (en un partido de 2026 `control_degree` aparece en el 83.8 % de eventos; falta revisar temporadas anteriores en el inspector), ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, pero la API los entrega)
 ## Documentos (léelos solo cuando la tarea lo pida)
 
 - `contexto/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.
