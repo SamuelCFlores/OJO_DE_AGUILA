@@ -1,0 +1,36 @@
+# Python 3.13. Versiones fijas, resueltas con wheels para Windows (x86_64).
+# Instalar desde la raíz del repo: python -m pip install -r requirements.txt
+
+# Ingesta y configuración
+requests==2.34.2
+python-dotenv==1.2.4
+pyyaml==6.0.3
+tqdm==4.70.1
+
+# Datos
+numpy==2.5.3
+pandas==3.0.6
+pyarrow==25.0.1
+duckdb==1.5.6
+
+# Geometría, grafos y modelos
+scipy==1.18.1
+shapely==2.1.2
+networkx==3.7
+scikit-learn==1.9.1
+statsmodels==0.15.0
+
+# Visualización
+matplotlib==3.11.2
+mplsoccer==1.8.1
+
+# Notebooks (kernel para VS Code) y control de salidas
+ipykernel==7.4.0
+nbstripout==0.9.1
+
+# Pruebas
+pytest==9.1.1
+
+# El propio paquete `ojo` en modo editable: notebooks y scripts importan
+# `from ojo...` sin tocar sys.path
+-e .
