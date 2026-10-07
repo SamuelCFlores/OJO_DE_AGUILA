@@ -12,7 +12,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 
 SUBPAQUETES = ["ojo", "ojo.ingesta", "ojo.datos", "ojo.framework", "ojo.lentes", "ojo.salidas"]
 
-# Secciones de la propuesta de params.yaml en docs/framework.md
+# Secciones de la propuesta de params.yaml en contexto/framework.md
 SECCIONES_PARAMS = [
     "equipo", "entrenador", "liga", "campo", "tercios", "presion", "transicion",
     "pase_progresivo", "balon_parado", "tramos_min", "red_pases", "voronoi", "simulacion",

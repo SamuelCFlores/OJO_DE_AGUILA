@@ -2,7 +2,7 @@
 
 Motor analítico reutilizable sobre las APIs de StatsBomb (Liga MX, Apertura 2021 – Clausura 2025). Primer caso: el América de André Jardine (Apertura 2023 – Clausura 2025), para el Hackathon ISAC 2026 con el Club América.
 
-Repositorio privado. Los datos de StatsBomb son solo para la competencia: aquí se versiona código y resultados, **nunca datos ni credenciales**. Contexto completo en [`CLAUDE.md`](CLAUDE.md) y [`docs/`](docs/).
+Repositorio privado. Los datos de StatsBomb son solo para la competencia: aquí se versiona código y resultados, **nunca datos ni credenciales**. Contexto completo en [`CLAUDE.md`](CLAUDE.md) y [`contexto/`](contexto/).
 
 ## Instalación (Windows, PowerShell, Python 3.12)
 
@@ -33,7 +33,7 @@ OJO_DE_AGUILA/
 ├── .env.example              # plantilla vacía de credenciales
 ├── config/
 │   └── params.yaml           # TODOS los umbrales del framework (nada de números mágicos)
-├── docs/
+├── contexto/                 # contexto del proyecto (lo lee Claude Code y el equipo)
 │   ├── propuesta_base.md     # qué y por qué
 │   ├── framework.md          # definiciones de cada objeto y métrica
 │   ├── plan_trabajo.md       # cómo se construye
@@ -41,7 +41,7 @@ OJO_DE_AGUILA/
 ├── src/ojo/                  # el motor: todo el código reutilizable
 │   ├── ingesta/              # capa 1 · cliente con caché + un módulo por API
 │   ├── datos/                # JSON crudo → parquet; único punto de lectura de data/
-│   ├── framework/            # capa 2 · definiciones de docs/framework.md
+│   ├── framework/            # capa 2 · definiciones de contexto/framework.md
 │   ├── lentes/               # capa 3 · proveedor, redes, huella, Voronoi, dos bandas, contexto, comparaciones
 │   └── salidas/              # capa 4 · figuras, tablas del reporte, ficha de 10 segundos
 ├── scripts/                  # puntos de entrada numerados: 00_prueba_humo.py, 01_inspector.py, 02_descarga.py…

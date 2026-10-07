@@ -14,17 +14,18 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 
 - Entrenador: André Jardine. Comparaciones: el rival en el mismo partido ("lectura a dos bandas"), sus predecesores en el América (Solari y Ortiz, por confirmar en Matches), la Liga MX y el cambio de entrenador CL23 → AP23 como experimento natural.
 - Lentes propias: control territorial con Voronoi (360), redes de pases por posición (no por jugador), huella de pases (60 clusters de StatsBomb). Además, métricas del proveedor: xG, OBV, PPDA, Phases of Play.
-- Regla del framework: si StatsBomb define un objeto, se adopta; si no, se define en `docs/framework.md`. Todos los umbrales viven en `config/params.yaml`.
+- Regla del framework: si StatsBomb define un objeto, se adopta; si no, se define en `contexto/framework.md`. Todos los umbrales viven en `config/params.yaml`.
 - Tiempo real: solo visión a futuro. Nada en vivo, sin video ni tracking durante el hackathon.
 - Regla de corte: si el 14 de octubre Voronoi no da hallazgos claros, pasa a lente de apoyo.
+- Rúbrica: nos apegamos a la tabla de evaluación publicada (predictiva 30 %, causal 25 %, interpretabilidad 25 %, valor operativo 20 %) y el objetivo se adapta a ella (supuesto hasta que los organizadores confirmen). La interpretabilidad se cubre con la capa "Decide en 90 segundos" (`contexto/propuesta_base.md`).
 
 ## Reglas no negociables
 
 1. **Datos**: solo para la competencia; se publican resultados, nunca datos. `data/` y `.env` jamás entran a git. No imprimas filas de datos crudos en salidas que se vayan a compartir.
 2. **Credenciales**: solo en `.env` (`STATSBOMB_USER`, `STATSBOMB_PASSWORD`). Nunca en código, logs, notebooks ni mensajes. Si las ves, no las repitas.
 3. **Consumo de la API**: todo pasa por el cliente con caché; nunca descargar dos veces lo mismo; pausa entre solicitudes y reintentos con espera creciente (429/5xx).
-4. **Coherencia**: cada métrica sale de una definición de `docs/framework.md` y de un umbral de `config/params.yaml`. Sin números mágicos en el código.
-5. **No inventes campos**: antes de usar un campo de la API, revísalo en `docs/api/`. Si un campo real difiere de la documentación, avísalo y anótalo.
+4. **Coherencia**: cada métrica sale de una definición de `contexto/framework.md` y de un umbral de `config/params.yaml`. Sin números mágicos en el código.
+5. **No inventes campos**: antes de usar un campo de la API, revísalo en `contexto/api/`. Si un campo real difiere de la documentación, avísalo y anótalo.
 6. **Honestidad analítica**: separa correlación de causalidad; marca supuestos; no presentes la visión a futuro como algo construido.
 
 ## Entorno
@@ -53,16 +54,16 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - [ ] Descarga completa con caché.
 - [ ] Framework en código, métricas, lentes, dos bandas, contexto, simulación, ficha, reporte, video.
 
-Preguntas abiertas: ¿la tabla de evaluación publicada (predictiva 30 %, causal 25 %, interpretabilidad 25 %, valor operativo 20 %) aplica a este reto?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025?, ¿límites de consumo de la API?
+Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025?, ¿límites de consumo de la API?
 
 ## Documentos (léelos solo cuando la tarea lo pida)
 
-- `docs/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.
-- `docs/framework.md`: definiciones de objetos, contexto, supuestos, límites y propuesta de `params.yaml`.
+- `contexto/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.
+- `contexto/framework.md`: definiciones de objetos, contexto, supuestos, límites y propuesta de `params.yaml`.
 - `README.md`: estructura del repo, instalación y reglas de la estructura (capas, acceso único a datos).
-- `docs/plan_trabajo.md`: ecosistema, decisiones de estructura, cliente de la API, prueba de humo, inspector, descarga, orden de construcción.
-- `docs/api/README.md`: índice de las 10 APIs con endpoints y qué archivo leer para cada tarea.
-- `docs/api/*.md`: referencia condensada de cada API (campos, tipos, catálogos de ids).
+- `contexto/plan_trabajo.md`: ecosistema, decisiones de estructura, cliente de la API, prueba de humo, inspector, descarga, orden de construcción.
+- `contexto/api/README.md`: índice de las 10 APIs con endpoints y qué archivo leer para cada tarea.
+- `contexto/api/*.md`: referencia condensada de cada API (campos, tipos, catálogos de ids).
 
 ## Glosario rápido
 
@@ -71,3 +72,5 @@ Preguntas abiertas: ¿la tabla de evaluación publicada (predictiva 30 %, causal
 - **Efecto América**: cómo cambia un rival al enfrentar al América frente a su promedio del torneo.
 - **Huella de pases**: vector de frecuencias de los 60 `pass_cluster_id` por partido.
 - **Ficha de 10 segundos**: tarjeta por rival con cómo progresa, dónde concede, quién participa poco, su balón parado vulnerable y cómo respondió Jardine ante rivales parecidos.
+- **Coach drill**: prueba del jurado; resuelve 3 escenarios de decisión en menos de 90 s usando nuestro reporte.
+- **Matriz de situaciones**: tabla situación de juego → qué hace Jardine, qué le funciona, recomendación, enlace a evidencia.

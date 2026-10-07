@@ -1,4 +1,4 @@
-# Umbrales del framework analítico. Cada clave se define en docs/framework.md.
+# Umbrales del framework analítico. Cada clave se define en contexto/framework.md.
 # Valores iniciales (framework v0); se confirman con la prueba de humo y el inspector.
 # Solo parámetros analíticos: la configuración técnica de la API vive en src/ojo/ingesta/.
 

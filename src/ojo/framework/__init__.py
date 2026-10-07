@@ -1,4 +1,4 @@
-"""Capa 2 (framework): implementación de las definiciones de docs/framework.md.
+"""Capa 2 (framework): implementación de las definiciones de contexto/framework.md.
 
 Orientación de coordenadas, partidos válidos, posesiones y juego abierto,
 tramos, marcador (game state) y demás contexto del partido. Cada función

@@ -90,7 +90,7 @@ Hasta donde sabemos, los predecesores en la ventana fueron Solari y Ortiz; la AP
 
 ## Datos y framework
 
-Usamos las 10 APIs de StatsBomb y adoptamos sus definiciones donde existen; lo propio se documenta y todos los umbrales viven en un solo archivo. Detalle en `docs/framework.md` y `docs/api/`.
+Usamos las 10 APIs de StatsBomb y adoptamos sus definiciones donde existen; lo propio se documenta y todos los umbrales viven en un solo archivo. Detalle en `contexto/framework.md` y `contexto/api/`.
 
 ## Entregables
 
@@ -102,6 +102,38 @@ Usamos las 10 APIs de StatsBomb y adoptamos sus definiciones donde existen; lo p
 | Presentación final (solo finalistas) | Máximo 10 diapositivas, con la hoja de ruta como cierre | 11 nov 2026 |
 
 La ficha responde al criterio de evaluación en que el jurado resuelve 3 escenarios de decisión en menos de 90 segundos.
+
+## Capa de decisión: "Decide en 90 segundos"
+
+El criterio de interpretabilidad menciona "coach drills": el jurado, actuando como cuerpo técnico, resuelve 3 escenarios de decisión en menos de 90 segundos (~30 s cada uno) usando nuestro material. Supuesto (por confirmar con los organizadores): el jurado define los escenarios sin datos y los resuelve consultando nuestro reporte HTML. No conocemos los escenarios, así que el reporte debe responder cualquier situación típica.
+
+**Lector objetivo:** sabe de fútbol, no vio los partidos y no sabe de ciencia de datos. La capa principal usa lenguaje de cancha ("espacio que controla cada equipo", "qué tan probable era ganar"); el método va en una capa técnica aparte.
+
+**Contenido, al inicio del reporte HTML:**
+
+1. **Matriz de situaciones.** Filas = situaciones de decisión: rival presiona alto, rival en bloque bajo, vamos ganando después del 70', vamos perdiendo, empate en el segundo tiempo, balón parado a favor, balón parado en contra, transición en contra, rival con ventaja numérica o expulsión. Columnas, una línea cada una: qué hace Jardine y con qué frecuencia · qué le funciona (xG/OBV) · recomendación · enlace a la evidencia.
+2. **Tres escenarios resueltos** como ejemplo: pregunta, respuesta en una frase, el dato que la sostiene y su gráfica.
+3. **Fichas de 10 segundos por rival**, para escenarios que nombren a un equipo concreto.
+
+**Reglas de diseño:**
+- Cada respuesta se encuentra en 2 clics o desplazamientos como máximo y se lee en 30 segundos.
+- Cada celda de la matriz enlaza a la sección de evidencia del principio correspondiente.
+- Nada de jerga técnica en esta capa; los términos del framework se explican en lenguaje de cancha.
+
+**Ensayo:** antes de entregar, 2 o 3 personas que sepan de fútbol y no hayan trabajado en el proyecto resuelven 3 escenarios con cronómetro. Si tardan más de 90 s en total, se simplifica. El tiempo medido puede reportarse en el HTML como evidencia de interpretabilidad (solo si se hizo de verdad).
+
+**Dónde va cada pieza:**
+
+| Pieza | Reporte HTML | Video (≤ 5 min) | Presentación (≤ 10 diapositivas, solo finalistas) |
+| --- | --- | --- | --- |
+| Decide en 90 segundos | Al inicio del reporte | Demostración en vivo resolviendo un escenario con el HTML (~60 s) | 1 diapositiva |
+| Los 4–6 principios de Jardine | Completos, con evidencia | Núcleo de la historia | 1 diapositiva por principio clave |
+| Lectura a dos bandas y comparaciones | Completas | Un partido como ejemplo | 1 diapositiva |
+| Metodología y framework | Completos, capa técnica | 20–30 s | 1 diapositiva |
+| Simulación Monte Carlo | Sección propia | 10–15 s o nada | Opcional |
+| Hoja de ruta (tiempo real) | Breve, como visión | Cierre de 15 s | Diapositiva final |
+
+La simulación Monte Carlo es el componente opcional de la convocatoria y no forma parte de los coach drills.
 
 ## Alcance y hoja de ruta
 

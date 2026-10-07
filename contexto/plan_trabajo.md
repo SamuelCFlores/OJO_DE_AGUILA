@@ -1,6 +1,6 @@
 # Plan de trabajo técnico
 
-Cómo se construye Ojo de Águila. El qué y el porqué están en `docs/propuesta_base.md`; las definiciones, en `docs/framework.md`.
+Cómo se construye Ojo de Águila. El qué y el porqué están en `contexto/propuesta_base.md`; las definiciones, en `contexto/framework.md`.
 
 ## Ecosistema
 
@@ -104,4 +104,4 @@ Genera `reports/inspeccion_api.md` con resúmenes, sin filas de datos:
 | Phases of Play vacío en partidos históricos | Plan B de transición en `params.yaml` |
 | Partidos sin 360 o recolección incompleta | Se registran y se excluyen solo de las métricas 360 |
 | Windows: activación del venv, rutas con acentos u OneDrive | `Set-ExecutionPolicy`; proyecto fuera de OneDrive o `data/` excluida de la sincronización |
-| Nombres de campos distintos a la documentación | El inspector compara contra `docs/api/` y reporta diferencias |
+| Nombres de campos distintos a la documentación | El inspector compara contra `contexto/api/` y reporta diferencias |
