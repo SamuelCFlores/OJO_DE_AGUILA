@@ -28,5 +28,9 @@ pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
 tramos_min: 15            # 5 para lectura fina del flujo
 red_pases: {min_pases_arista: 3}
-voronoi: {min_dist_borde: 2.0, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
+voronoi:
+  min_dist_borde: 2.0        # se excluyen jugadores (salvo el actor) a menos de esto del borde visible
+  alcance_max_yd: 20         # radio máximo de la celda de cada jugador (zonas vacías no cuentan)
+  min_borde_arista_yd: 0.5   # borde compartido mínimo para que dos jugadores sean vecinos
+  momentos: [pase_progresivo, progresion_rival, envio_balon_parado]
 simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}

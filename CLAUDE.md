@@ -61,9 +61,12 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - [x] Repo privado creado y estructura definida (ver `README.md`).
 - [x] Entorno instalado en la laptop de Samuel (`python -m pytest` pasa).
 - [x] Prueba de humo de la API (`scripts/00_prueba_humo.py`): ids en `config/params.yaml`, diferencias en `contexto/api/matches.md`.
-- [ ] Inspector de contenido (`scripts/01_inspector.py`) y ajustes al framework.
-- [ ] Descarga completa con caché.
-- [ ] Framework en código, métricas, lentes, dos bandas, contexto, simulación, ficha, reporte, video.
+- [ ] Inspector de contenido (`scripts/01_inspector.py`): script listo y probado sin red; falta que Samuel lo corra.
+- [ ] Descarga completa con caché (`scripts/02_descarga.py`): script listo; `--plan` da 2,557 solicitudes (~68 min); falta correrla.
+- [x] Capa de datos (`ojo.datos`: crudo → tablas → parquet + DuckDB; `scripts/03_procesar.py`).
+- [x] Framework base en código (`ojo.framework`: partidos válidos, torneo, del equipo, relevos, tramos, marcador, orientación, juego abierto, recuperaciones).
+- [x] Lente Voronoi + grafo de vecindad (`ojo.lentes.voronoi`, `scripts/04_voronoi.py`) y figuras con la identidad (`ojo.salidas`).
+- [ ] Métricas de comportamiento (PPDA, field tilt, altura de recuperación por tramo), fuerza del rival previa, dos bandas, modelado, ficha, reporte, video.
 
 Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025? (en un partido de 2026 `control_degree` aparece en el 83.8 % de eventos; falta revisar temporadas anteriores en el inspector), ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, al parecer heredado de ediciones anteriores; se usan, con plan B listo), ¿cómo evalúan "la herramienta cambia una decisión real"?, ¿qué implica la nota de que no se necesita programación avanzada? Samuel envía el correo a los organizadores el 8 de octubre.
 

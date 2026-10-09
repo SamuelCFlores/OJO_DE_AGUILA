@@ -87,10 +87,7 @@ class ClienteStatsBomb:
 
     def ruta_cache(self, api: str, **params: Any) -> Path:
         """Ruta del archivo de caché de una solicitud: data/raw/{api}/{version}/{clave}.json.gz."""
-        endpoint = _endpoint(api)
-        _validar_parametros(api, endpoint, params)
-        clave = "_".join(str(params[p]) for p in endpoint.parametros) or "todas"
-        return self.dir_raw / api / endpoint.version / f"{clave}.json.gz"
+        return ruta_cache(api, dir_raw=self.dir_raw, **params)
 
     def obtener(self, api: str, forzar: bool = False, **params: Any) -> Any:
         """Devuelve la respuesta JSON de una API; usa la caché salvo que `forzar` sea True."""
@@ -169,6 +166,14 @@ class ClienteStatsBomb:
         if restante > 0:
             self._dormir(restante)
         self._ultima_solicitud = time.monotonic()
+
+
+def ruta_cache(api: str, dir_raw: Path = DIR_RAW, **params: Any) -> Path:
+    """Ruta de caché de una solicitud, sin credenciales (la usa también ojo.datos para leer)."""
+    endpoint = _endpoint(api)
+    _validar_parametros(api, endpoint, params)
+    clave = "_".join(str(params[p]) for p in endpoint.parametros) or "todas"
+    return dir_raw / api / endpoint.version / f"{clave}.json.gz"
 
 
 def _endpoint(api: str) -> Endpoint:

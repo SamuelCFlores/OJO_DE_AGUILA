@@ -20,6 +20,20 @@ Copy-Item .env.example .env         # y llena tus credenciales de StatsBomb en .
 
 Verificación: `python -m pytest` debe pasar completo.
 
+## Del dato a la figura
+
+Los scripts se corren en orden; todos son incrementales (lo ya hecho se salta) y los que tocan la API usan el cliente con caché.
+
+| Paso | Comando | Red | Qué hace |
+| --- | --- | --- | --- |
+| 0 | `python scripts/00_prueba_humo.py` | Sí | Credenciales, ids reales y estructura de las APIs |
+| 1 | `python scripts/01_inspector.py` | Sí (muestra) | Cobertura por torneo (Phases of Play, 360, OBV…) → `reports/inspeccion_api.md` |
+| 2 | `python scripts/02_descarga.py --plan` y luego sin `--plan` | Sí | Descarga completa: liga (Team Match Stats) y partidos del equipo (Events, 360, Lineups) |
+| 3 | `python scripts/03_procesar.py` | No | Caché cruda → parquet en `data/processed/` |
+| 4 | `python scripts/04_voronoi.py --procesos 4` | No | Control territorial y grafo de vecindad por evento → `outputs/voronoi/` |
+
+Pasos 0–2 los corre quien tenga credenciales (Samuel). Del 3 en adelante cualquiera con la caché.
+
 ## Equipo y forma de trabajo
 
 Samuel (**chamuel**) y Héctor (**Tilin**), con apoyo de Claude Code. Todos seguimos [`contexto/flujo_trabajo.md`](contexto/flujo_trabajo.md): tamaño de la tarea, 5 fases, día a día, ramas, commits y simbología de comentarios (`NOTAn`, `OBSn`, `REFn`, `IMPORn`, `TODOn`, `FIXn`, `HACKn`, `PERFn`, `DEPRECn`).

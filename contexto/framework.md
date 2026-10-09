@@ -7,7 +7,7 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 ## Coordenadas y orientación
 
 - Cancha de 120 × 80 yardas; centro (60, 40). Tercios: defensivo x < 40, medio 40 ≤ x < 80, final x ≥ 80.
-- Supuesto a verificar: cada evento viene en la perspectiva del equipo que lo ejecuta (ataca hacia x = 120). Antes de mezclar acciones de ambos equipos en un mismo mapa, reorientar las del rival con (120 − x, 80 − y).
+- Verificado con la API real (9 oct): cada evento viene en la perspectiva del equipo que lo ejecuta (ataca hacia x = 120; los tiros de ambos equipos tienen x ≈ 106). Antes de mezclar acciones de ambos equipos en un mismo mapa, reorientar las del rival con (120 − x, 80 − y) (`ojo.framework.contexto.orientar`).
 - Los freeze frames 360 están en la orientación del evento (el equipo del actor ataca de 0 a 120).
 
 ## Partidos válidos
@@ -30,14 +30,15 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 | Contraataque | `play_pattern = From Counter` | StatsBomb |
 | Contrapresión | `counterpress = TRUE` (acción de presión dentro de 5 s tras pérdida) | StatsBomb |
 | Presión | PPDA y distancia defensiva de Team Match Stats; presiones en campo rival (x ≥ 60); presión en último tercio (x ≥ 80) | StatsBomb + propia |
-| PPDA | Por partido, `team_match_ppda`. Por tramo: pases del rival con x < `presion.ppda_zona_max_x` (en su orientación) entre las acciones defensivas propias en esa misma zona (Duel tipo Tackle, Interception, Foul Committed, Block). Se valida que, agregada al partido, se acerque a `team_match_ppda` | StatsBomb (tramo: propia) |
+| PPDA | Por partido, `team_match_ppda`. Por tramo: pases del rival con x < `presion.ppda_zona_max_x` (en su orientación) entre las acciones defensivas propias en esa misma zona, con la definición de StatsBomb: entradas (Duel tipo Tackle), intercepciones (Interception) y faltas (Foul Committed); los bloqueos no cuentan. Se valida que, agregada al partido, se acerque a `team_match_ppda` | StatsBomb (tramo: propia) |
 | Altura de recuperación | x promedio de las recuperaciones del equipo en juego abierto: Ball Recovery sin `recovery_failure` e Interception con `outcome` 4 Won, 15 Success o 16 Success In Play | Propia |
 | Pase completo | Evento Pass sin `outcome` | StatsBomb |
 | Pase progresivo | Pase completo en juego abierto que acerca el balón al centro de la portería (120, 40) al menos `pase_progresivo.avance_min_yd`, o que entra al área | Propia |
 | Balón parado | `play_pattern` From Corner, From Free Kick, From Throw In; fase con `set_piece_phase` (1 o 2). Lateral en zona de peligro: x ≥ 80 | StatsBomb + propia |
 | Espacio al recibir | Métricas 360: `ball_receipt_in_space`, `ball_receipt_exceeds_distance`, `distance_to_nearest_defender` | StatsBomb |
 | Pase que rompe líneas | `line_breaking_pass` (360) | StatsBomb |
-| Control territorial | Fracción de una zona controlada por cada equipo según Voronoi de los jugadores visibles, recortado a cancha ∩ `visible_area`; se excluyen jugadores a menos de `voronoi.min_dist_borde` del borde visible | Propia |
+| Control territorial | Fracción del espacio alcanzado que controla el equipo del actor según Voronoi de los jugadores visibles; cada celda se recorta a cancha ∩ `visible_area` ∩ un círculo de radio `voronoi.alcance_max_yd` alrededor del jugador (las zonas vacías lejanas no cuentan). Se excluyen jugadores a menos de `voronoi.min_dist_borde` del borde visible, salvo el actor | Propia |
+| Grafo de vecindad | Dos jugadores son vecinos si sus celdas comparten un borde de al menos `voronoi.min_borde_arista_yd` (dual de Delaunay dentro de lo visible). Métricas: apoyos (compañeros vecinos del actor), rivales cerca (rivales vecinos del actor), frontera (yardas de borde entre celdas de equipos distintos) y distancia media entre compañeros vecinos | Propia |
 | Estructura de juego | Red de pases dirigida: nodos = posiciones del sistema (ids 1–25), aristas = pases completos entre posiciones; separada por fase y por marcador | Propia |
 | Huella de pases | Vector de 60 frecuencias de `pass_cluster_id` por partido (y por equipo) | Propia |
 | Riesgo de pase | Pases completos menos la suma de `pass_success_probability` | Propia |
@@ -136,6 +137,6 @@ pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
 tramos_min: 15            # 5 para lectura fina del flujo
 red_pases: {min_pases_arista: 3}
-voronoi: {min_dist_borde: 2.0, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
+voronoi: {min_dist_borde: 2.0, alcance_max_yd: 20, min_borde_arista_yd: 0.5, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
 simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}
 ```
