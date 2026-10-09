@@ -34,3 +34,4 @@ voronoi:
   min_borde_arista_yd: 0.5   # borde compartido mínimo para que dos jugadores sean vecinos
   momentos: [pase_progresivo, progresion_rival, envio_balon_parado]
 simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}
+resumenes: {min_partidos: 3, rejilla: {columnas: 12, filas: 8}}   # explorador del reporte (contexto/resumenes.md)

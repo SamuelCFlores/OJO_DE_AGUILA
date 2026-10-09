@@ -44,6 +44,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 ## Cómo trabajar
 
 - El código reutilizable va en `src/ojo/`; los notebooks son solo exploración y llaman a `src/`.
+- Los modelos (comportamiento con R², Monte Carlo, efecto del relevo) se trabajan en notebooks `notebooks/NN_tema.ipynb`. La primera celda dice qué hace, qué necesita (pasos 02–04 corridos) y cómo probarlo; al terminar, se le dice a Samuel qué se hizo y qué celdas correr. Lo que sirva dos veces se mueve a `src/ojo/`.
 - Funciones pequeñas con docstring en español, tipadas, sin efectos ocultos. Identificadores en español o inglés sin acentos, de forma consistente dentro de cada módulo.
 - Cada script nuevo trae instrucciones para probarlo; agrega pruebas en `tests/` para la lógica del framework (tramos, game state, orientación, Voronoi recortado).
 - Antes de cambios grandes, propone el plan y los archivos que tocarás.
@@ -75,6 +76,7 @@ Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación ap
 - `contexto/flujo_trabajo.md`: cómo trabajamos en equipo: fases, día a día, ramas y promoción a `main`, commits y simbología de comentarios.
 - `branding/README.md`: identidad (colores, Poppins, logos), animación de entrada (5 s, cada vez que se abre el archivo) e ícono en loop; cómo usarlos y reconstruirlos. Toda salida visual (reporte, figuras, video, presentación) usa esos tokens: cancha azul marino, América dorado, rival blanco.
 - `CAMBIOS/` (rama `tests`): bitácora diaria; lee el último archivo para saber qué se hizo y qué quedó pendiente.
+- `contexto/resumenes.md`: contrato de `resumenes.json`, el único archivo de datos del explorador (barra lateral rival · torneo · situación). Solo agregados; validador en `ojo.salidas.resumenes`.
 
 - `contexto/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.
 - `contexto/framework.md`: definiciones de objetos, contexto, supuestos, límites y propuesta de `params.yaml`.

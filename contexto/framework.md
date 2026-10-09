@@ -67,6 +67,21 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 | Fase del torneo | `competition_stage` (fase regular contra liguilla) |
 | Entrenador | Id del entrenador en Matches (`home_team.managers` / `away_team.managers`) |
 
+## Situaciones del explorador
+
+Filtros de la barra lateral del reporte (`contexto/resumenes.md`). Cada evento con 360 cae en las situaciones que cumple; "todas" no filtra. Coordenadas en la perspectiva de quien ejecuta el evento.
+
+| id | Definición |
+| --- | --- |
+| `salida` | Posesión del América en juego abierto con el balón en su tercio defensivo (x < `tercios.defensivo_max_x`) |
+| `presion_alta` | Posesión del rival en juego abierto con el balón en el tercio defensivo del rival (x < `tercios.defensivo_max_x` en su perspectiva): el América presiona arriba |
+| `transicion_defensiva` | Posesión del rival con `is_transition` (plan B: los primeros `transicion.plan_b_segundos` tras una recuperación del rival) |
+| `transicion_ofensiva` | Posesión del América con `is_transition` (mismo plan B) |
+| `gana` / `empata` / `pierde` | Estado del marcador del América antes del evento (`ojo.framework.contexto.marcador`) |
+| `balon_parado_favor` / `balon_parado_contra` | `play_pattern` de balón parado con posesión del América / del rival |
+
+Una combinación rival · torneo · situación con menos de `resumenes.min_partidos` partidos se marca como muestra insuficiente y no muestra métricas.
+
 ## Validación, causalidad y decisión
 
 **Partición temporal**
@@ -139,4 +154,5 @@ tramos_min: 15            # 5 para lectura fina del flujo
 red_pases: {min_pases_arista: 3}
 voronoi: {min_dist_borde: 2.0, alcance_max_yd: 20, min_borde_arista_yd: 0.5, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
 simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}
+resumenes: {min_partidos: 3, rejilla: {columnas: 12, filas: 8}}
 ```
