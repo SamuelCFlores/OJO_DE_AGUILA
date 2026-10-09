@@ -33,6 +33,8 @@ DEBEN_IGNORARSE = [
     "notebooks/respuesta.json",
     "scripts/partido.parquet",
     "reports/informe.html",
+    "branding/exportados/intro_mirada_rapaz.html",
+    "branding/fuente/uploads/video.mp4",
 ]
 
 # Rutas que sí deben poder versionarse
@@ -44,6 +46,8 @@ DEBEN_VERSIONARSE = [
     "reports/informe.qmd",
     "CAMBIOS/C01_0810.md",
     ".github/workflows/main_sin_cambios.yml",
+    "branding/dist/marca.js",
+    "branding/fuente/marca-2a/isotipo-color.svg",
 ]
 
 # Bitácora: C##_ddmm.md (CAMBIOS/README.md); README y PLANTILLA no siguen el patrón

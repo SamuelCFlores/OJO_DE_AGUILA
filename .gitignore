@@ -56,3 +56,15 @@ venv/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ============================================================
+# Identidad (branding/)
+# ============================================================
+# La marca compilada sí se versiona: la usan el reporte y la maqueta
+!branding/dist/
+# Exportaciones de Claude Design y material de referencia: solo en local
+branding/*.zip
+branding/exportados/
+branding/fuente/uploads/
+branding/fuente/scraps/
+branding/fuente/.thumbnail

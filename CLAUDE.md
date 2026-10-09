@@ -70,6 +70,7 @@ Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación ap
 ## Documentos (léelos solo cuando la tarea lo pida)
 
 - `contexto/flujo_trabajo.md`: cómo trabajamos en equipo: fases, día a día, ramas y promoción a `main`, commits y simbología de comentarios.
+- `branding/README.md`: identidad (colores, Poppins, logos), animación de entrada (5 s, una sola vez) e ícono en loop; cómo usarlos y reconstruirlos. Toda salida visual (reporte, figuras, video, presentación) usa esos tokens: cancha azul marino, América dorado, rival blanco.
 - `CAMBIOS/` (rama `tests`): bitácora diaria; lee el último archivo para saber qué se hizo y qué quedó pendiente.
 
 - `contexto/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.

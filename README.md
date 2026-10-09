@@ -46,6 +46,7 @@ git pull                            # antes de empezar, para traer lo último
 OJO_DE_AGUILA/
 ├── CLAUDE.md                 # contexto y reglas para Claude Code
 ├── CAMBIOS/                  # bitácora del equipo, C##_ddmm.md (solo en la rama tests)
+├── branding/                 # identidad: logos, animación de entrada, ícono en loop (ver branding/README.md)
 ├── .github/workflows/        # guardia: un PR a main no puede traer CAMBIOS/
 ├── README.md
 ├── pyproject.toml            # metadatos del paquete `ojo` (sin dependencias)

@@ -1,0 +1,9 @@
+/* Tokens de la identidad Ojo de Águila. Fuente única de colores y tipografía (ver branding/README.md). */
+:root {
+  --oda-azul: #0B2545;      /* azul marino: fondo de marca, cancha */
+  --oda-dorado: #E8B100;    /* dorado: acento, América en las figuras */
+  --oda-blanco: #FFFFFF;    /* blanco: texto sobre azul, rival sobre cancha */
+  --oda-gris-fondo: #EEF0F3;/* fondo claro de páginas */
+  --oda-gris-texto: #4A5B70;/* texto secundario */
+  --oda-fuente: "Poppins", "Segoe UI", system-ui, sans-serif;
+}
