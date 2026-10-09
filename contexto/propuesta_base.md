@@ -197,7 +197,7 @@ La entrega es el 22 de octubre, y el 14 de octubre decidimos si Voronoi se queda
 
 | Riesgo | Mitigación |
 | --- | --- |
-| Phases of Play vacío en partidos históricos | Definición propia de transición en `params.yaml` (plan B). En un partido de 2026 viene en el 83.8 % de los eventos; falta revisar 2023–2025 |
+| Phases of Play vacío en partidos históricos | Definición propia de transición en `params.yaml` (plan B). Descartado: el inspector (9 oct) lo encontró en el 82–88 % del juego abierto en todos los torneos AP21–CL26 |
 | Los organizadores no permiten datos posteriores al Clausura 2025 | Plan B: entrenamiento AP23–AP24 y prueba en el Clausura 2025 |
 | Pocos partidos del América para evaluar resultados | El Monte Carlo se evalúa sobre toda la liga en el torneo de prueba; el América se reporta aparte |
 | Fuga de información en la predicción | Todo lo que alimenta una predicción del Clausura 2026 (incluida la fuerza del rival) se calcula solo con partidos anteriores |
@@ -220,7 +220,7 @@ La entrega es el 22 de octubre, y el 14 de octubre decidimos si Voronoi se queda
 
 - ¿La tabla de evaluación publicada aplica a este reto?
 - ¿La elección de Jardine es libre?
-- ¿Phases of Play viene poblado en los partidos de 2023 a 2025?
+- ~~¿Phases of Play viene poblado en los partidos de 2023 a 2025?~~ Sí: 82–88 % del juego abierto en todos los torneos (inspector, 9 oct).
 - ¿El modo repetición entra en la entrega o queda como visión?
 - ¿Aceptan datos del Apertura 2025 y el Clausura 2026? La API los entrega; el rango AP21–CL25 de la convocatoria parece heredado de ediciones anteriores. Se usan, con el plan B listo.
 - ¿Cómo evalúan que "la herramienta cambia una decisión real del entrenador"?
