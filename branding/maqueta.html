@@ -60,12 +60,11 @@
   <button id="intro-saltar" type="button">Saltar ›</button>
 </div>
 <script>
-  // Decide antes del primer pintado si la entrada se muestra (una sola vez por navegador).
+  // Decide antes del primer pintado si la entrada se muestra: cada vez que se abre el archivo,
+  // salvo que el sistema pida reducir movimiento.
   (function () {
-    var vista = false;
-    try { vista = localStorage.getItem('ojo-de-aguila:intro-vista') === '1'; } catch (e) {}
     var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.__ojoMostrarIntro = location.hash === '#intro' || (!vista && !reducir);
+    window.__ojoMostrarIntro = !reducir;
     if (window.__ojoMostrarIntro) document.documentElement.classList.add('con-intro');
     else document.getElementById('intro').classList.add('oculto');
   })();
@@ -83,7 +82,7 @@
   <section>
     <span class="eyebrow">Hackathon ISAC 2026 · La historia de un entrenador a través de los datos</span>
     <h1>André Jardine en el América, leído frente a cada rival</h1>
-    <p>Maqueta de la experiencia: la entrada aparece solo la primera vez que se abre el reporte y luego queda el contenido. Para volver a verla, abre esta página con <code>#intro</code> al final de la dirección.</p>
+    <p>Maqueta de la experiencia: cada vez que se abre el reporte aparece la entrada y luego queda el contenido. Para verla otra vez, recarga la página.</p>
   </section>
 
   <section>
@@ -117,7 +116,6 @@
     function cerrar() {
       if (cerrada) return;
       cerrada = true;
-      try { localStorage.setItem('ojo-de-aguila:intro-vista', '1'); } catch (e) {}
       intro.classList.add('saliendo');
       document.documentElement.classList.remove('con-intro');
       setTimeout(function () { if (control) control.detener(); intro.remove(); }, 650);

@@ -34,7 +34,7 @@ Los tokens viven en `tokens.css` y se copian a `dist/marca.css` al construir.
 
 1. La primera vez que se abre el reporte, la animación "Mirada de rapaz" ocupa la pantalla: los jugadores forman el iris Voronoi, el ojo se abre, mira, escanea y forma el logotipo.
 2. Dura 5 s (diseñada en 10 s y acelerada sin tocar el diseño). Al terminar se desvanece y queda el contenido.
-3. No se vuelve a mostrar en ese navegador (`localStorage`, clave `ojo-de-aguila:intro-vista`). Con `#intro` al final de la dirección se fuerza para demostrarla.
+3. Se muestra cada vez que se abre o se recarga el archivo; no se guarda nada en el navegador.
 4. Un clic, Esc, Enter o Espacio la saltan. Si el sistema tiene activado "reducir movimiento", no se muestra y el ícono queda quieto.
 5. El ícono del encabezado (mirar, parpadear, escanear) se repite cada 6 s.
 
@@ -59,7 +59,7 @@ Desde la raíz del repo:
 python -m http.server 8765
 ```
 
-y abre `http://localhost:8765/branding/maqueta.html#intro`. La figura de la maqueta usa datos reales y se genera en local (`outputs/poc/voronoi_marca.png`); sin ella aparece un aviso.
+y abre `http://localhost:8765/branding/maqueta.html` (también funciona con doble clic sobre el archivo). La figura de la maqueta usa datos reales y se genera en local (`outputs/poc/voronoi_marca.png`); sin ella aparece un aviso.
 
 ## Cómo reconstruir si cambia el diseño
 
