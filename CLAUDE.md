@@ -49,7 +49,10 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - Antes de cambios grandes, propone el plan y los archivos que tocarás.
 - Samuel corre la descarga en su laptop con sus credenciales; tú escribes y revisas el código.
 - Commits pequeños y descriptivos; nunca subir datos ni salidas con datos crudos.
-- Ramas: `tests` = TESTS (trabajo diario, se actualiza constantemente); `main` = FINAL (solo cambios confirmados, únicamente por PR `tests → main`). Nunca commits directos a `main`.
+- Equipo: Samuel (alias **chamuel**) y Héctor (alias **Tilin**). Todos siguen `contexto/flujo_trabajo.md`: tamaño de la tarea, 5 fases (entender, planear, criterios de calidad, ejecutar, revisar), día a día y trabajo en paralelo.
+- Comentarios en código y documentación con la simbología de `contexto/flujo_trabajo.md`, sección 7: `NOTAn`, `OBSn`, `REFn`, `IMPORn`, `TODOn`, `FIXn`, `HACKn`, `PERFn`, `DEPRECn`, numerados por archivo. Todo `TODOn` y `HACKn` se anota también en **Por hacer** de la bitácora.
+- Bitácora `CAMBIOS/` (solo en la rama `tests`): un archivo por día, `C##_ddmm.md` (reglas en `CAMBIOS/README.md`), con Planeado, Hecho, Por hacer, Propuestas y quién hizo el cambio. Al terminar un trabajo, actualiza el archivo del día con el alias de quien lo pidió y "(con Claude Code)".
+- Ramas: `tests` = TESTS (trabajo diario, incluye `CAMBIOS/`); `main` = FINAL (solo lo confirmado, sin `CAMBIOS/`). A `main` se llega solo por PR desde una rama `promocion/ddmm` que excluye `CAMBIOS/` (`contexto/flujo_trabajo.md`, sección 5); nunca commits directos ni PR directo `tests → main`.
 - Dos sesiones de Claude Code: la local (en la laptop) corre scripts y notebooks; la de la nube mantiene y revisa el repo. `git pull` antes de empezar en cualquiera.
 
 ## Estado actual (actualizar al avanzar)
@@ -63,7 +66,11 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - [ ] Framework en código, métricas, lentes, dos bandas, contexto, simulación, ficha, reporte, video.
 
 Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿Phases of Play viene poblado en 2023–2025? (en un partido de 2026 `control_degree` aparece en el 83.8 % de eventos; falta revisar temporadas anteriores en el inspector), ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, al parecer heredado de ediciones anteriores; se usan, con plan B listo), ¿cómo evalúan "la herramienta cambia una decisión real"?, ¿qué implica la nota de que no se necesita programación avanzada? Samuel envía el correo a los organizadores el 8 de octubre.
+
 ## Documentos (léelos solo cuando la tarea lo pida)
+
+- `contexto/flujo_trabajo.md`: cómo trabajamos en equipo: fases, día a día, ramas y promoción a `main`, commits y simbología de comentarios.
+- `CAMBIOS/` (rama `tests`): bitácora diaria; lee el último archivo para saber qué se hizo y qué quedó pendiente.
 
 - `contexto/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.
 - `contexto/framework.md`: definiciones de objetos, contexto, supuestos, límites y propuesta de `params.yaml`.

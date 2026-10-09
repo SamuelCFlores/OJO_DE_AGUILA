@@ -20,17 +20,23 @@ Copy-Item .env.example .env         # y llena tus credenciales de StatsBomb en .
 
 Verificación: `python -m pytest` debe pasar completo.
 
+## Equipo y forma de trabajo
+
+Samuel (**chamuel**) y Héctor (**Tilin**), con apoyo de Claude Code. Todos seguimos [`contexto/flujo_trabajo.md`](contexto/flujo_trabajo.md): tamaño de la tarea, 5 fases, día a día, ramas, commits y simbología de comentarios (`NOTAn`, `OBSn`, `REFn`, `IMPORn`, `TODOn`, `FIXn`, `HACKn`, `PERFn`, `DEPRECn`).
+
+Lo que hace cada quien se documenta en la bitácora `CAMBIOS/` (solo en la rama `tests`), un archivo por día: `C##_ddmm.md`.
+
 ## Ramas: TESTS y FINAL
 
 | Rama | Papel | Cómo se actualiza |
 | --- | --- | --- |
-| `tests` | **TESTS**: trabajo diario, se actualiza constantemente | Commits directos o PR desde ramas de trabajo |
-| `main` | **FINAL**: solo cambios confirmados (pruebas pasan y se verificó en la laptop) | Únicamente por PR `tests → main` |
+| `tests` | **TESTS**: trabajo diario, incluye la bitácora `CAMBIOS/` | Commits directos o PR desde ramas de trabajo (`chamuel/<tema>`, `tilin/<tema>`) |
+| `main` | **FINAL**: solo cambios confirmados, sin `CAMBIOS/` | Únicamente por PR desde una rama `promocion/ddmm` (ver `contexto/flujo_trabajo.md`, sección 5) |
 
-Si algo en `tests` deja de funcionar, `main` sigue intacto y se puede volver a él (`git checkout main`). Se trabaja siempre en `tests`:
+Si algo en `tests` deja de funcionar, `main` sigue intacto y se puede volver a él (`git switch main`). Se trabaja siempre en `tests`:
 
 ```powershell
-git checkout tests
+git switch tests
 git pull                            # antes de empezar, para traer lo último
 ```
 
@@ -39,6 +45,8 @@ git pull                            # antes de empezar, para traer lo último
 ```
 OJO_DE_AGUILA/
 ├── CLAUDE.md                 # contexto y reglas para Claude Code
+├── CAMBIOS/                  # bitácora del equipo, C##_ddmm.md (solo en la rama tests)
+├── .github/workflows/        # guardia: un PR a main no puede traer CAMBIOS/
 ├── README.md
 ├── pyproject.toml            # metadatos del paquete `ojo` (sin dependencias)
 ├── requirements.txt          # dependencias con versión fija + `-e .`
@@ -51,6 +59,7 @@ OJO_DE_AGUILA/
 │   ├── propuesta_base.md     # qué y por qué
 │   ├── framework.md          # definiciones de cada objeto y métrica
 │   ├── plan_trabajo.md       # cómo se construye
+│   ├── flujo_trabajo.md      # cómo trabajamos: fases, ramas, commits, simbología
 │   └── api/                  # referencia condensada de las 10 APIs
 ├── src/ojo/                  # el motor: todo el código reutilizable
 │   ├── ingesta/              # capa 1 · cliente con caché + un módulo por API
