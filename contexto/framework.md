@@ -155,4 +155,5 @@ red_pases: {min_pases_arista: 3}
 voronoi: {min_dist_borde: 2.0, alcance_max_yd: 20, min_borde_arista_yd: 0.5, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
 simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}
 resumenes: {min_partidos: 3, rejilla: {columnas: 12, filas: 8}}
+estadistica: {bootstrap_repeticiones: 2000, nivel_confianza: 0.95, min_eventos_zona: 30}
 ```

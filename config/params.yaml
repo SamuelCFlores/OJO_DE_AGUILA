@@ -35,3 +35,4 @@ voronoi:
   momentos: [pase_progresivo, progresion_rival, envio_balon_parado]
 simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}
 resumenes: {min_partidos: 3, rejilla: {columnas: 12, filas: 8}}   # explorador del reporte (contexto/resumenes.md)
+estadistica: {bootstrap_repeticiones: 2000, nivel_confianza: 0.95, min_eventos_zona: 30}   # intervalos y mapas de las exploraciones
