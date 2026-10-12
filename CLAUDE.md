@@ -63,7 +63,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - [x] Entorno instalado en la laptop de Samuel (`python -m pytest` pasa).
 - [x] Prueba de humo de la API (`scripts/00_prueba_humo.py`): ids en `config/params.yaml`, diferencias en `contexto/api/matches.md`.
 - [x] Inspector de contenido (`scripts/01_inspector.py`, 9 oct): Phases of Play poblado en todos los torneos (82–88 % del juego abierto), 360 en 79–94 % de los eventos con área visible siempre, 11.6–16.2 jugadores visibles, orientación OK. Reporte en `reports/inspeccion_api.md`.
-- [ ] Descarga completa con caché (`scripts/02_descarga.py`): script listo; `--plan` da 2,557 solicitudes (~68 min); falta correrla.
+- [x] Descarga completa con caché (`scripts/02_descarga.py`, 12 oct): 2,557 solicitudes, 0 fallidas, 253 MB. Procesado (`03_procesar.py`): 707,900 eventos de 213 partidos del América, 627,130 frames 360 (212 partidos) y estadísticas de equipo de los 1,701 partidos de la liga.
 - [x] Capa de datos (`ojo.datos`: crudo → tablas → parquet + DuckDB; `scripts/03_procesar.py`).
 - [x] Framework base en código (`ojo.framework`: partidos válidos, torneo, del equipo, relevos, tramos, marcador, orientación, juego abierto, recuperaciones).
 - [x] Lente Voronoi + grafo de vecindad (`ojo.lentes.voronoi`, `scripts/04_voronoi.py`) y figuras con la identidad (`ojo.salidas`).
