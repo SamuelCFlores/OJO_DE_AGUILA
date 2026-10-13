@@ -8,6 +8,7 @@ entrada y el ícono salen de branding/dist, igual que branding/maqueta.html.
 
 Cómo correrlo (desde la raíz del repo y con el entorno activado; antes 03, 04 y 05):
     python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra
+    python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra --paleta azulcrema
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ from ojo.datos import almacen, crudo
 from ojo.framework import contexto, quiebres
 from ojo.framework import partidos as fp
 from ojo.lentes import minuto, voronoi
-from ojo.salidas import app
+from ojo.salidas import app, estilo
 from ojo.salidas import caso as sc
 from ojo.salidas.resumenes import SITUACIONES
 
@@ -172,6 +173,8 @@ def tabla_minutos_previos(panel: pd.DataFrame, q: pd.Series, desde: int, equipo:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--paleta", choices=list(estilo.PALETAS), default="marca",
+                        help="marca (azul y dorado) o azulcrema (la del club); la azulcrema escribe maqueta_2_azulcrema.html")
     parser.add_argument("--partido", type=int, required=True, metavar="MATCH_ID")
     parser.add_argument("--tipo", choices=quiebres.TIPOS, default="expulsion_contra", metavar="TIPO",
                         help=f"tipo de quiebre: {', '.join(quiebres.TIPOS)}")
@@ -179,6 +182,12 @@ def main() -> int:
     parser.add_argument("--titulo", help="título de la página (por defecto se arma con el quiebre)")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
+    with estilo.paleta(args.paleta):  # figuras y página con los colores de la paleta elegida
+        return generar(args)
+
+
+def generar(args: argparse.Namespace) -> int:
+    """Arma la página del caso con la paleta activa (ver main)."""
 
     p = params()
     team, equipo = p["equipo"]["team_id"], p["equipo"]["nombre"]
@@ -355,10 +364,11 @@ def main() -> int:
         linea_tiempo=figura_tiempo, tabla_antes=tabla, cadena_texto=texto_cadena, jugadas=jugadas, principal=principal,
         protagonista=protagonista, figura_protagonista=figura_prot, resumen_protagonista=resumen, cierre=cierre,
         barra=barra, notas=notas)
-    pagina = app.pagina(caso, ruta_marca=os.path.relpath(RAIZ / "branding", SALIDA.parent).replace(os.sep, "/"))
-    SALIDA.parent.mkdir(parents=True, exist_ok=True)
-    SALIDA.write_text(pagina, encoding="utf-8")
-    print(f"Caso: {titulo}\nPágina: {SALIDA.relative_to(RAIZ)} (datos reales: no se publica ni se sube a git)")
+    salida = SALIDA if args.paleta == "marca" else SALIDA.with_name(f"{SALIDA.stem}_{args.paleta}{SALIDA.suffix}")
+    pagina = app.pagina(caso, ruta_marca=os.path.relpath(RAIZ / "branding", salida.parent).replace(os.sep, "/"))
+    salida.parent.mkdir(parents=True, exist_ok=True)
+    salida.write_text(pagina, encoding="utf-8")
+    print(f"Caso: {titulo}\nPágina: {salida.relative_to(RAIZ)} (datos reales: no se publica ni se sube a git)")
     return 0
 
 

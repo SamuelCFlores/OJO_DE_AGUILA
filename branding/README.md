@@ -13,6 +13,10 @@ El diseño se hizo en Claude Design; aquí está su fuente y la versión lista p
 | `--oda-blanco` | `#FFFFFF` | Texto sobre azul; el rival en las figuras |
 | `--oda-gris-fondo` | `#EEF0F3` | Fondo de páginas claras |
 | `--oda-gris-texto` | `#4A5B70` | Texto secundario |
+| `--club-azul` | `#0F1D41` | Paleta **azulcrema** (alternativa): fondos, texto, cancha |
+| `--club-amarillo` | `#F0EB9A` | Azulcrema: acento crema; el América en las figuras |
+| `--club-rojo` | `#F6303E` | Azulcrema: solo 5 acentos (sombra y flecha de "Explorar por rival", línea bajo el título, "×" de los filtros, punto y etiqueta de "Lectura frente a…") |
+| `--club-azul-hover` | `#1C2E5E` | Hover de botones y chips azules |
 | `--oda-fuente` | Poppins (500 y 700 incrustadas; 400 y 600 desde Google Fonts) | Todo el texto |
 
 Los tokens viven en `tokens.css` y se copian a `dist/marca.css` al construir.

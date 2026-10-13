@@ -43,3 +43,12 @@ def test_pagina_llena_todos_los_espacios() -> None:
     pagina = app.pagina(caso, "../../branding")
     assert "@@" not in pagina
     assert pagina.count("<svg") >= 5 and 'data-vista="explorar"' in pagina and "Torneo de prueba" in pagina
+
+
+def test_paleta_azulcrema_solo_dentro_del_bloque() -> None:
+    from ojo.salidas import estilo
+    assert estilo.color("dorado") == "#E8B100"
+    with estilo.paleta("azulcrema"):
+        assert (estilo.color("azul"), estilo.color("dorado"), estilo.color("rojo")) == ("#0F1D41", "#F0EB9A", "#F6303E")
+        assert estilo.color("blanco") == "#FFFFFF"  # lo que la paleta no cambia sale de --oda-*
+    assert estilo.color("azul") == "#0B2545" and estilo.color("rojo") == "#E8B100"
