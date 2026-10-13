@@ -22,7 +22,7 @@ def test_frame_del_rival_se_refleja_y_cambia_de_bando() -> None:
 def test_textos_en_lenguaje_de_cancha() -> None:
     assert caso.formacion(4141) == "4-1-4-1"
     q = SimpleNamespace(tipo="cambio_sistema_rival", detalle="352→4141")
-    assert caso.etiqueta_quiebre(q, "América", "Guadalajara") == "Guadalajara cambia de sistema (3-5-2 → 4-1-4-1)"
+    assert caso.etiqueta_quiebre(q, "América", "Guadalajara") == "El Guadalajara cambia de sistema (3-5-2 → 4-1-4-1)"
     falta = SimpleNamespace(tipo="Foul Committed", jugador_id=7, equipo_id=1, pase_receptor_id=None, pase_resultado=None,
                             x=80.0, y=60.0, fin_x=None, fin_y=None, tarjeta="Red Card", bajo_presion=False)
     assert caso.describir(falta, {7: "Fidalgo"}, {1: "América"}) == "Fidalgo comete falta: roja directa"

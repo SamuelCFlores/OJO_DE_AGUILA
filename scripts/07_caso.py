@@ -24,7 +24,9 @@ from ojo.datos import almacen, crudo
 from ojo.framework import contexto, quiebres
 from ojo.framework import partidos as fp
 from ojo.lentes import minuto, voronoi
+from ojo.salidas import app
 from ojo.salidas import caso as sc
+from ojo.salidas.resumenes import SITUACIONES
 
 SALIDA = DIR_SALIDAS / "reportes" / "maqueta_2.html"
 ETAPAS = {"Semi-finals": "Semifinal", "Quarter-finals": "Cuartos de final", "Final": "Final", "Play-offs": "Repechaje"}
@@ -34,6 +36,94 @@ METRICAS_TABLA = {  # métrica de ojo.lentes.minuto → (nombre, formato)
     "control_campo_rival": ("Control en campo rival (Voronoi)", "{:.0%}"),
     "tiros_transicion_contra": ("Tiros en transición en contra/min", "{:.3f}"),
 }
+
+
+GRUPOS_SITUACION = {"todas": "General", "fase": "Fase", "marcador": "Marcador", "balon_parado": "Balón parado"}
+ESTADO_SITUACION = {"gana": "Ganando", "empata": "Empatando", "pierde": "Perdiendo"}
+# Situaciones "tras un quiebre" (propuesta para el contrato de resumenes.json): una por tipo, sin separar propio/rival
+# salvo en goles y expulsiones, donde importa quién lo sufre.
+ETIQUETA_SITUACION = {
+    "gol_favor": "Tras gol a favor", "gol_contra": "Tras gol en contra", "expulsion_favor": "Expulsión a favor",
+    "expulsion_contra": "Expulsión en contra", "cambio_sistema_propio": "Cambio de sistema",
+    "cambio_sistema_rival": "Cambio de sistema", "sustitucion_tactica_propia": "Cambio táctico",
+    "sustitucion_tactica_rival": "Cambio táctico", "sustitucion_lesion_propia": "Cambio por lesión",
+    "sustitucion_lesion_rival": "Cambio por lesión",
+}
+MAX_RIVALES_LISTA = 6  # rivales en la lista de la barra, además del seleccionado (presentación)
+
+
+def corto(nombre: str) -> str:
+    """"Fernando Ortiz" → "Ortiz"; "André Soares Jardine" → "Jardine"."""
+    return str(nombre).split(" ")[-1]
+
+
+def condicion(localia: str) -> str:
+    return {"local": "Local", "visitante": "Visita"}.get(str(localia), "Todos")
+
+
+def etiqueta_partido(partidos: pd.DataFrame, fila: pd.Series) -> str:
+    """"Semifinal · vuelta", "Semifinal · ida" o "Fase regular" para la lista de partidos de la barra."""
+    partes = [ETAPAS.get(x.strip(), x.strip()) for x in str(fila["etapa"] or "").split(" - ")]
+    fase = next((x for x in partes if x in ETAPAS.values()), None)
+    if fase is None:
+        return "Fase regular"
+    misma = partidos[(partidos["rival_id"] == fila["rival_id"]) & (partidos["torneo_corto"] == fila["torneo_corto"])
+                     & (partidos["etapa"] == fila["etapa"])]
+    if len(misma) < 2:
+        return fase
+    return f"{fase} · {'vuelta' if fila['fecha'] == misma['fecha'].max() else 'ida'}"
+
+
+def armar_barra(partidos: pd.DataFrame, info: pd.Series, q: pd.Series, eliminatoria: bool, control: float,
+                xg: pd.Series, gfg: int | None, gcg: int | None, n_jugadas: int, equipo: str, team: int) -> app.Barra:
+    """Barra lateral con el estado del caso: rival, entrenador, torneo, partido, situación y condición."""
+    p = params()
+    ids = {d["manager_id"]: corto(d["nombre"]) for d in [*p["predecesores"], p["entrenador"]]}
+    conteo = partidos.groupby("rival").size().sort_values(ascending=False)
+    rivales = [(r, int(n)) for r, n in conteo.items() if r != info["rival"]][:MAX_RIVALES_LISTA]
+    torneos = partidos.sort_values("fecha").drop_duplicates("torneo_corto")
+    lista_torneos = [(t, t == info["torneo_corto"], bool(pr)) for t, pr in zip(torneos["torneo_corto"], fp.es_prueba(torneos))]
+    del_rival = partidos[(partidos["rival_id"] == info["rival_id"]) & (partidos["torneo_corto"] == info["torneo_corto"])]
+    lista_partidos = [(pd.Timestamp(r.fecha).strftime("%d/%m"), etiqueta_partido(partidos, pd.Series(r._asdict())),
+                       f"{int(r.goles_favor)}-{int(r.goles_contra)}", r.match_id == info["match_id"])
+                      for r in del_rival.sort_values("fecha").itertuples()]
+    activa = ETIQUETA_SITUACION.get(q["tipo"])
+    estado = ESTADO_SITUACION.get(q["estado_antes"])
+    grupos: dict[str, list[tuple[str, bool]]] = {}
+    for s in SITUACIONES:
+        grupos.setdefault(GRUPOS_SITUACION.get(s["grupo"], s["grupo"]), []).append((s["etiqueta"], s["etiqueta"] == estado))
+    grupos["Tras un quiebre"] = [(x, x == activa) for x in dict.fromkeys(ETIQUETA_SITUACION.values())]
+    resumen = [("Control en la foto", f"{control:.0%} · {1 - control:.0%}"),
+               (f"xG hasta el {q['minuto']}'", f"{xg.get(team, 0):.2f} · {xg.get(info['rival_id'], 0):.2f}")]
+    if gfg is not None:
+        resumen.append(("Global en ese momento", f"{gfg}-{gcg}"))
+    return app.Barra(
+        rival=info["rival"], partidos_rival=int(conteo.get(info["rival"], 0)), rivales=rivales,
+        entrenadores=[(n, i == info["entrenador_id"]) for i, n in ids.items()], torneos=lista_torneos,
+        partidos=lista_partidos, situaciones=list(grupos.items()), condicion=condicion(info["localia"]),
+        muestra=f"1 partido · {n_jugadas} jugadas con foto 360 en la cadena", resumen=resumen)
+
+
+def lectura_del_caso(texto_cadena: list[tuple[str, str, bool]], e: pd.Series, noms: dict, nombre_equipo: dict,
+                     protagonista: str, control: float, equipo: str, reloj_caso: str) -> str:
+    """Lectura corta del momento: la pérdida previa, la jugada del rival y la acción del protagonista."""
+    inicios = [i for i, (r, _, _) in enumerate(texto_cadena) if not r]
+    ultima = inicios[-1] if inicios else 0
+    previas = [t for r, t, _ in texto_cadena[:ultima] if r]
+    jugada = [t for r, t, _ in texto_cadena[ultima + 1:]]
+    propias = [t[len(protagonista) + 1:] for t in jugada if t.startswith(protagonista + " ")]
+    ajenas = [t for t in jugada if not t.startswith(protagonista + " ") and " presiona" not in t]
+    partes = [f"{reloj_caso}."]
+    if previas:
+        partes.append(f"Tras «{previas[-1]}»,")
+    if len(ajenas) > 1:  # la primera y la última acción del rival cuentan la jugada sin listarla toda
+        partes.append(f"{ajenas[0]} y, después, {ajenas[-1]}.")
+    elif ajenas:
+        partes.append(f"{ajenas[0]}.")
+    if propias:
+        partes.append(f"{protagonista} " + " y ".join(propias) + ".")
+    partes.append(f"En esa foto, el {equipo} controlaba el {control:.0%} del espacio que se disputaba.")
+    return " ".join(partes)
 
 
 def minuscula(texto: str) -> str:
@@ -140,7 +230,7 @@ def main() -> int:
     orientada = contexto.orientar(cadena, team)
     frames = almacen.cargar("frames", [args.partido]).set_index("event_uuid")
     jugadores = almacen.cargar("frames_jugadores", [args.partido])
-    texto_cadena, jugadas, posesion = [], [], None
+    texto_cadena, jugadas, posesion, principal = [], [], None, None
     for c, o in zip(cadena.itertuples(), orientada.itertuples()):
         del_equipo = c.equipo_id == team
         if c.posesion != posesion:
@@ -156,9 +246,16 @@ def main() -> int:
             todos, area = sc.frame_del_equipo(jugadores[jugadores["event_uuid"] == c.id], frames.loc[c.id, "area_visible"], del_equipo)
             resultado = voronoi.analizar_frame(todos, area)
             if resultado is not None:
-                jugadas.append(sc.Jugada(sc.reloj(c.minuto, c.segundo), texto, del_equipo, resultado.control,
-                                         sc.figura_jugada(resultado, o, del_equipo)))
+                jugada = sc.Jugada(sc.reloj(c.minuto, c.segundo), texto, del_equipo, resultado, o)
+                jugadas.append(jugada)
+                if c.indice == q["indice"]:
+                    principal = jugada
+    if not jugadas:
+        print("✗ Ninguna jugada de la cadena tiene un frame 360 analizable.")
+        return 1
     jugadas = jugadas[-p["casos"]["max_jugadas"]:]
+    if principal is None:  # sin frame analizable del quiebre, la última jugada que sí lo tiene
+        principal = jugadas[-1]
 
     # Protagonista: sus acciones hasta el quiebre
     acciones = ev[(ev["jugador_id"] == e["jugador_id"]) & (ev["indice"] <= q["indice"]) & ev["tipo"].isin(sc.VERBOS)]
@@ -229,11 +326,36 @@ def main() -> int:
     else:
         titulo = f"{sc.etiqueta_quiebre(q, equipo, rival)}: cómo se llegó al {q['minuto']}'"
     fecha = pd.Timestamp(info["fecha"]).strftime("%d/%m/%Y")
-    subtitulo = f"Caso · {etapa_legible(info['etapa'], ida is not None)} · {info['local']} vs {info['visitante']} · {fecha}"
+    etapa = etapa_legible(info["etapa"], ida is not None)
+    reloj_caso = sc.reloj(e["minuto"], e["segundo"])
 
-    pagina = sc.html(sc.Caso(titulo, subtitulo, equipo, chips, lista_quiebres, figura_tiempo, tabla, texto_cadena, jugadas,
-                             protagonista, figura_prot, resumen, cierre, notas),
-                     ruta_marca=os.path.relpath(RAIZ / "branding", SALIDA.parent).replace(os.sep, "/"))
+    # Textos del panel "Cómo leerla"
+    que_muestra = (f"La foto 360 del momento del quiebre ({reloj_caso}): cada zona es del jugador que la tiene más cerca. "
+                   f"Dorado: {equipo}; blanco: {rival}; la línea blanca marca dónde chocan los equipos. "
+                   f"El anillo señala a quien ejecuta y {equipo} ataca hacia la derecha.")
+    lectura = lectura_del_caso(texto_cadena, e, noms, nombre_equipo, protagonista, principal.control, equipo, reloj_caso)
+    lectura += " " + resumen[1]
+    v = p["voronoi"]
+    area_cancha = p["campo"]["largo"] * p["campo"]["ancho"]
+    metodo = (f"Foto 360 de StatsBomb de la acción ({reloj_caso}). Se ve el {principal.resultado.visible.area / area_cancha:.0%} "
+              f"de la cancha y cuentan {len(principal.resultado.jugadores)} jugadores (se quitan los que están a menos de "
+              f"{v['min_dist_borde']:g} yd del borde de la toma). Cada zona llega hasta {v['alcance_max_yd']:g} yd de su jugador. "
+              f"Control = área de {equipo} ÷ área que se disputa. {len(jugadas)} fotos analizadas en la cadena; la línea de "
+              f"tiempo usa el panel por minuto en tramos de {p['casos']['tramo_min']} minutos.")
+
+    barra = armar_barra(partidos, info, q, ida is not None, principal.control, xg, gfg if ida is not None else None,
+                        gcg if ida is not None else None, len(jugadas), equipo, team)
+    filtros = [corto(info["entrenador"]), info["torneo_corto"], etiqueta_partido(partidos, info),
+               ETIQUETA_SITUACION.get(args.tipo, sc.etiqueta_quiebre(q, equipo, rival)), condicion(info["localia"])]
+    caso = app.Caso(
+        titulo=titulo, antetitulo=f"Pilar 1 · Espacio · {info['torneo_corto']} · {etapa} · {fecha}", equipo=equipo,
+        rival=rival, ejemplo=f"{equipo} vs {rival}: {minuscula(titulo.split(':')[0])}, {minuscula(etiqueta_partido(partidos, info)).replace(' · ', ' de ')} "
+                                f"del {info['torneo']} {pd.Timestamp(info['fecha']).year}",
+        filtros=filtros, que_muestra=que_muestra, lectura=lectura, metodo=metodo, chips=chips, quiebres=lista_quiebres,
+        linea_tiempo=figura_tiempo, tabla_antes=tabla, cadena_texto=texto_cadena, jugadas=jugadas, principal=principal,
+        protagonista=protagonista, figura_protagonista=figura_prot, resumen_protagonista=resumen, cierre=cierre,
+        barra=barra, notas=notas)
+    pagina = app.pagina(caso, ruta_marca=os.path.relpath(RAIZ / "branding", SALIDA.parent).replace(os.sep, "/"))
     SALIDA.parent.mkdir(parents=True, exist_ok=True)
     SALIDA.write_text(pagina, encoding="utf-8")
     print(f"Caso: {titulo}\nPágina: {SALIDA.relative_to(RAIZ)} (datos reales: no se publica ni se sube a git)")

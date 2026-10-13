@@ -33,7 +33,7 @@ Los scripts se corren en orden; todos son incrementales (lo ya hecho se salta) y
 | 4 | `python scripts/04_voronoi.py --procesos 4` | No | Control territorial y grafo de vecindad por evento → `outputs/voronoi/` |
 | 5 | `python scripts/05_panel.py --procesos 4` | No | Panel por minuto a dos bandas, red de pases por posición y forma del bloque → `outputs/panel/` |
 | 6 | `python scripts/06_paso_a_paso.py --listar --quiebre sustitucion_tactica_propia` y luego el comando que imprime | No | El Voronoi de una jugada real paso a paso → `outputs/reportes/voronoi_paso_a_paso.html` (también `--partido MATCH_ID`) |
-| 7 | `python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra` | No | Caso puntual leído hasta un quiebre (línea de tiempo a dos bandas, jugada con Voronoi, protagonista) → `outputs/reportes/maqueta_2.html` |
+| 7 | `python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra` | No | Caso puntual leído hasta un quiebre, en la app (portada + explorar con barra lateral) → `outputs/reportes/maqueta_2.html` |
 
 Pasos 0–2 los corre quien tenga credenciales (Samuel). Del 3 en adelante cualquiera con la caché. Después de agregar una columna a `ojo.datos.tablas`: `python scripts/03_procesar.py --rehacer eventos`.
 

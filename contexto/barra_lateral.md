@@ -46,3 +46,22 @@ API StatsBomb → caché (02) → parquet (03) → framework + lentes (04…) �
 
 - Nombres de jugadores en mapas ni posiciones de un momento concreto (solo agregados; regla 1).
 - Filtros que no existen en `resumenes.json` (localía, tramo): si se quieren, primero se agregan al contrato.
+
+## Versión 2 (13 oct): propuesta visual + caso Fidalgo
+
+La maqueta 2 (`scripts/07_caso.py` → `outputs/reportes/maqueta_2.html`, plantilla en `ojo.salidas.app`) toma la estructura del handoff de diseño (`branding/exportados/app_maximalismo`, local) con la paleta de la marca. La barra lleva la mayoría de los elementos:
+
+| # | Elemento | Qué muestra | Cambio frente a la versión 1 |
+| --- | --- | --- | --- |
+| 1 | Rival | Placa con "SELECCIONADO", nombre (el tamaño se ajusta al largo) y cinta "N PARTIDOS"; lista con conteos | Igual, con el diseño del handoff |
+| 2 | Entrenador | Solari · Ortiz · Jardine | **Nuevo** (`entrenadores` del contrato) |
+| 3 | Torneo | AP21 … CL26; CL26 con línea punteada (prueba) | Selección **múltiple** |
+| 4 | Partido | Los partidos con ese rival en el torneo (fecha, fase, marcador) | **Nuevo** |
+| 5 | Situación | General, Fase, Marcador, Balón parado y **Tras un quiebre** (gol a favor / en contra, expulsión a favor / en contra, cambio de sistema, cambio táctico, cambio por lesión) | Selección **múltiple**; grupo nuevo |
+| 6 | Condición | Todos · Local · Visita | **Nuevo** (localía) |
+| 7 | Muestra | Partidos y jugadas con foto 360 | Igual |
+| 8 | Resumen rápido | Control en la foto, xG hasta el momento, global | Igual, con datos del caso |
+| 9 | Ficha de 10 segundos y Volver al caso | Botones | Igual (ficha: pronto) |
+| — | Leyenda | Pasa al panel "Cómo leerla" (ojo dorado = América, punto blanco = rival, frontera) | Movida |
+
+**Lo que necesita el contrato** (`contexto/resumenes.md`, pendiente): (a) sumas aditivas (numerador y denominador por métrica y por celda del mapa) para combinar varios torneos y situaciones en el navegador; (b) las dimensiones nuevas: entrenador, localía, partido y situaciones "tras un quiebre"; (c) los textos del panel (`lectura`, `metodo`) por combinación. Mientras tanto, la maqueta muestra un solo caso y los controles no recalculan.

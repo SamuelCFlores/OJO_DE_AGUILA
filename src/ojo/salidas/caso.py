@@ -1,10 +1,13 @@
-"""Caso puntual: un partido leído hasta un punto de quiebre, en una página con la identidad (maqueta_2).
+"""Caso puntual: un partido leído hasta un punto de quiebre (datos y figuras de la página del caso).
 
-Arma cuatro piezas a partir de las tablas de un partido: la línea de tiempo a dos bandas hasta el
+Arma las piezas a partir de las tablas de un partido: la línea de tiempo a dos bandas hasta el
 quiebre, la cadena de jugadas que lleva a él (con el Voronoi de cada una), las acciones del
 protagonista antes del quiebre y una tabla de los últimos minutos frente al partido hasta ahí.
+La página (portada + explorar con barra lateral) la arma ojo.salidas.app.
 
 REF1: contexto/framework.md, "Lectura del partido por puntos de quiebre" y "Control territorial".
+REF2: especificación de la figura Voronoi en el handoff de diseño (branding/exportados/app_maximalismo),
+con la paleta de la marca (azul, dorado y blanco).
 NOTA1: todo se dibuja en la perspectiva del equipo de referencia (ataca hacia la derecha): las
 acciones y los frames del rival se reflejan (120 − x, 80 − y) y "propio" pasa a ser el equipo.
 IMPOR1: la página lleva posiciones y nombres reales: es un resultado para la competencia, va a
@@ -14,8 +17,7 @@ outputs/ (fuera de git) y no se publica fuera del hackathon.
 from __future__ import annotations
 
 import io
-from dataclasses import dataclass, field
-from html import escape
+from dataclasses import dataclass
 
 import matplotlib
 
@@ -28,11 +30,13 @@ from matplotlib.figure import Figure
 from ojo.config import params
 from ojo.framework import contexto
 from ojo.lentes import minuto, voronoi
-from ojo.salidas.estilo import ARCHIVO_TOKENS, color, rgba
-from ojo.salidas.figuras import cancha_marca
-from ojo.salidas.paso_a_paso import _celdas, _jugadores, _visible
+from ojo.salidas import marcador
+from ojo.salidas.estilo import color, rgba
+from ojo.salidas.figuras import _poligonos, cancha_marca
 
 ALTO_JUGADA = 3.1  # pulgadas de cada cancha chica
+ALTO_PRINCIPAL = 6.8  # pulgadas de la figura principal
+ALFA_PROPIO, ALFA_RIVAL = 0.82, 0.08  # relleno de las celdas (handoff: equipo al 82 %, rival al 8 %)
 TARJETAS = {"Red Card": "roja directa", "Second Yellow": "segunda amarilla", "Yellow Card": "amarilla"}
 VERBOS = {
     "Pass": "pasa", "Carry": "conduce", "Miscontrol": "pierde el control", "Ball Recovery": "recupera el balón",
@@ -45,43 +49,27 @@ PATRONES = {"From Throw In": "saque de banda", "From Free Kick": "tiro libre", "
             "From Counter": "contragolpe", "Regular Play": "juego abierto", "Other": "otro"}
 SIN_BALON = frozenset({"Pressure", "Duel", "Foul Committed", "Ball Recovery", "Interception", "Block", "Clearance"})
 ETIQUETAS_QUIEBRE = {
-    "gol_favor": "gol {e}", "gol_contra": "gol {r}", "expulsion_favor": "expulsión en {r}",
-    "expulsion_contra": "expulsión en {e}", "cambio_sistema_propio": "{e} cambia de sistema",
-    "cambio_sistema_rival": "{r} cambia de sistema", "sustitucion_tactica_propia": "cambio táctico de {e}",
-    "sustitucion_tactica_rival": "cambio táctico de {r}", "sustitucion_lesion_propia": "cambio por lesión de {e}",
-    "sustitucion_lesion_rival": "cambio por lesión de {r}",
+    "gol_favor": "gol del {e}", "gol_contra": "gol del {r}", "expulsion_favor": "expulsión en el {r}",
+    "expulsion_contra": "expulsión en el {e}", "cambio_sistema_propio": "el {e} cambia de sistema",
+    "cambio_sistema_rival": "el {r} cambia de sistema", "sustitucion_tactica_propia": "cambio táctico del {e}",
+    "sustitucion_tactica_rival": "cambio táctico del {r}", "sustitucion_lesion_propia": "cambio por lesión del {e}",
+    "sustitucion_lesion_rival": "cambio por lesión del {r}",
 }
 
 
 @dataclass
 class Jugada:
-    """Una acción de la cadena que lleva al quiebre, con su Voronoi si el frame se puede analizar."""
+    """Una acción de la cadena que lleva al quiebre, con su Voronoi en la perspectiva del equipo."""
 
     reloj: str
     texto: str
     del_equipo: bool
-    control: float | None = None
-    figura: Figure | None = None
+    resultado: voronoi.ResultadoFrame
+    evento: object  # fila del evento ya orientada al equipo (x, y, fin_x, fin_y, tipo)
 
-
-@dataclass
-class Caso:
-    """Todo lo que lleva la página de un caso."""
-
-    titulo: str
-    subtitulo: str
-    equipo: str
-    chips: list[tuple[str, str]]
-    quiebres: list[tuple[str, str, bool]]  # (minuto, texto, es el quiebre del caso)
-    linea_tiempo: Figure
-    tabla_antes: pd.DataFrame
-    cadena_texto: list[tuple[str, str, bool]]  # (reloj, texto, del equipo)
-    jugadas: list[Jugada]
-    protagonista: str
-    figura_protagonista: Figure
-    resumen_protagonista: list[str]
-    cierre: list[str]
-    notas: list[str] = field(default_factory=list)
+    @property
+    def control(self) -> float:
+        return self.resultado.control
 
 
 def nombres(lineups: list[dict]) -> dict[int, str]:
@@ -148,28 +136,57 @@ def frame_del_equipo(jugadores: pd.DataFrame, area: list[float] | np.ndarray, ac
     return reflejados, list(plano)
 
 
-def figura_jugada(resultado: voronoi.ResultadoFrame, e, del_equipo: bool) -> Figure:
-    """Cancha chica con el Voronoi de una jugada en la perspectiva del equipo; e ya viene orientado."""
-    fig, ax, pitch = cancha_marca(ALTO_JUGADA)
-    _celdas(ax, resultado.celdas, resultado.jugadores)
-    for a, b in resultado.aristas:
-        if resultado.jugadores[a].propio != resultado.jugadores[b].propio:
-            borde = resultado.celdas[a].intersection(resultado.celdas[b])
+def _voronoi(ax, pitch, j: Jugada, ancho_ojo: float, grosor: float) -> None:
+    """Celdas, frontera, jugadores (ojo para el equipo, punto blanco para el rival), actor y flecha."""
+    r = j.resultado
+    for g in _poligonos(voronoi.cancha().difference(r.visible)):
+        ax.add_patch(plt.Polygon(list(g.exterior.coords), closed=True, facecolor=rgba("blanco", .03),
+                                 edgecolor=rgba("blanco", .08), hatch="xx", lw=0, zorder=1))
+    for celda, jugador in zip(r.celdas, r.jugadores):
+        relleno = rgba("dorado", ALFA_PROPIO) if jugador.propio else rgba("blanco", ALFA_RIVAL)
+        for g in _poligonos(celda):
+            ax.add_patch(plt.Polygon(list(g.exterior.coords), closed=True, facecolor=relleno, edgecolor=color("azul"),
+                                     lw=grosor, zorder=2))
+    for a, b in r.aristas:
+        if r.jugadores[a].propio != r.jugadores[b].propio:
+            borde = r.celdas[a].intersection(r.celdas[b])
             for parte in getattr(borde, "geoms", [borde]):
                 if parte.geom_type in ("LineString", "LinearRing") and parte.length > 0:
                     xs, ys = zip(*parte.coords)
-                    ax.plot(xs, ys, color=color("blanco"), lw=1.8, solid_capstyle="round", zorder=4)
-    _visible(ax, resultado.visible, relleno=False)
-    _jugadores(ax, resultado.jugadores)
-    i = resultado.indice_actor
-    if i is not None:
-        actor = resultado.jugadores[i]
-        ax.scatter(actor.x, actor.y, s=520, zorder=5, facecolors="none", linewidths=2.2,
-                   edgecolors=color("dorado") if del_equipo else color("blanco"))
+                    ax.plot(xs, ys, color=color("blanco"), lw=grosor * 2.2, solid_capstyle="round", zorder=4)
+    for g in _poligonos(r.visible):
+        xs, ys = g.exterior.xy
+        ax.plot(xs, ys, color=rgba("blanco", .5), lw=grosor * .7, ls=(0, (4, 3)), zorder=4)
+    e = j.evento
     if e.tipo in {"Pass", "Carry"} and pd.notna(e.fin_x):
-        pitch.arrows(e.x, e.y, e.fin_x, e.fin_y, ax=ax, width=2, headwidth=5, zorder=8,
-                     color=color("dorado") if del_equipo else color("blanco"))
-    _acercar(ax, resultado.visible)
+        pitch.arrows(e.x, e.y, e.fin_x, e.fin_y, ax=ax, width=grosor * 1.6, headwidth=5, zorder=7,
+                     color=color("dorado") if j.del_equipo else color("blanco"))
+    i = r.indice_actor
+    if i is not None:
+        actor = r.jugadores[i]
+        ax.add_patch(plt.Circle((actor.x, actor.y), ancho_ojo * .62, fill=False, lw=grosor * 1.6, zorder=8,
+                                ec=color("dorado") if j.del_equipo else color("blanco")))
+    for jugador in r.jugadores:
+        if jugador.propio:
+            marcador.dibujar(ax, jugador.x, jugador.y, ancho_ojo, zorder=9)
+        else:
+            ax.add_patch(plt.Circle((jugador.x, jugador.y), ancho_ojo * .2, facecolor=color("blanco"),
+                                    edgecolor=color("azul"), lw=grosor * 1.3, zorder=9))
+
+
+def figura_jugada(j: Jugada) -> Figure:
+    """Cancha chica con el Voronoi de una jugada, encuadrada en lo que ve la cámara."""
+    fig, ax, pitch = cancha_marca(ALTO_JUGADA)
+    _voronoi(ax, pitch, j, ancho_ojo=5.5, grosor=1.0)
+    _acercar(ax, j.resultado.visible)
+    return fig
+
+
+def figura_principal(j: Jugada) -> Figure:
+    """La foto del quiebre en grande, con la misma especificación que las canchas chicas."""
+    fig, ax, pitch = cancha_marca(ALTO_PRINCIPAL)
+    _voronoi(ax, pitch, j, ancho_ojo=4.6, grosor=1.6)
+    _acercar(ax, j.resultado.visible, margen=5.0)
     return fig
 
 
@@ -292,238 +309,10 @@ def antes_frente_al_partido(panel: pd.DataFrame, ventana: tuple[int, int, int], 
     return minuto.metricas(sumas, "clave")
 
 
-def _svg(figura: Figure) -> str:
+def svg(figura: Figure) -> str:
+    """Figura como SVG en línea (cierra la figura)."""
     buffer = io.StringIO()
     figura.savefig(buffer, format="svg", facecolor=figura.get_facecolor(), bbox_inches="tight", pad_inches=.08)
     plt.close(figura)
     texto = buffer.getvalue()
     return texto[texto.index("<svg"):]
-
-
-def html(caso: Caso, ruta_marca: str) -> str:
-    """Página del caso con la barra, la entrada y el ícono de la maqueta (ruta_marca: carpeta branding/)."""
-    chips = "".join(f'<div class="chip"><span>{escape(k)}</span><strong>{escape(v)}</strong></div>' for k, v in caso.chips)
-    quiebres = "".join(
-        f'<li class="{"caso" if es else ""}"><span class="min">{escape(m)}</span>{escape(t)}</li>' for m, t, es in caso.quiebres)
-    filas = "".join(
-        f'<li class="{"eq" if eq else "riv"}"><span class="min">{escape(r)}</span>{escape(t)}</li>' for r, t, eq in caso.cadena_texto)
-    jugadas = "".join(
-        f'<figure class="jugada {"eq" if j.del_equipo else "riv"}"><div class="cancha">{_svg(j.figura)}</div>'
-        f'<figcaption><span class="min">{escape(j.reloj)}</span>{escape(j.texto)}'
-        f'<span class="ctl">Control del {escape(caso.equipo)}: {j.control:.0%}</span></figcaption></figure>'
-        for j in caso.jugadas if j.figura is not None)
-    t = caso.tabla_antes
-    tabla = "".join(f"<tr><th>{escape(str(i))}</th>" + "".join(f"<td>{v}</td>" for v in fila) + "</tr>"
-                    for i, fila in zip(t.index, t.to_numpy()))
-    cabecera = "".join(f"<th>{escape(str(c))}</th>" for c in t.columns)
-    resumen = "".join(f"<li>{escape(x)}</li>" for x in caso.resumen_protagonista)
-    cierre = "".join(f"<li>{escape(x)}</li>" for x in caso.cierre)
-    notas = "".join(f"<p class=\"nota\">{escape(x)}</p>" for x in caso.notas)
-    return PLANTILLA.format(
-        tokens=ARCHIVO_TOKENS.read_text(encoding="utf-8"), marca=ruta_marca, titulo=escape(caso.titulo), subtitulo=escape(caso.subtitulo), chips=chips,
-        quiebres=quiebres, linea_tiempo=_svg(caso.linea_tiempo), cabecera=cabecera, tabla=tabla, cadena=filas,
-        jugadas=jugadas, protagonista=escape(caso.protagonista), figura_protagonista=_svg(caso.figura_protagonista),
-        resumen=resumen, cierre=cierre, notas=notas)
-
-
-PLANTILLA = """<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ojo de Águila · {titulo}</title>
-<link rel="icon" href="{marca}/fuente/marca-2a/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="{marca}/dist/marca.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap">
-<style>
-{tokens}
-  /* NOTA1: misma barra, entrada e ícono que branding/maqueta.html; el contenido es de un caso real.
-     Los tokens van incrustados para que colores y fuente no dependan de que cargue dist/marca.css. */
-  * {{ box-sizing: border-box; }}
-  html, body {{ margin: 0; }}
-  body {{ background: var(--oda-gris-fondo); color: var(--oda-azul); font-family: var(--oda-fuente); line-height: 1.55; }}
-  html.con-intro {{ overflow: hidden; }}
-  #intro {{ position: fixed; inset: 0; z-index: 1000; background: var(--oda-azul); transition: opacity .6s ease; cursor: pointer; }}
-  #intro.oculto {{ display: none; }}
-  #intro.saliendo {{ opacity: 0; pointer-events: none; }}
-  #intro-lienzo {{ position: absolute; inset: 0; }}
-  #intro-saltar {{ position: absolute; right: 24px; bottom: 22px; font: 500 13px/1 var(--oda-fuente); letter-spacing: .06em;
-    color: rgba(255,255,255,.7); background: transparent; border: 1px solid rgba(255,255,255,.35); border-radius: 999px;
-    padding: 9px 16px; cursor: pointer; opacity: 0; animation: aparecer .4s ease 1.2s forwards; }}
-  @keyframes aparecer {{ to {{ opacity: 1; }} }}
-  #banda-espacio {{ height: 242px; }}
-  header.banda {{ position: fixed; top: 0; left: 0; right: 0; z-index: 10; background-color: var(--oda-azul);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cg fill='none' stroke='%23E8B100' stroke-width='3.6'%3E%3Cpath d='M-1 12 L11 0 L23 12'/%3E%3Cpath d='M-1 23 L11 11 L23 23'/%3E%3C/g%3E%3C/svg%3E");
-    background-size: 22px 22px; padding-block: 28px 64px; box-shadow: 0 2px 0 rgba(11,37,69,.25); transition: padding-block .35s ease; }}
-  .banda-in {{ position: relative; max-width: 1120px; margin: 0 auto; padding-inline: 16px; }}
-  .placa {{ display: flex; align-items: center; gap: 16px; padding: 12px 22px 34px 12px; background: var(--oda-dorado);
-    border-radius: 8px; transition: padding .35s ease, gap .35s ease; }}
-  #loop-icono {{ position: relative; width: 104px; height: 104px; flex: none; border-radius: 14px; overflow: hidden;
-    transition: width .35s ease, height .35s ease, border-radius .35s ease; }}
-  .marca-texto {{ font-family: var(--oda-fuente); font-weight: 900; text-transform: uppercase; font-size: clamp(34px, 8vw, 96px);
-    line-height: 1; letter-spacing: -.01em; color: var(--oda-azul); white-space: nowrap; transition: font-size .35s ease; }}
-  header.banda.compacta {{ padding-block: 8px; }}
-  header.banda.compacta .placa {{ padding: 6px 16px 6px 6px; gap: 12px; }}
-  header.banda.compacta #loop-icono {{ width: 52px; height: 52px; border-radius: 10px; }}
-  header.banda.compacta .marca-texto {{ font-size: clamp(22px, 3.4vw, 38px); }}
-  header.banda.compacta .cinta {{ opacity: 0; transform: translateY(-10px); visibility: hidden; pointer-events: none; }}
-  .a-acento {{ position: relative; display: inline-block; }}
-  .a-acento .tilde {{ position: absolute; left: .33em; top: -.16em; width: .26em; height: .18em; background: var(--oda-blanco);
-    clip-path: polygon(52% 0, 100% 0, 40% 100%, 0 100%); }}
-  .solo-lector {{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }}
-  .cinta {{ position: absolute; right: 40px; top: calc(100% - 22px); max-width: min(52%, 520px); padding: 9px 16px; border-radius: 8px;
-    background: var(--oda-azul); box-shadow: 0 0 0 3px var(--oda-dorado); font-weight: 800; text-transform: uppercase;
-    font-size: clamp(10.5px, 1.1vw, 14px); line-height: 1.2; letter-spacing: .04em; color: var(--oda-dorado);
-    transition: opacity .25s ease, transform .25s ease, visibility .25s; }}
-  main {{ max-width: 1120px; margin: 0 auto; padding: 48px 16px 72px; display: grid; gap: 56px; }}
-  .eyebrow {{ font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--oda-gris-texto); }}
-  h1 {{ font-size: clamp(30px, 5vw, 50px); line-height: 1.06; margin: 8px 0 12px; text-wrap: balance; }}
-  h2 {{ font-size: clamp(22px, 3vw, 28px); margin: 4px 0 10px; }}
-  p {{ max-width: 70ch; margin: 0 0 10px; }}
-  .chips {{ display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }}
-  .chip {{ background: var(--oda-azul); color: #fff; border-radius: 10px; padding: 10px 14px; display: grid; min-width: 120px; }}
-  .chip span {{ font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }}
-  .chip strong {{ font-size: 20px; color: var(--oda-dorado); }}
-  .quiebres {{ list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }}
-  .quiebres li {{ background: #fff; border-radius: 999px; padding: 6px 14px; box-shadow: inset 0 0 0 1px rgba(11,37,69,.15); font-size: 14px; }}
-  .quiebres li.caso {{ background: var(--oda-azul); color: #fff; box-shadow: 0 0 0 3px var(--oda-dorado); font-weight: 600; }}
-  .min {{ font-weight: 800; margin-right: 8px; font-variant-numeric: tabular-nums; }}
-  .figura {{ background: var(--oda-azul); border-radius: 12px; padding: 12px; overflow: hidden; }}
-  .figura svg, .cancha svg {{ display: block; width: 100%; height: auto; }}
-  table {{ border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; font-size: 14px; width: 100%; max-width: 760px; }}
-  th, td {{ padding: 8px 12px; text-align: right; border-bottom: 1px solid rgba(11,37,69,.08); font-variant-numeric: tabular-nums; }}
-  th:first-child {{ text-align: left; }}
-  thead th {{ background: var(--oda-azul); color: #fff; font-weight: 600; }}
-  .tabla-scroll {{ overflow-x: auto; }}
-  .cadena {{ list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 4px; }}
-  .cadena li {{ padding: 6px 12px; border-left: 4px solid var(--oda-dorado); background: #fff; border-radius: 0 8px 8px 0; font-size: 14px; }}
-  .cadena li.riv {{ border-left-color: var(--oda-azul); }}
-  .jugadas {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }}
-  .jugada {{ margin: 0; background: var(--oda-azul); color: #fff; border-radius: 12px; overflow: hidden; }}
-  .jugada figcaption {{ padding: 10px 12px 12px; font-size: 13px; display: grid; gap: 2px; }}
-  .jugada.eq figcaption {{ border-top: 3px solid var(--oda-dorado); }}
-  .jugada.riv figcaption {{ border-top: 3px solid #fff; }}
-  .jugada .ctl {{ color: var(--oda-dorado); font-size: 12px; }}
-  .dos {{ display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 20px; align-items: start; }}
-  .cierre {{ background: var(--oda-azul); color: #fff; border-radius: 12px; padding: 22px 24px; }}
-  .cierre h2 {{ color: var(--oda-dorado); }}
-  ul.lista {{ margin: 0; padding-left: 20px; display: grid; gap: 6px; }}
-  .nota {{ font-size: 13px; color: var(--oda-gris-texto); }}
-  @media (max-width: 760px) {{
-    .placa {{ padding: 10px 14px 10px 10px; gap: 12px; }}
-    #loop-icono {{ width: 60px; height: 60px; border-radius: 10px; }}
-    .cinta {{ position: relative; right: auto; top: auto; max-width: none; margin: -10px 18px 0 auto; width: fit-content; }}
-    header.banda {{ padding-block: 14px 18px; }}
-    header.banda.compacta {{ padding-block: 6px; }}
-    header.banda.compacta #loop-icono {{ width: 40px; height: 40px; border-radius: 8px; }}
-    header.banda.compacta .cinta {{ position: absolute; }}
-    .dos {{ grid-template-columns: minmax(0, 1fr); }}
-  }}
-  @media (prefers-reduced-motion: reduce) {{ header.banda, .placa, #loop-icono, .marca-texto, .cinta {{ transition: none; }} }}
-</style>
-</head>
-<body>
-<div id="intro" role="img" aria-label="Animación de entrada de Ojo de Águila"><div id="intro-lienzo"></div>
-  <button id="intro-saltar" type="button">Saltar ›</button></div>
-<script>
-  (function () {{
-    var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.__ojoMostrarIntro = !reducir;
-    if (window.__ojoMostrarIntro) document.documentElement.classList.add('con-intro');
-    else document.getElementById('intro').classList.add('oculto');
-  }})();
-</script>
-<div id="banda-espacio" aria-hidden="true"></div>
-<header class="banda"><div class="banda-in">
-  <div class="placa"><div id="loop-icono" aria-hidden="true"></div>
-    <span class="marca-texto"><span class="solo-lector">Ojo de Águila</span><span aria-hidden="true">Ojo de <span class="a-acento">A<span class="tilde"></span></span>guila</span></span></div>
-  <div class="cinta">La intuición del entrenador, convertida en evidencia</div>
-</div></header>
-
-<main>
-  <section>
-    <span class="eyebrow">{subtitulo}</span>
-    <h1>{titulo}</h1>
-    <div class="chips">{chips}</div>
-  </section>
-
-  <section>
-    <span class="eyebrow">1 · El partido hasta aquí</span>
-    <h2>Los quiebres que llevaron a este momento</h2>
-    <ul class="quiebres">{quiebres}</ul>
-  </section>
-
-  <section>
-    <span class="eyebrow">2 · A dos bandas</span>
-    <h2>Quién mandaba, tramo a tramo</h2>
-    <p>Dorado: el América. Blanco: el rival. Cada punto es un tramo de 5 minutos; las líneas verticales son los quiebres (continuas: goles y expulsiones).</p>
-    <div class="figura">{linea_tiempo}</div>
-  </section>
-
-  <section>
-    <span class="eyebrow">3 · Los minutos previos</span>
-    <h2>Los últimos minutos frente a todo el partido</h2>
-    <p>Los 10 minutos antes del quiebre contra todo lo jugado hasta ahí, a dos bandas. Tasas por minuto.</p>
-    <div class="tabla-scroll"><table><thead><tr><th></th>{cabecera}</tr></thead><tbody>{tabla}</tbody></table></div>
-  </section>
-
-  <section>
-    <span class="eyebrow">4 · La jugada</span>
-    <h2>Los segundos que llevan al quiebre</h2>
-    <ul class="cadena">{cadena}</ul>
-    <p>Cada cancha es la foto 360 de esa acción, siempre con el América atacando hacia la derecha. El anillo marca a quien ejecuta; la línea blanca, dónde chocan los equipos.</p>
-    <div class="jugadas">{jugadas}</div>
-  </section>
-
-  <section>
-    <span class="eyebrow">5 · El protagonista</span>
-    <h2>{protagonista} antes del quiebre</h2>
-    <div class="dos"><div class="figura">{figura_protagonista}</div>
-      <div><ul class="lista">{resumen}</ul>
-        <p class="nota">Puntos grandes: acciones sin balón (presión, duelos, recuperaciones, faltas). Chicos: con balón. Resaltados: los últimos minutos. X: faltas.</p></div></div>
-  </section>
-
-  <section class="cierre">
-    <h2>Hasta aquí</h2>
-    <ul class="lista">{cierre}</ul>
-  </section>
-  <section>{notas}</section>
-</main>
-
-<script src="{marca}/dist/vendor/react.production.min.js"></script>
-<script src="{marca}/dist/vendor/react-dom.production.min.js"></script>
-<script src="{marca}/dist/marca.js"></script>
-<script>
-  (function () {{
-    var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (window.OjoMarca) OjoMarca.loop(document.getElementById('loop-icono'), {{ estatico: reducir }});
-    var banda = document.querySelector('header.banda');
-    var espacio = document.getElementById('banda-espacio');
-    function medirBanda() {{ if (!banda.classList.contains('compacta')) espacio.style.height = banda.offsetHeight + 'px'; }}
-    function revisarScroll() {{ banda.classList.toggle('compacta', window.scrollY > 24); }}
-    var pendiente = false;
-    window.addEventListener('scroll', function () {{
-      if (pendiente) return; pendiente = true;
-      requestAnimationFrame(function () {{ pendiente = false; revisarScroll(); }});
-    }}, {{ passive: true }});
-    window.addEventListener('resize', medirBanda);
-    banda.addEventListener('transitionend', medirBanda);
-    if (document.fonts) document.fonts.ready.then(medirBanda);
-    medirBanda(); revisarScroll();
-    var intro = document.getElementById('intro');
-    if (!window.__ojoMostrarIntro || !window.OjoMarca) {{ intro.remove(); document.documentElement.classList.remove('con-intro'); return; }}
-    var control = null, cerrada = false;
-    function cerrar() {{
-      if (cerrada) return; cerrada = true;
-      intro.classList.add('saliendo'); document.documentElement.classList.remove('con-intro');
-      setTimeout(function () {{ if (control) control.detener(); intro.remove(); }}, 650);
-    }}
-    control = OjoMarca.intro(document.getElementById('intro-lienzo'), {{ segundos: 5, alTerminar: cerrar }});
-    intro.addEventListener('click', cerrar);
-    window.addEventListener('keydown', function (e) {{ if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') cerrar(); }});
-  }})();
-</script>
-</body>
-</html>
-"""
