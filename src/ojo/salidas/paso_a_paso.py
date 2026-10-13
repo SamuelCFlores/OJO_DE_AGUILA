@@ -51,6 +51,7 @@ class Jugada:
     y: float
     fin_x: float | None = None
     fin_y: float | None = None
+    contexto: str = ""  # p. ej. "3 min después de una sustitución táctica"
 
 
 def _jugadores(ax, jugadores: list[voronoi.Jugador], excluidos: list[voronoi.Jugador] = ()) -> None:
@@ -105,7 +106,8 @@ def pasos(jugada: Jugada, todos: list[voronoi.Jugador], area_visible) -> list[Pa
     ax.scatter(jugada.x, jugada.y, s=160, zorder=6, c=color("dorado"), edgecolors=color("azul"), linewidths=1.5)
     _flecha(ax, pitch, jugada)
     lista.append(Paso("1 · El evento", (
-        f"{escape(jugada.tipo)} de {escape(jugada.equipo)} en el minuto {jugada.minuto}:{jugada.segundo:02d}. "
+        f"{escape(jugada.tipo)} de {escape(jugada.equipo)} en el minuto {jugada.minuto}:{jugada.segundo:02d}"
+        f"{' (' + escape(jugada.contexto) + ')' if jugada.contexto else ''}. "
         "Todo se dibuja en la perspectiva de quien ejecuta: ataca de izquierda a derecha. StatsBomb registra dónde "
         "empieza y dónde termina la acción; el 360 agrega una foto de ese instante."), fig))
 
