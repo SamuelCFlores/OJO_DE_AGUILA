@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import pandas as pd
 
+from ojo.config import params
+
 ESTADO_COMPLETO = "Complete"
 DISPONIBLE = "available"
 APERTURA, CLAUSURA = "Apertura", "Clausura"
@@ -40,6 +42,17 @@ def con_torneo(partidos: pd.DataFrame) -> pd.DataFrame:
     anio = (tabla["fecha"].dt.year % 100).map("{:02d}".format)
     tabla["torneo_corto"] = tabla["torneo"].map({APERTURA: "AP", CLAUSURA: "CL"}) + anio
     return tabla
+
+
+def es_prueba(partidos: pd.DataFrame, plan_b: bool = False) -> pd.Series:
+    """True en los partidos del torneo de prueba (validacion en params.yaml); requiere con_torneo().
+
+    IMPOR1: el torneo de prueba no se usa para descubrir principios ni para entrenar (framework.md,
+    "Validación, causalidad y decisión").
+    """
+    v = params()["validacion"]
+    v = v["plan_b"] if plan_b else v
+    return (partidos["season_id"] == v["season_id_prueba"]) & (partidos["torneo"] == v["torneo_prueba"])
 
 
 def del_equipo(partidos: pd.DataFrame, team_id: int) -> pd.DataFrame:

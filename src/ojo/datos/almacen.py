@@ -43,16 +43,20 @@ def procesar_temporada(competition_id: int, season_id: int, dir_raw: Path = DIR_
     return ruta
 
 
-def procesar_partido(match_id: int, forzar: bool = False, dir_raw: Path = DIR_RAW,
+def procesar_partido(match_id: int, forzar: bool | Iterable[str] = False, dir_raw: Path = DIR_RAW,
                      dir_procesado: Path = DIR_PROCESADO) -> list[str]:
-    """Convierte las APIs en caché de un partido a parquet; devuelve las tablas escritas."""
+    """Convierte las APIs en caché de un partido a parquet; devuelve las tablas escritas.
+
+    forzar=True rehace todas las tablas; una lista de nombres rehace solo esas (p. ej. ["eventos"]).
+    """
+    rehacer = set(TABLAS_PARTIDO) if forzar is True else set(forzar or ())
     escritas = []
 
     def destino(nombre: str) -> Path:
         return dir_procesado / nombre / f"{match_id}.parquet"
 
     def hacer(nombre: str) -> bool:
-        return forzar or not destino(nombre).exists()
+        return nombre in rehacer or not destino(nombre).exists()
 
     if hacer("eventos") and crudo.existe("events", dir_raw=dir_raw, match_id=match_id):
         _escribir(tablas.eventos(crudo.leer("events", dir_raw=dir_raw, match_id=match_id), match_id), destino("eventos"))

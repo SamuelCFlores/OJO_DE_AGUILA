@@ -22,6 +22,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - Regla de corte: si el 14 de octubre Voronoi no da hallazgos claros, pasa a lente de apoyo.
 - Rúbrica: nos apegamos a la tabla de evaluación publicada (predictiva 30 %, causal 25 %, interpretabilidad 25 %, valor operativo 20 %) y el objetivo se adapta a ella (supuesto hasta que los organizadores confirmen). La interpretabilidad se cubre con la capa "Decide en 90 segundos" (`contexto/propuesta_base.md`).
 - Validación: entrenamiento AP23–AP25, prueba en el Clausura 2026 (intocable hasta la evaluación final, sin fuga de información). Plan B si los organizadores no permiten datos posteriores al CL25: AP23–AP24 y prueba en el CL25. Detalle en `contexto/framework.md`, "Validación, causalidad y decisión".
+- Idea central (12 oct): leer el partido por **puntos de quiebre** (goles, expulsiones, cambios de sistema, sustituciones tácticas y por lesión, de ambos equipos): antes/después en ambos equipos, contra ventanas de control emparejadas (diferencia en diferencias). Criterio de hallazgo fijado antes de ver resultados y evaluado sin el CL26 (`contexto/framework.md`, "Lectura del partido por puntos de quiebre"). Cómo se conecta cada herramienta: `contexto/propuesta_base.md`, "Idea central".
 - Monte Carlo: antes del partido es predictivo (cuenta para el 30 %, evaluado en toda la liga del CL26 y aparte el América); después del partido ("qué tan merecido fue") es interpretativo y opcional. Nunca se mezclan.
 
 ## Reglas no negociables
@@ -67,7 +68,8 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - [x] Capa de datos (`ojo.datos`: crudo → tablas → parquet + DuckDB; `scripts/03_procesar.py`).
 - [x] Framework base en código (`ojo.framework`: partidos válidos, torneo, del equipo, relevos, tramos, marcador, orientación, juego abierto, recuperaciones).
 - [x] Lente Voronoi + grafo de vecindad (`ojo.lentes.voronoi`, `scripts/04_voronoi.py`) y figuras con la identidad (`ojo.salidas`).
-- [ ] Métricas de comportamiento (PPDA, field tilt, altura de recuperación por tramo), fuerza del rival previa, dos bandas, modelado, ficha, reporte, video.
+- [x] Lectura por puntos de quiebre (12 oct): `ojo.framework.quiebres` (quiebres, ventanas, controles), panel por minuto a dos bandas con forma del bloque y red por posición (`ojo.lentes.minuto`, `forma`, `redes`; `scripts/05_panel.py`), criterio de hallazgo (`ojo.lentes.hallazgo`), notebooks 02 (quiebres) y 03 (estilo y tabla final) y el Voronoi paso a paso (`ojo.salidas.paso_a_paso`, `scripts/06_paso_a_paso.py`). Voronoi sigue como lente estructural por la regla fijada.
+- [ ] Métricas de comportamiento por tramo (PPDA, altura de recuperación), fuerza del rival previa, modelado (R², Monte Carlo), validación en el CL26, ficha, `scripts/07_resumenes.py`, reporte, video.
 
 Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, al parecer heredado de ediciones anteriores; se usan, con plan B listo), ¿cómo evalúan "la herramienta cambia una decisión real"?, ¿qué implica la nota de que no se necesita programación avanzada? Samuel envía el correo a los organizadores el 8 de octubre.
 

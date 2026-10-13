@@ -102,6 +102,7 @@ def eventos(crudo: list[dict], match_id: int) -> pd.DataFrame:
         tiro = e.get("shot") or {}
         duelo = e.get("duel") or {}
         sustitucion = e.get("substitution") or {}
+        tarjeta = (e.get("foul_committed") or {}).get("card") or (e.get("bad_behaviour") or {}).get("card")
         filas.append({
             "match_id": match_id,
             "id": e.get("id"),
@@ -127,6 +128,7 @@ def eventos(crudo: list[dict], match_id: int) -> pd.DataFrame:
             "pase_tipo": _nombre_de(pase.get("type")),
             "pase_altura": _nombre_de(pase.get("height")),
             "pase_cluster_id": pase.get("pass_cluster_id"),
+            "pase_cluster": pase.get("pass_cluster_label"),
             "pase_prob_exito": pase.get("pass_success_probability"),
             "tiro_xg": tiro.get("statsbomb_xg"),
             "tiro_resultado": _nombre_de(tiro.get("outcome")),
@@ -136,6 +138,7 @@ def eventos(crudo: list[dict], match_id: int) -> pd.DataFrame:
             "duelo_resultado": _nombre_de(duelo.get("outcome")),
             "sustitucion_resultado": _nombre_de(sustitucion.get("outcome")),
             "sustitucion_entra_id": _id(sustitucion.get("replacement"), "player"),
+            "tarjeta": _nombre_de(tarjeta),
             "formacion": (e.get("tactics") or {}).get("formation"),
             "control_degree": e.get("control_degree"),
             "es_transicion": e.get("is_transition"),

@@ -64,6 +64,39 @@ La parte causal es el diseño de comparación del objetivo 5. El Monte Carlo des
 
 **Plan B de fechas:** si los organizadores no permiten datos posteriores al Clausura 2025, se entrena con AP23–AP24 y se prueba con el Clausura 2025.
 
+## Idea central: el partido leído por puntos de quiebre
+
+Actualización del 12 de octubre. El notebook 01 mostró que el promedio de control territorial por partido no distingue a Jardine de Solari ni de Ortiz cuando se descuenta la cobertura de cámara. Por eso la historia no se cuenta con promedios por entrenador, sino **momento a momento**: cada partido se corta en **puntos de quiebre** (goles, expulsiones, cambios de sistema, sustituciones tácticas y por lesión, de ambos equipos) y se mide qué cambia antes y después de cada uno, en los dos equipos a la vez. Comparar dentro del mismo partido deja fijos la cámara, el rival y el día. Definiciones, ventanas, controles y criterio de hallazgo en `contexto/framework.md`, "Lectura del partido por puntos de quiebre".
+
+El Voronoi cambia de papel: deja de ser "el promedio de Jardine" y pasa a mostrar **cómo cambia el espacio alrededor de un quiebre**. Sigue como lente estructural solo si alguna de sus métricas pasa el criterio de hallazgo; si no, queda como lenguaje visual (la jugada recreada paso a paso).
+
+### Cómo entra cada herramienta
+
+```text
+Eventos + Lineups ──► Quiebres (framework) ──► ventanas antes/después + ventanas de control
+Eventos + 360 ────► Panel por minuto, dos bandas ──► métricas por ventana
+                       ├─ Estructura: Voronoi (control en campo rival) y forma del bloque (360)
+                       ├─ Circulación: red de pases por posición
+                       └─ Intensidad, valor y riesgo: métricas de StatsBomb (presión, xG, OBV, transición)
+Ventanas ─────────► Efecto de cada quiebre (diferencia en diferencias, bootstrap por partido)
+                       └─ Criterio de hallazgo ──► tabla de qué pasa ──► principios de Jardine
+Team Match Stats ─► Barrido de estilo frente a la liga (cómo juega por defecto)
+Principios ───────► Modelo de comportamiento (R²) y Monte Carlo desde el estado del partido
+CL26 (prueba) ────► Validación y casos de decisión ──► matriz de situaciones, ficha, explorador, video
+```
+
+| Herramienta | Entra con | Responde | Sale hacia |
+| --- | --- | --- | --- |
+| Detector de quiebres | Eventos (goles, tarjetas, Tactical Shift, sustituciones) y formaciones | ¿Dónde cambia el partido? | Ventanas antes/después y ventanas de control |
+| Panel por minuto | Eventos, Voronoi y forma (360) de ambos equipos | ¿Qué hace cada equipo en cada minuto? | Métricas de cualquier ventana o tramo sin recalcular |
+| Voronoi y forma | 360 recortado al área visible | ¿Cómo se reparte el espacio y qué tan junto está cada bloque? | Bloque de estructura; imagen paso a paso del reporte y del video |
+| Red de pases por posición | Pases completos | ¿Por dónde circula el balón y cuánto depende de una posición? | Bloque de circulación |
+| Métricas de StatsBomb | xG, OBV, presión, contrapresión, transición, contragolpe | ¿Quién genera, quién arriesga? | Bloques de intensidad, valor y riesgo; hipótesis de agresividad |
+| Diferencia en diferencias | Ventanas del quiebre frente a ventanas de control | ¿Qué cambia por el quiebre y no por el paso del tiempo? | Tabla de hallazgos (criterio fijado antes de ver resultados) |
+| Barrido de estilo | Team Match Stats de toda la liga | ¿En qué se distingue Jardine de Solari y Ortiz por partido? | Identidad por defecto, contraste con la reacción a quiebres |
+| Modelo de comportamiento y Monte Carlo | Principios, contexto y estado del partido | ¿Qué hará y qué probabilidad tiene desde aquí? | Pilar predictivo (CL26) |
+| Casos de decisión | Quiebres propios del CL26 (sustituciones, cambios de sistema) | ¿Qué recomendaba la herramienta frente a lo que hizo Jardine? | Pilar de decisión, ficha y matriz de situaciones |
+
 ## Del dato a la decisión
 
 La tabla de evaluación pide que la herramienta cambie una decisión real del entrenador. Con datos históricos no podemos demostrarlo en vivo, así que nos acercamos lo más posible de forma retrospectiva y sin trampa, sobre el Clausura 2026:

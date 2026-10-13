@@ -6,6 +6,7 @@ en la caché. Es incremental: lo ya convertido se salta (usa --forzar para rehac
 Cómo correrlo (PowerShell, desde la raíz del repo y con el entorno activado):
     python scripts/03_procesar.py
     python scripts/03_procesar.py --forzar
+    python scripts/03_procesar.py --rehacer eventos      # solo esa tabla (p. ej. tras agregar una columna)
 """
 
 from __future__ import annotations
@@ -34,6 +35,8 @@ def ids_en_cache() -> list[int]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--forzar", action="store_true", help="rehace también lo ya convertido")
+    parser.add_argument("--rehacer", nargs="+", choices=almacen.TABLAS_PARTIDO, metavar="TABLA",
+                        help="rehace solo estas tablas de cada partido")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
 
@@ -46,7 +49,7 @@ def main() -> int:
     ids = ids_en_cache()
     escritas: Counter[str] = Counter()
     for match_id in tqdm(ids, desc="Procesando", unit="partido"):
-        escritas.update(almacen.procesar_partido(match_id, forzar=args.forzar))
+        escritas.update(almacen.procesar_partido(match_id, forzar=args.forzar or args.rehacer or False))
     print(f"Partidos en caché: {len(ids):,}. Tablas escritas: {dict(escritas) or 'ninguna (todo estaba al día)'}")
     return 0
 

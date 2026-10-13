@@ -67,6 +67,56 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 | Fase del torneo | `competition_stage` (fase regular contra liguilla) |
 | Entrenador | Id del entrenador en Matches (`home_team.managers` / `away_team.managers`) |
 
+## Lectura del partido por puntos de quiebre
+
+Idea central (12 oct): el partido se lee momento a momento y se corta en tramos entre **puntos de quiebre**. Cada quiebre se compara contra el mismo partido (antes y después) y contra ventanas de control sin quiebre. Comparar dentro del partido mantiene fijos la cámara, el rival y el día, que son los factores que confundieron la comparación de promedios entre entrenadores (notebook 01).
+
+**Reloj.** Minuto de StatsBomb dentro de cada periodo. Ninguna ventana cruza el descanso.
+
+**Tipos de quiebre** (siempre desde el América; "a favor" = beneficia al América):
+
+| Tipo | Definición | Corta ventanas |
+| --- | --- | --- |
+| `gol_favor` / `gol_contra` | Tiro con resultado Goal u Own Goal For del equipo (sin tanda de penales) | Sí |
+| `expulsion_favor` / `expulsion_contra` | Tarjeta Red Card o Second Yellow (en Foul Committed o Bad Behaviour) al rival / al América | Sí |
+| `cambio_sistema_propio` / `cambio_sistema_rival` | Tactical Shift con una formación distinta de la vigente | No |
+| `sustitucion_tactica_propia` / `_rival` | Substitution con motivo Tactical | No |
+| `sustitucion_lesion_propia` / `_rival` | Substitution con motivo Injury: cambio forzado, comparación natural frente al táctico | No |
+
+Los quiebres que **no** cortan suelen ser la respuesta del entrenador al quiebre; por eso se miden pero no truncan las ventanas de otros quiebres.
+
+**Ventanas** (en minutos enteros; m = minuto del quiebre). Antes: [m − `quiebres.ventana_min`, m − `quiebres.exclusion_min`); después: (m + `exclusion_min`, m + `ventana_min`]; el minuto del quiebre nunca cuenta. Se truncan al inicio o fin del periodo y en el siguiente quiebre que corta; si una queda más corta que `quiebres.min_ventana_min`, el quiebre se descarta. Las tasas se expresan por minuto para que ventanas truncadas sean comparables.
+
+**Efecto de un tipo de quiebre** (diferencia en diferencias): promedio de (después − antes) en los quiebres de ese tipo, menos el promedio de (después − antes) en **ventanas de control**: partidos del América con el mismo estado del marcador antes, minuto ± `quiebres.tolerancia_control_min`, mismo periodo y sin quiebre que corte dentro de la ventana (hasta `quiebres.max_controles` por quiebre). Así se descuenta lo que cambia solo con el paso del tiempo. Intervalo por bootstrap de partidos.
+
+**Métricas por bloque** (dos bandas: América y rival en la misma ventana; coordenadas en la perspectiva de cada equipo):
+
+| Bloque | Métrica | Definición |
+| --- | --- | --- |
+| Estructura | Control en campo rival | Control medio (Voronoi) de las acciones del equipo con x ≥ `presion.campo_rival_min_x` |
+| | Altura del bloque | x medio de los jugadores visibles del equipo sin el portero |
+| | Ancho / largo del bloque | Rango de y / rango de x de esos jugadores. El largo del bloque sin balón aproxima el espacio entre líneas (sin identidad no hay líneas por posición) |
+| | Compactación | Área de la envolvente convexa de esos jugadores entre su número |
+| Circulación | Centralización de la red | Red de pases completos por posición (nodo = posición; posición del receptor = su posición más frecuente en el partido); centralización = Σ (s_max − s_i) / (n − 1), donde s_i es la fracción de los pases (dados y recibidos) que toca la posición i y n las posiciones que tocan el balón; 0 = circulación repartida, cerca de 1 = todo pasa por una posición. Solo ventanas con al menos `red_pases.min_pases_ventana` pases |
+| Intensidad | Presiones, faltas, contrapresiones | Eventos Pressure, Foul Committed y acciones con `counterpress`, por minuto |
+| Valor | xG, OBV, field tilt | xG de los tiros y OBV total por minuto; field tilt: pases completos del equipo en el último tercio entre los de ambos equipos |
+| Riesgo | Tiros en transición y contragolpes en contra | Tiros del rival con `is_transition`; posesiones del rival que empiezan con `play_pattern` From Counter (en el minuto en que empiezan); por minuto |
+
+Las métricas de forma solo usan frames con al menos `forma.min_jugadores_equipo` jugadores visibles de ese equipo.
+
+**Hipótesis de agresividad.** Panel por tramos de `agresividad.tramo_min` minutos dentro de cada periodo: la presión del América en un tramo (presiones en campo rival por minuto) se relaciona con, en el tramo siguiente del mismo periodo, su xG a favor, sus faltas y los contragolpes y tiros en transición en contra. Modelo con efectos fijos por partido y por estado del marcador, la misma respuesta en el tramo actual como control, errores agrupados por partido e interacción con los tramos que empiezan en el minuto `agresividad.tardio_min` o después. Es una relación temporal, no causalidad.
+
+**Barrido de estilo** (notebook 03). Métricas de Team Match Stats de toda la liga, ajustadas por la liga: valor del América menos el promedio de la liga en el mismo torneo. Jardine frente a Solari y Ortiz, intervalo por bootstrap de partidos.
+
+**Criterio de hallazgo** (fijado el 12 oct, antes de ver resultados). Un efecto es hallazgo si cumple las tres:
+1. Su intervalo de confianza (`estadistica.nivel_confianza`) no cruza 0.
+2. Su tamaño es al menos `hallazgo.tamano_min_de` desviaciones estándar de la variación entre partidos de esa métrica (DE del valor por partido en los partidos del América usados).
+3. Va en la misma dirección en al menos `hallazgo.min_torneos_misma_direccion` de los torneos de Jardine.
+
+IMPOR1: el Clausura 2026 es el torneo de prueba (sección "Validación, causalidad y decisión"). Los hallazgos alimentan los principios que luego se validan ahí, así que el criterio se evalúa en los 5 torneos de entrenamiento (AP23–AP25: al menos 4 de 5) y el CL26 se usa al final solo para confirmar la dirección.
+
+Se reporta cuántas pruebas se hicieron, porque con muchas pruebas algunas pasan por azar. Agregado al ver los primeros resultados, sin cambiar qué pasa: los efectos con menos de `hallazgo.partidos_aviso` partidos se marcan como muestra chica (con tan pocos partidos el bootstrap subestima la incertidumbre). OBS1: en los quiebres, la condición 2 filtra poco, porque una ventana de 10 minutos cambia mucho más que el promedio de un partido completo; los filtros que pesan son la 1 y la 3. **Voronoi** sigue como lente estructural si alguna de sus métricas (control en campo rival, forma) cumple el criterio después de algún quiebre; si no, queda como apoyo visual. El resultado final es una tabla de qué pasa y qué no.
+
 ## Situaciones del explorador
 
 Filtros de la barra lateral del reporte (`contexto/resumenes.md`). Cada evento con 360 cae en las situaciones que cumple; "todas" no filtra. Coordenadas en la perspectiva de quien ejecuta el evento.
@@ -151,9 +201,13 @@ transicion: {fuente: "is_transition", plan_b_segundos: 10}
 pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
 tramos_min: 15            # 5 para lectura fina del flujo
-red_pases: {min_pases_arista: 3}
+red_pases: {min_pases_arista: 3, min_pases_ventana: 15}
 voronoi: {min_dist_borde: 2.0, alcance_max_yd: 20, min_borde_arista_yd: 0.5, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
 simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}
 resumenes: {min_partidos: 3, rejilla: {columnas: 12, filas: 8}}
 estadistica: {bootstrap_repeticiones: 2000, nivel_confianza: 0.95, min_eventos_zona: 30}
+quiebres: {ventana_min: 10, exclusion_min: 1, min_ventana_min: 4, tolerancia_control_min: 5, max_controles: 20}
+forma: {min_jugadores_equipo: 4}
+agresividad: {tramo_min: 5, tardio_min: 65}
+hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10}
 ```

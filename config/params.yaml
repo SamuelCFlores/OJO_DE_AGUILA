@@ -27,7 +27,7 @@ transicion: {fuente: "is_transition", plan_b_segundos: 10}
 pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
 tramos_min: 15            # 5 para lectura fina del flujo
-red_pases: {min_pases_arista: 3}
+red_pases: {min_pases_arista: 3, min_pases_ventana: 15}   # min_pases_ventana: mínimo para la red de una ventana
 voronoi:
   min_dist_borde: 2.0        # se excluyen jugadores (salvo el actor) a menos de esto del borde visible
   alcance_max_yd: 20         # radio máximo de la celda de cada jugador (zonas vacías no cuentan)
@@ -36,3 +36,12 @@ voronoi:
 simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}
 resumenes: {min_partidos: 3, rejilla: {columnas: 12, filas: 8}}   # explorador del reporte (contexto/resumenes.md)
 estadistica: {bootstrap_repeticiones: 2000, nivel_confianza: 0.95, min_eventos_zona: 30}   # intervalos y mapas de las exploraciones
+quiebres:
+  ventana_min: 10             # minutos antes y después del quiebre
+  exclusion_min: 1            # minutos junto al quiebre que no cuentan (celebración, reanudación)
+  min_ventana_min: 4          # una ventana truncada más corta se descarta
+  tolerancia_control_min: 5   # ventanas de control: mismo minuto ± esto
+  max_controles: 20           # ventanas de control por quiebre
+forma: {min_jugadores_equipo: 4}       # jugadores visibles mínimos para medir la forma de un equipo
+agresividad: {tramo_min: 5, tardio_min: 65}   # tramos de 5 min; tardío = tramos desde el 65'
+hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10}   # criterio fijado el 12 oct (framework.md); partidos_aviso solo marca, no filtra
