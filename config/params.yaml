@@ -44,4 +44,5 @@ quiebres:
   max_controles: 20           # ventanas de control por quiebre
 forma: {min_jugadores_equipo: 4}       # jugadores visibles mínimos para medir la forma de un equipo
 agresividad: {tramo_min: 5, tardio_min: 65}   # tramos de 5 min; tardío = tramos desde el 65'
+casos: {tramo_min: 5, max_jugadas: 12}   # caso puntual (07_caso.py): tramos de la línea de tiempo y jugadas con Voronoi
 hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10}   # criterio fijado el 12 oct (framework.md); partidos_aviso solo marca, no filtra

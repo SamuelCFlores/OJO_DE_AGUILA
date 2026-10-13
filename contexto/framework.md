@@ -209,5 +209,6 @@ estadistica: {bootstrap_repeticiones: 2000, nivel_confianza: 0.95, min_eventos_z
 quiebres: {ventana_min: 10, exclusion_min: 1, min_ventana_min: 4, tolerancia_control_min: 5, max_controles: 20}
 forma: {min_jugadores_equipo: 4}
 agresividad: {tramo_min: 5, tardio_min: 65}
+casos: {tramo_min: 5, max_jugadas: 12}
 hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10}
 ```

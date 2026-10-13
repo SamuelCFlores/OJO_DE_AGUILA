@@ -52,7 +52,7 @@ def dibujar_voronoi(resultado: ResultadoFrame, titulo: str | None = None, subtit
             continue
         borde = resultado.celdas[a].intersection(resultado.celdas[b])
         for parte in getattr(borde, "geoms", [borde]):
-            if parte.length > 0 and hasattr(parte, "coords"):
+            if parte.geom_type in ("LineString", "LinearRing") and parte.length > 0:
                 xs, ys = zip(*parte.coords)
                 ax.plot(xs, ys, color=color("blanco"), lw=2.4, solid_capstyle="round", zorder=4)
     actor = resultado.indice_actor
