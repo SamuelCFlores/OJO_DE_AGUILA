@@ -45,6 +45,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 ## Cómo trabajar
 
 - El código reutilizable va en `src/ojo/`; los notebooks son solo exploración y llaman a `src/`.
+- Las páginas (maquetas, explorador) se diseñan en `app/` (HTML, CSS y JS editables a mano y versionados); Python solo escribe sus datos en `outputs/app/` (fuera de git). Contrato en `app/README.md`.
 - Los modelos (comportamiento con R², Monte Carlo, efecto del relevo) se trabajan en notebooks `notebooks/NN_tema.ipynb`. La primera celda dice qué hace, qué necesita (pasos 02–04 corridos) y cómo probarlo; al terminar, se le dice a Samuel qué se hizo y qué celdas correr. Lo que sirva dos veces se mueve a `src/ojo/`.
 - Funciones pequeñas con docstring en español, tipadas, sin efectos ocultos. Identificadores en español o inglés sin acentos, de forma consistente dentro de cada módulo.
 - Cada script nuevo trae instrucciones para probarlo; agrega pruebas en `tests/` para la lógica del framework (tramos, game state, orientación, Voronoi recortado).
@@ -69,7 +70,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - [x] Framework base en código (`ojo.framework`: partidos válidos, torneo, del equipo, relevos, tramos, marcador, orientación, juego abierto, recuperaciones).
 - [x] Lente Voronoi + grafo de vecindad (`ojo.lentes.voronoi`, `scripts/04_voronoi.py`) y figuras con la identidad (`ojo.salidas`).
 - [x] Lectura por puntos de quiebre (12 oct): `ojo.framework.quiebres` (quiebres, ventanas, controles), panel por minuto a dos bandas con forma del bloque y red por posición (`ojo.lentes.minuto`, `forma`, `redes`; `scripts/05_panel.py`), criterio de hallazgo (`ojo.lentes.hallazgo`), notebooks 02 (quiebres) y 03 (estilo y tabla final) y el Voronoi paso a paso (`ojo.salidas.paso_a_paso`, `scripts/06_paso_a_paso.py`). Voronoi sigue como lente estructural por la regla fijada.
-- [x] Maqueta 3 (14 oct): narrativa principio → caso confirmador (final AP23, roja a Fulgencio), índice Proactivo–Reactivo por minuto (`ojo.lentes.indice`, **propuesta pendiente de confirmar**), reproductor minuto a minuto con Voronoi (`ojo.salidas.reproductor`), Monte Carlo explicativo (`ojo.lentes.simulacion`) y página (`ojo.salidas.narrativa`, `scripts/08_maqueta.py`). Auditoría del 14 oct en `auditoria/`.
+- [x] Maqueta 3 (14 oct): narrativa principio → caso confirmador (final AP23, roja a Fulgencio), índice Proactivo–Reactivo por minuto (`ojo.lentes.indice`, **propuesta pendiente de confirmar**), reproductor minuto a minuto con Voronoi (`ojo.salidas.reproductor`) y Monte Carlo explicativo (`ojo.lentes.simulacion`). La página es la plantilla `app/maqueta.html` (+ `app.css`, `app.js`); `scripts/08_maqueta.py` solo escribe `outputs/app/datos.js`. Barra lateral v3: compacta, plegable y ocultable. Auditoría del 14 oct en `auditoria/`.
 - [ ] Métricas de comportamiento por tramo (PPDA, altura de recuperación), fuerza del rival previa, modelado (R², Monte Carlo), validación en el CL26, ficha, `scripts/09_resumenes.py`, reporte, video.
 
 Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, al parecer heredado de ediciones anteriores; se usan, con plan B listo), ¿cómo evalúan "la herramienta cambia una decisión real"?, ¿qué implica la nota de que no se necesita programación avanzada? Samuel envía el correo a los organizadores el 8 de octubre.
@@ -77,7 +78,7 @@ Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación ap
 ## Documentos (léelos solo cuando la tarea lo pida)
 
 - `contexto/flujo_trabajo.md`: cómo trabajamos en equipo: fases, día a día, ramas y promoción a `main`, commits y simbología de comentarios.
-- `branding/README.md`: identidad (colores, Poppins, logos), animación de entrada (5 s, cada vez que se abre el archivo) e ícono en loop; cómo usarlos y reconstruirlos. Toda salida visual (reporte, figuras, video, presentación) usa esos tokens: cancha azul marino, América dorado, rival blanco.
+- `branding/README.md`: identidad (colores, Poppins, logos), animación de entrada (5 s, cada vez que se abre el archivo) e ícono en loop; cómo usarlos y reconstruirlos. Toda salida visual (reporte, figuras, video, presentación) usa la **paleta azulcrema, definitiva desde el 14 oct**: cancha y fondos azul `#0F1D41`, América crema `#F0EB9A`, rival blanco y rojo `#F6303E` solo en acentos puntuales; la placa del logotipo conserva el azul y el dorado de la marca.
 - `CAMBIOS/` (rama `tests`): bitácora diaria; lee el último archivo para saber qué se hizo y qué quedó pendiente.
 - `contexto/resumenes.md`: contrato de `resumenes.json`, el único archivo de datos del explorador (barra lateral rival · torneo · situación). Solo agregados; validador en `ojo.salidas.resumenes`.
 

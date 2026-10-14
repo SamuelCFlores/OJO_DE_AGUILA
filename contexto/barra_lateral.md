@@ -65,3 +65,18 @@ La maqueta 2 (`scripts/07_caso.py` → `outputs/reportes/maqueta_2.html`, planti
 | — | Leyenda | Pasa al panel "Cómo leerla" (ojo dorado = América, punto blanco = rival, frontera) | Movida |
 
 **Lo que necesita el contrato** (`contexto/resumenes.md`, pendiente): (a) sumas aditivas (numerador y denominador por métrica y por celda del mapa) para combinar varios torneos y situaciones en el navegador; (b) las dimensiones nuevas: entrenador, localía, partido y situaciones "tras un quiebre"; (c) los textos del panel (`lectura`, `metodo`) por combinación. Mientras tanto, la maqueta muestra un solo caso y los controles no recalculan.
+
+## Versión 3 (14 oct): compacta, plegable y ocultable
+
+Decisión del 14 oct: la barra queda **compacta** (lo esencial a la vista) y **plegable** (cada sección se abre o se cierra con su resumen a la derecha), y se **oculta** con un botón: queda un riel con el número de filtros activos, y la elección se recuerda en el navegador. La implementa `app/app.js` con los datos de `barra` en `outputs/app/datos.js` (`ojo.salidas.barra.compacta`).
+
+| Sección | Abierta al inicio | Contenido | Por qué se queda |
+| --- | --- | --- | --- |
+| Rival | Sí | Placa con cinta de partidos y lista (4 visibles, "Ver todos") | La pregunta es "frente a cada rival"; alimenta la ficha |
+| Torneo | Sí | Chips de selección múltiple; CL26 con línea punteada (prueba) | Estabilidad entre torneos y validación |
+| Momento | Sí | Marcador (gana, empata, pierde) y Tras un quiebre (gol a favor, gol en contra, uno más, uno menos, cambio propio, cambio rival) | Es la idea central: el partido leído por quiebres y el contexto que pide la convocatoria |
+| Condición | Sí | Todos · Local · Visita | La localía está en la pregunta del reto |
+| Partidos | No | Los partidos con ese rival en el torneo | Entrada al reproductor de un partido |
+| Más filtros | No | Entrenador, Fase (salida, presión alta, transiciones) y Balón parado | Útiles pero secundarios: la fase ya la resume el índice y el balón parado tendrá su sección |
+
+**Sale de la barra:** el resumen rápido (ya está en el contenido), "Volver al caso" (duplicaba "Restablecer") y la leyenda (vive en "Cómo leerla"). Al pie quedan la muestra y el botón de la ficha de 10 segundos.

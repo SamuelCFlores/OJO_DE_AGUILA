@@ -103,3 +103,39 @@ def armar(partidos: pd.DataFrame, info: pd.Series, tipo_quiebre: str | None, est
                  entrenadores=[(n, i == info["entrenador_id"]) for i, n in ids.items()], torneos=lista_torneos,
                  partidos=lista_partidos, situaciones=list(grupos.items()), condicion=condicion(info["localia"]),
                  muestra=muestra, resumen=resumen)
+
+
+# Barra compacta (14 oct): lo esencial a la vista y lo secundario en "Más filtros" (contexto/barra_lateral.md, versión 3).
+MOMENTOS = {  # tipo de quiebre → opción de "Tras un quiebre" (propio y rival se juntan salvo en goles y expulsiones)
+    "gol_favor": "Gol a favor", "gol_contra": "Gol en contra", "expulsion_favor": "Uno más", "expulsion_contra": "Uno menos",
+    "cambio_sistema_propio": "Cambio propio", "sustitucion_tactica_propia": "Cambio propio",
+    "cambio_sistema_rival": "Cambio rival", "sustitucion_tactica_rival": "Cambio rival",
+}
+
+
+def compacta(partidos: pd.DataFrame, info: pd.Series, tipo_quiebre: str | None, estado: str | None, muestra: str) -> dict:
+    """Barra compacta lista para JSON: rival, torneo, momento, condición y partidos; entrenador, fase y balón parado en "más"."""
+    b = armar(partidos, info, tipo_quiebre, estado, [], muestra)
+    activo = MOMENTOS.get(tipo_quiebre or "")
+    estado_txt = ESTADO_SITUACION.get(estado or "")
+    opciones = lambda pares: [{"etq": e, "activo": bool(a)} for e, a in pares]  # noqa: E731
+    por_grupo = {s["grupo"]: [] for s in SITUACIONES}
+    for s in SITUACIONES:
+        por_grupo[s["grupo"]].append((s["etiqueta"], False))
+    return {
+        "rival": {"nombre": b.rival, "partidos": b.partidos_rival},
+        "rivales": [[n, k] for n, k in b.rivales],
+        "torneos": [{"id": t, "activo": bool(a), "prueba": bool(p)} for t, a, p in b.torneos],
+        "momento": [
+            {"grupo": "Marcador", "opciones": opciones((e, e == estado_txt) for e in ESTADO_SITUACION.values())},
+            {"grupo": "Tras un quiebre", "opciones": opciones((e, e == activo) for e in dict.fromkeys(MOMENTOS.values()))},
+        ],
+        "condicion": b.condicion,
+        "partidos": [{"fecha": f, "etapa": e, "marcador": m, "activo": bool(a)} for f, e, m, a in b.partidos],
+        "mas": [
+            {"grupo": "Entrenador", "opciones": opciones(b.entrenadores)},
+            {"grupo": "Fase", "opciones": opciones(por_grupo.get("fase", []))},
+            {"grupo": "Balón parado", "opciones": opciones(por_grupo.get("balon_parado", []))},
+        ],
+        "muestra": muestra,
+    }

@@ -24,8 +24,12 @@ def _plano(geometria) -> list[float]:
     return [round(v, DECIMALES) for xy in geometria.exterior.coords for v in xy]
 
 
-def foto(resultado: voronoi.ResultadoFrame, reloj: str, texto: str, del_equipo: bool) -> dict:
-    """Una foto lista para el navegador: celdas, a quién pertenecen, frontera, jugadores y área visible."""
+def foto(resultado: voronoi.ResultadoFrame, reloj: str, texto: str, del_equipo: bool,
+         flecha: tuple[float, float, float, float] | None = None) -> dict:
+    """Una foto lista para el navegador: celdas, a quién pertenecen, frontera, jugadores y área visible.
+
+    flecha: (x, y, fin_x, fin_y) del pase o la conducción, ya en la perspectiva del equipo.
+    """
     tolerancia = params()["casos"]["simplificar_yd"]
     celdas, propias = [], []
     for celda, jugador in zip(resultado.celdas, resultado.jugadores):
@@ -42,7 +46,18 @@ def foto(resultado: voronoi.ResultadoFrame, reloj: str, texto: str, del_equipo: 
     visibles = [_plano(g) for g in sc._poligonos(resultado.visible)]
     jugadores = [[round(j.x, DECIMALES), round(j.y, DECIMALES), int(j.propio), int(j.actor)] for j in resultado.jugadores]
     return {"reloj": reloj, "texto": texto, "eq": int(del_equipo), "control": round(resultado.control, 3),
-            "celdas": celdas, "propias": propias, "frontera": frontera, "visible": visibles, "jugadores": jugadores}
+            "celdas": celdas, "propias": propias, "frontera": frontera, "visible": visibles, "jugadores": jugadores,
+            "flecha": None if flecha is None else [round(float(v), DECIMALES) for v in flecha]}
+
+
+def flecha_de(e, del_equipo: bool) -> tuple[float, float, float, float] | None:
+    """Flecha de un pase o una conducción en la perspectiva del equipo (las del rival se reflejan)."""
+    if e.tipo not in {"Pass", "Carry"} or pd.isna(e.fin_x) or pd.isna(e.x):
+        return None
+    if del_equipo:
+        return (e.x, e.y, e.fin_x, e.fin_y)
+    campo = params()["campo"]
+    return (campo["largo"] - e.x, campo["ancho"] - e.y, campo["largo"] - e.fin_x, campo["ancho"] - e.fin_y)
 
 
 def por_minuto(eventos: pd.DataFrame, frames: pd.DataFrame, jugadores: pd.DataFrame, equipo_id: int,
@@ -66,5 +81,5 @@ def por_minuto(eventos: pd.DataFrame, frames: pd.DataFrame, jugadores: pd.DataFr
         todos, area = sc.frame_del_equipo(por_uuid[e.id], areas[e.id], del_equipo)
         resultado = voronoi.analizar_frame(todos, area)
         if resultado is not None:
-            fotos[clave] = foto(resultado, sc.reloj(e.minuto, e.segundo), describir(e), del_equipo)
+            fotos[clave] = foto(resultado, sc.reloj(e.minuto, e.segundo), describir(e), del_equipo, flecha_de(e, del_equipo))
     return fotos

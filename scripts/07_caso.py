@@ -8,7 +8,7 @@ entrada y el ícono salen de branding/dist, igual que branding/maqueta.html.
 
 Cómo correrlo (desde la raíz del repo y con el entorno activado; antes 03, 04 y 05):
     python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra
-    python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra --paleta azulcrema
+    python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra --paleta marca   (la identidad original)
 """
 
 from __future__ import annotations
@@ -83,8 +83,8 @@ def tabla_minutos_previos(panel: pd.DataFrame, q: pd.Series, desde: int, equipo:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--paleta", choices=list(estilo.PALETAS), default="marca",
-                        help="marca (azul y dorado) o azulcrema (la del club); la azulcrema escribe maqueta_2_azulcrema.html")
+    parser.add_argument("--paleta", choices=list(estilo.PALETAS), default="azulcrema",
+                        help="azulcrema (definitiva) o marca (azul y dorado, escribe maqueta_2_marca.html)")
     parser.add_argument("--partido", type=int, required=True, metavar="MATCH_ID")
     parser.add_argument("--tipo", choices=quiebres.TIPOS, default="expulsion_contra", metavar="TIPO",
                         help=f"tipo de quiebre: {', '.join(quiebres.TIPOS)}")
@@ -278,7 +278,7 @@ def generar(args: argparse.Namespace) -> int:
         linea_tiempo=figura_tiempo, tabla_antes=tabla, cadena_texto=texto_cadena, jugadas=jugadas, principal=principal,
         protagonista=protagonista, figura_protagonista=figura_prot, resumen_protagonista=resumen, cierre=cierre,
         barra=barra, notas=notas)
-    salida = SALIDA if args.paleta == "marca" else SALIDA.with_name(f"{SALIDA.stem}_{args.paleta}{SALIDA.suffix}")
+    salida = SALIDA if args.paleta == "azulcrema" else SALIDA.with_name(f"{SALIDA.stem}_{args.paleta}{SALIDA.suffix}")
     pagina = app.pagina(caso, ruta_marca=os.path.relpath(RAIZ / "branding", salida.parent).replace(os.sep, "/"))
     salida.parent.mkdir(parents=True, exist_ok=True)
     salida.write_text(pagina, encoding="utf-8")

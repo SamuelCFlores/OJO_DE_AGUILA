@@ -1,9 +1,10 @@
 """Identidad visual para las figuras: colores tomados de branding/tokens.css (fuente única).
 
 Convención de datos: cancha azul marino, el equipo del caso en el acento (dorado o crema), el rival en blanco.
-Hay dos paletas: "marca" (azul y dorado, la de siempre) y "azulcrema" (la del club, propuesta visual del
-13 oct). Las funciones de figuras piden colores por papel ("azul", "dorado", "blanco"...) y la paleta activa
-decide el valor; se cambia solo dentro de un bloque `with paleta("azulcrema"):`.
+Hay dos paletas: "azulcrema" (la del club, **definitiva** desde el 14 oct y la predeterminada) y "marca"
+(azul y dorado de la identidad original, que solo conserva la placa del logotipo). Las funciones de figuras
+piden colores por papel ("azul", "dorado" = acento, "blanco"...) y la paleta activa decide el valor; para usar
+la otra, un bloque `with paleta("marca"):`.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ PALETAS: dict[str, dict[str, str]] = {
     "azulcrema": {"azul": "club-azul", "dorado": "club-amarillo", "rojo": "club-rojo", "azul-hover": "club-azul-hover",
                   "lectura": "club-rojo"},
 }
-_activa = ["marca"]  # NOTA1: pila de una sola casilla; solo la cambia el administrador de contexto paleta()
+_activa = ["azulcrema"]  # NOTA1: pila de una sola casilla; solo la cambia el administrador de contexto paleta()
 
 
 @lru_cache(maxsize=1)

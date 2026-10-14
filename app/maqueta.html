@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ojo de Águila · Jardine en el América</title>
+<!-- Plantilla de la app: se edita directo (HTML, app.css, app.js). Los datos llegan de ../outputs/app/datos.js,
+     que escribe scripts/08_maqueta.py y no se sube a git. Ver app/README.md. -->
+<link rel="icon" href="../branding/fuente/marca-2a/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../branding/dist/marca.css">
+<link rel="stylesheet" href="../branding/tokens.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body data-vista="portada">
+<div id="intro" role="img" aria-label="Animación de entrada de Ojo de Águila"><div id="intro-lienzo"></div>
+  <button id="intro-saltar" type="button">Saltar ›</button></div>
+<script>
+  (function () {
+    var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.__ojoMostrarIntro = !reducir;
+    if (window.__ojoMostrarIntro) document.documentElement.classList.add('con-intro');
+    else document.getElementById('intro').classList.add('oculto');
+  })();
+</script>
+
+<!-- Definiciones compartidas por todas las canchas (ojo del América, zona fuera de cámara, puntas de flecha) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="clip-almendra"><path d="M4 52A50.3 50.3 0 0 1 24.1 29.2L95.4 50.6A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z"/></clipPath>
+    <pattern id="fuera" width="2" height="2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="2" style="stroke:rgba(255,255,255,.07);stroke-width:.6"/></pattern>
+    <marker id="punta-eq" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--c-acento)"/></marker>
+    <marker id="punta-riv" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:#fff"/></marker>
+  </defs>
+</svg>
+
+<header class="enc">
+  <div class="placa"><div id="loop-icono" aria-hidden="true"></div>
+    <span class="marca-texto"><span class="solo-lector">Ojo de Águila</span><span aria-hidden="true">Ojo de <span class="a-acento">A<span class="tilde"></span></span>guila</span></span></div>
+  <nav class="vistas" aria-label="Vistas">
+    <button type="button" data-vista="portada" aria-current="page">Portada</button>
+    <button type="button" data-vista="explorar">Explorar</button>
+    <button type="button" class="solo-movil" data-cajon>Filtros · <span data-cuenta-filtros>0</span></button>
+  </nav>
+</header>
+
+<main id="app">
+<div class="sin-datos" id="sin-datos" hidden>
+  <h2>Faltan los datos de la maqueta</h2>
+  <p>Esta página es la plantilla: los datos reales se generan en local y no viajan con el repo. Desde la raíz, con el entorno activado:</p>
+  <p><code>python scripts/08_maqueta.py --partido 3918375 --tipo expulsion_favor</code></p>
+  <p>Eso escribe <code>outputs/app/datos.js</code>; recarga esta página.</p>
+</div>
+
+<!-- ===================== PORTADA ===================== -->
+<div class="vista" id="portada">
+  <section class="titulo">
+    <div><span class="ante">Hackathon ISAC 2026 · La historia de un entrenador a través de los datos</span>
+      <h1>André Jardine en el <span class="club">América</span>, leído frente a cada rival</h1></div>
+    <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button>
+  </section>
+
+  <section class="noventa">
+    <div class="noventa-cab"><span class="ante">Jardine en 90 segundos</span>
+      <h2>Un equipo que propone, que sale jugando corto y que, cuando el partido se rompe, se instala arriba</h2></div>
+    <div class="kpis" data-slot="kpis"></div>
+    <div class="dos-col">
+      <div><h3 class="sub-h">Índice Proactivo–Reactivo por torneo</h3>
+        <div class="figura" data-slot="torneos"></div>
+        <p class="pie">0 = reactivo (directo, en transición) · 100 = proactivo (posesión asentada, arriba). Barras: América; puntos: sus rivales. Índice provisional (definición del 14 oct, pendiente de confirmar).</p></div>
+      <div><h3 class="sub-h">Principios candidatos</h3><div class="tarjetas" data-slot="principios"></div></div>
+    </div>
+  </section>
+
+  <section class="ejemplo">
+    <div class="col"><span class="etq-p">Caso confirmador</span><p data-slot="ejemplo-texto"></p><span class="uno" aria-hidden="true">1</span></div>
+    <div class="cont">
+      <h2>Así se ve un principio en un partido</h2>
+      <div class="figura" data-slot="ejemplo-foto"></div>
+      <ul class="leyenda" data-slot="leyenda"></ul>
+      <p class="pie" data-slot="que-muestra"></p>
+    </div>
+  </section>
+
+  <section class="pilares">
+    <div class="pilar"><span class="n">1</span><h3>Identidad</h3><p>Índice Proactivo–Reactivo y Voronoi: cómo juega, minuto a minuto, frente a cada rival.</p></div>
+    <div class="pilar"><span class="n">2</span><h3>Evidencia</h3><p>Cada principio con su número, su intervalo y un partido que lo confirma; validado en el Clausura 2026.</p></div>
+    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Qué hacer en cada situación: matriz, ficha de 10 segundos y riesgo en el momento.</p></div>
+  </section>
+  <section class="cierre-p"><strong>Elige un rival y mira el mismo análisis</strong>
+    <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button></section>
+</div>
+
+<!-- ===================== EXPLORAR ===================== -->
+<div class="vista" id="explorar">
+  <div class="explorar">
+    <aside class="barra" aria-label="Filtros">
+      <div class="riel"><button type="button" class="btn-ocultar" data-ocultar aria-label="Mostrar filtros">›</button>
+        <span class="cuenta" data-cuenta-filtros>0</span><span class="vertical">Filtros</span></div>
+      <div class="barra-contenido" data-slot="barra"></div>
+    </aside>
+    <div class="velo" data-cajon></div>
+
+    <div class="contenido">
+      <span class="ante chico" data-slot="antetitulo"></span>
+      <h1 data-slot="titulo-explorar"></h1>
+      <div class="filtros" data-slot="filtros"></div>
+      <p class="maqueta">Maqueta con datos reales: los filtros todavía no recalculan; el índice es provisional y los principios son candidatos (criterio v1, falta la versión 2 y la prueba placebo).</p>
+
+      <section class="bloque"><span class="ante chico">1 · El principio</span><div data-slot="principio"></div></section>
+
+      <section class="bloque"><span class="ante chico">2 · El caso que lo confirma</span>
+        <h2 data-slot="caso-titulo"></h2><div class="datos" data-slot="caso-chips"></div><ul class="quiebres" data-slot="caso-quiebres"></ul></section>
+
+      <section class="bloque repro" id="repro" aria-label="Reproductor del partido">
+        <span class="ante chico">3 · El partido, minuto a minuto</span>
+        <div class="repro-cab"><h2>Pausa en cualquier momento para leerlo</h2>
+          <div class="modos" role="group" aria-label="Qué reproducir">
+            <button type="button" data-modo="partido" aria-pressed="true">Partido completo</button>
+            <button type="button" data-modo="jugada" aria-pressed="false" id="btn-jugada">La jugada</button></div></div>
+        <div class="repro-grid">
+          <div class="repro-izq">
+            <div class="figura cancha-js">
+              <div data-slot="cancha-repro"></div>
+              <div class="controles">
+                <button type="button" id="play" aria-label="Reproducir">▶</button>
+                <input type="range" id="tiempo" min="0" max="0" value="0" aria-label="Momento del partido">
+                <span id="reloj">0'</span>
+              </div>
+              <p id="accion" class="accion"></p>
+            </div>
+            <div class="figura linea-js"><svg id="linea" viewBox="0 0 640 210" role="img" aria-label="Índice minuto a minuto de ambos equipos"></svg></div>
+          </div>
+          <aside class="panel momento" aria-live="polite">
+            <header>El momento<i aria-hidden="true"></i></header>
+            <section><span class="etq-p">Índice Proactivo–Reactivo</span>
+              <div class="indicador"><div class="pista"><span id="m-a" class="marca-a"></span><span id="m-r" class="marca-r"></span></div>
+                <div class="extremos"><span>Reactivo</span><span>Proactivo</span></div></div>
+              <p id="frase-momento" class="frase-momento"></p></section>
+            <section class="detalle"><span class="etq-p">Por qué (radar de componentes)</span>
+              <svg id="radar" viewBox="0 0 320 230" role="img" aria-label="Radar de componentes del índice"></svg>
+              <p class="nota">Hacia afuera = más proactivo. Cada eje en desviaciones frente a lo habitual (el anillo del medio es lo normal). Crema: <span data-slot="equipo"></span>; blanco: <span data-slot="rival"></span>.</p></section>
+            <section class="detalle"><span class="etq-p">A dos bandas (últimos 5 minutos)</span><table id="tabla-momento"></table></section>
+            <p class="pausa">Pausa para ver el detalle del momento.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="bloque"><span class="ante chico">4 · ¿Qué tan merecido? (Monte Carlo explicativo)</span>
+        <h2>Lo que valían los tiros de cada equipo</h2><div class="mcs" data-slot="montecarlo"></div>
+        <p class="nota">Cada tiro se repite 10,000 veces como un intento que entra con probabilidad igual a su xG. Explica el resultado; no predice partidos.</p></section>
+
+      <section class="bloque"><span class="ante chico">5 · Cómo leerla</span>
+        <div class="panel lectura-panel"><header>Cómo leerla<i aria-hidden="true"></i></header>
+          <section><span class="etq-p">Leyenda</span><ul class="leyenda columna" data-slot="leyenda"></ul></section>
+          <section><span class="etq-p">Qué muestra</span><p data-slot="que-muestra"></p></section>
+          <section><span class="etq-p lectura">Lectura frente a <span data-slot="rival"></span></span><div class="espacio" data-slot="lectura"></div></section>
+          <section><span class="etq-p">Cómo se calcula</span><div class="espacio" data-slot="metodo"></div></section></div></section>
+
+      <section class="bloque"><span class="ante chico">6 · Lo que sigue</span><h2>En construcción</h2><div class="pendientes" data-slot="pendientes"></div></section>
+      <section class="bloque" data-slot="notas"></section>
+    </div>
+  </div>
+</div>
+</main>
+
+<script src="../branding/dist/vendor/react.production.min.js"></script>
+<script src="../branding/dist/vendor/react-dom.production.min.js"></script>
+<script src="../branding/dist/marca.js"></script>
+<script src="../outputs/app/datos.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
