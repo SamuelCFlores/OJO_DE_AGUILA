@@ -30,9 +30,11 @@ Lo valida `ojo.salidas.datos_app.validar` (claves obligatorias y JSON válido). 
 | `portada` | `kpis` [{etq, valor, detalle}], `torneos` [{torneo, entrenador, propio, rival, nuevo}], `principios` [tarjetas], `ejemplo` {texto, foto, que_muestra} |
 | `explorar` | `antetitulo`, `filtros`, `principio` (tarjeta grande), `caso` {titulo, chips, quiebres}, `montecarlo` [...], `lectura`, `metodo`, `que_muestra`, `pendientes`, `notas` |
 | `barra` | Barra compacta (ver `contexto/barra_lateral.md`, versión 3): `rival`, `rivales`, `torneos`, `momento`, `condicion`, `partidos`, `mas`, `muestra` |
-| `reproductor` | `componentes`, `minutos` (índice, z, valores y marcador por minuto), `fotos` (Voronoi por minuto), `quiebres`, `etiquetasX`, `jugada`, `inicio` |
+| `reproductor` | `componentes`, `minutos` (índice, z, valores y marcador por minuto), `fotos` (Voronoi por minuto), `quiebres`, `etiquetasX`, `jugadas` [{titulo, fotos, minuto}], `animacion` {escala, duracion, alcance, cuartos_circulo}, `inicio` |
 
-Una **foto** (`ojo.salidas.reproductor.foto`) trae celdas y a quién pertenecen, frontera, área visible, jugadores `[x, y, propio, actor]`, la flecha del pase o la conducción y el control, siempre con el América atacando hacia la derecha.
+Una **foto** (`ojo.salidas.reproductor.foto`) trae celdas y a quién pertenecen, frontera, área visible, jugadores `[x, y, propio, actor]`, la flecha del pase o la conducción y el control, siempre con el América atacando hacia la derecha. En las **jugadas** cada foto agrega `t` (segundos), `ids` (pista estimada de cada jugador, `ojo.lentes.seguimiento`) y `nombre` (quien ejecuta, de Events + Lineups).
+
+**Voronoi en movimiento.** En las jugadas, `app.js` interpola las posiciones entre fotos y recalcula el Voronoi en cada cuadro con las mismas reglas que Python (cancha ∩ área visible ∩ alcance); en las fotos reales da el mismo control que `ojo.lentes.voronoi` (verificado: 6 de 6 fotos iguales). Los jugadores que entran o salen de cámara aparecen y desaparecen con un fundido. Las posiciones entre fotos son estimadas y la página lo dice. En el modo minuto a minuto (fotos a 60 s) no se inventa movimiento: hay un fundido entre fotos.
 
 ## Reglas
 

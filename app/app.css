@@ -341,3 +341,9 @@
     box-shadow: inset 0 0 0 2px var(--c-rojo); display: grid; gap: 10px; }
   .sin-datos h2 { margin: 0; }
   .sin-datos code { background: var(--oda-gris-fondo); padding: 2px 6px; border-radius: 4px; }
+
+  /* Animación del Voronoi (jugadas) y fundido entre minutos */
+  .cancha-svg .capa { transition: opacity .35s ease; }
+  .nombre-actor { font: 700 2.4px var(--oda-fuente); fill: #fff; paint-order: stroke; stroke: var(--c-azul); stroke-width: .6px; }
+  .modos { flex-wrap: wrap; }
+  @media (prefers-reduced-motion: reduce) { .cancha-svg .capa { transition: none; } }

@@ -44,28 +44,110 @@
     el('circle', { cx: 54, cy: 54, r: 24, style: 'fill:var(--c-acento)' }, iris);
     el('path', { d: 'M49.3 47.5L58.7 47.5L61.6 56.5L54 62L46.4 56.5Z', style: 'fill:var(--c-azul);stroke:var(--c-azul);stroke-width:3' }, iris);
   }
-  function dibujarFoto(svg, f) {
+  // ---------- Voronoi en el navegador (mismas reglas que ojo.lentes.voronoi: cancha ∩ área visible ∩ alcance) ----------
+  function recortarSemiplano(poli, a, b, c) {  // conserva los puntos con a·x + b·y ≤ c (Sutherland–Hodgman)
+    var fuera = [], n = poli.length;
+    for (var k = 0; k < n; k++) {
+      var P = poli[k], Q = poli[(k + 1) % n], dp = a * P[0] + b * P[1] - c, dq = a * Q[0] + b * Q[1] - c;
+      if (dp <= 0) fuera.push(P);
+      if ((dp < 0 && dq > 0) || (dp > 0 && dq < 0)) { var s = dp / (dp - dq); fuera.push([P[0] + s * (Q[0] - P[0]), P[1] + s * (Q[1] - P[1])]); }
+    }
+    return fuera;
+  }
+  function areaFirmada(p) { var s = 0; for (var k = 0; k < p.length; k++) { var q = p[(k + 1) % p.length]; s += p[k][0] * q[1] - q[0] * p[k][1]; } return s / 2; }
+  function recortarConvexo(poli, clip) {
+    var signo = areaFirmada(clip) >= 0 ? 1 : -1;
+    for (var k = 0; k < clip.length && poli.length; k++) {
+      var A = clip[k], B = clip[(k + 1) % clip.length], dx = B[0] - A[0], dy = B[1] - A[1];
+      poli = recortarSemiplano(poli, dy * signo, -dx * signo, (dy * A[0] - dx * A[1]) * signo);
+    }
+    return poli;
+  }
+  function casco(puntos) {  // envolvente convexa (cadena monótona)
+    var p = puntos.slice().sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+    function cruz(o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }
+    var inf = [], sup = [];
+    p.forEach(function (q) { while (inf.length >= 2 && cruz(inf[inf.length - 2], inf[inf.length - 1], q) <= 0) inf.pop(); inf.push(q); });
+    p.slice().reverse().forEach(function (q) { while (sup.length >= 2 && cruz(sup[sup.length - 2], sup[sup.length - 1], q) <= 0) sup.pop(); sup.push(q); });
+    return inf.slice(0, -1).concat(sup.slice(0, -1));
+  }
+  function aPuntos(plano) { var p = []; for (var k = 0; k < plano.length; k += 2) p.push([plano[k], plano[k + 1]]); return p; }
+  function mayorVisible(visibles) {  // el polígono visible más grande, como envolvente convexa
+    var mejor = null, area = -1;
+    visibles.forEach(function (v) { var p = aPuntos(v), a = Math.abs(areaFirmada(p)); if (a > area) { mejor = p; area = a; } });
+    return mejor ? casco(mejor) : null;
+  }
+  function voronoiJS(jug, visible, alcance, segmentos) {
+    var cancha = [[0, 0], [120, 0], [120, 80], [0, 80]];
+    var celdas = jug.map(function (p, i) {
+      var poli = cancha;
+      jug.forEach(function (q, j) {
+        var a = q.x - p.x, b = q.y - p.y;
+        if (j === i || (a === 0 && b === 0)) return;
+        poli = recortarSemiplano(poli, a, b, (q.x * q.x + q.y * q.y - p.x * p.x - p.y * p.y) / 2);
+      });
+      if (visible) poli = recortarConvexo(poli, visible);
+      var circulo = [];
+      for (var k = 0; k < segmentos; k++) circulo.push([p.x + alcance * Math.cos(2 * Math.PI * k / segmentos), p.y + alcance * Math.sin(2 * Math.PI * k / segmentos)]);
+      return recortarConvexo(poli, circulo);
+    });
+    // Frontera: aristas de una celda propia que caen sobre la mediatriz con un rival (equidistantes de los dos)
+    var frontera = [], propia = 0, total = 0;
+    celdas.forEach(function (c, i) {
+      var a = Math.abs(areaFirmada(c)); total += a; if (jug[i].propio) propia += a;
+      if (!jug[i].propio) return;
+      for (var k = 0; k < c.length; k++) {
+        var P = c[k], Q = c[(k + 1) % c.length], m = [(P[0] + Q[0]) / 2, (P[1] + Q[1]) / 2];
+        var di = Math.hypot(m[0] - jug[i].x, m[1] - jug[i].y);
+        for (var j = 0; j < jug.length; j++) {
+          if (jug[j].propio || Math.abs(Math.hypot(m[0] - jug[j].x, m[1] - jug[j].y) - di) > 1e-4) continue;
+          if (Math.hypot(Q[0] - P[0], Q[1] - P[1]) > 0.05) frontera.push([P[0], P[1], Q[0], Q[1]]);
+          break;
+        }
+      }
+    });
+    return { celdas: celdas, frontera: frontera, control: total ? propia / total : null };
+  }
+
+  // ---------- dibujo de un estado (una foto exacta o un instante interpolado) ----------
+  function fotoAEstado(f) {  // foto exacta de Python: celdas recortadas por shapely
+    return { celdas: f.celdas.map(function (c, k) { return { poli: aPuntos(c), propio: !!f.propias[k] }; }),
+             frontera: f.frontera.map(function (l) { return l; }), visibles: f.visible.map(aPuntos),
+             jugadores: f.jugadores.map(function (j) { return { x: j[0], y: j[1], propio: !!j[2], actor: !!j[3], op: 1 }; }),
+             flecha: f.flecha, eq: f.eq, nombre: f.nombre || '', control: f.control };
+  }
+  function dibujarEstado(svg, e) {
     var capa = svg.querySelector('.capa');
     while (capa.firstChild) capa.removeChild(capa.firstChild);
-    svg.classList.toggle('vacia', !f);
-    if (!f) return;
-    f.visible.forEach(function (v) { el('polygon', { points: pares(v), style: 'fill:var(--c-azul)' }, capa); });
-    f.celdas.forEach(function (c, k) {
-      el('polygon', { points: pares(c), style: f.propias[k] ? 'fill:var(--c-acento);fill-opacity:.82;stroke:var(--c-azul);stroke-width:.35'
-                                                         : 'fill:#fff;fill-opacity:.08;stroke:var(--c-azul);stroke-width:.35' }, capa);
+    svg.classList.toggle('vacia', !e);
+    if (!e) return;
+    function puntos(p) { return p.map(function (q) { return q[0] + ',' + q[1]; }).join(' '); }
+    e.visibles.forEach(function (v) { el('polygon', { points: puntos(v), style: 'fill:var(--c-azul)' }, capa); });
+    e.celdas.forEach(function (c) {
+      if (c.poli.length < 3) return;
+      el('polygon', { points: puntos(c.poli), style: c.propio ? 'fill:var(--c-acento);fill-opacity:.82;stroke:var(--c-azul);stroke-width:.35'
+                                                            : 'fill:#fff;fill-opacity:.08;stroke:var(--c-azul);stroke-width:.35' }, capa);
     });
-    f.frontera.forEach(function (l) { el('polyline', { points: pares(l), style: 'fill:none;stroke:#fff;stroke-width:.8;stroke-linecap:round' }, capa); });
-    f.visible.forEach(function (v) { el('polygon', { points: pares(v), style: 'fill:none;stroke:rgba(255,255,255,.5);stroke-width:.3;stroke-dasharray:1.2 .9' }, capa); });
-    if (f.flecha) {
-      el('line', { x1: f.flecha[0], y1: f.flecha[1], x2: f.flecha[2], y2: f.flecha[3], 'marker-end': 'url(#' + (f.eq ? 'punta-eq' : 'punta-riv') + ')',
-                   style: 'stroke:' + (f.eq ? 'var(--c-acento)' : '#fff') + ';stroke-width:.6' }, capa);
+    e.frontera.forEach(function (l) {
+      var pts = l.length === 4 ? l[0] + ',' + l[1] + ' ' + l[2] + ',' + l[3] : pares(l);
+      el('polyline', { points: pts, style: 'fill:none;stroke:#fff;stroke-width:.8;stroke-linecap:round' }, capa);
+    });
+    e.visibles.forEach(function (v) { el('polygon', { points: puntos(v), style: 'fill:none;stroke:rgba(255,255,255,.5);stroke-width:.3;stroke-dasharray:1.2 .9' }, capa); });
+    if (e.flecha) {
+      el('line', { x1: e.flecha[0], y1: e.flecha[1], x2: e.flecha[2], y2: e.flecha[3], 'marker-end': 'url(#' + (e.eq ? 'punta-eq' : 'punta-riv') + ')',
+                   style: 'stroke:' + (e.eq ? 'var(--c-acento)' : '#fff') + ';stroke-width:.6;opacity:' + (e.opFlecha == null ? 1 : e.opFlecha) }, capa);
     }
-    f.jugadores.forEach(function (j) {
-      if (j[3]) el('circle', { cx: j[0], cy: j[1], r: 2.8, style: 'fill:none;stroke-width:.5;stroke:' + (f.eq ? 'var(--c-acento)' : '#fff') }, capa);
-      if (j[2]) ojo(j[0], j[1], capa);
-      else el('circle', { cx: j[0], cy: j[1], r: .95, style: 'fill:#fff;stroke:var(--c-azul);stroke-width:.35' }, capa);
+    e.jugadores.forEach(function (j) {
+      var g = el('g', { style: 'opacity:' + j.op }, capa);
+      if (j.actor) {
+        el('circle', { cx: j.x, cy: j.y, r: 2.8, style: 'fill:none;stroke-width:.5;stroke:' + (e.eq ? 'var(--c-acento)' : '#fff') }, g);
+        if (e.nombre) el('text', { x: j.x, y: j.y - 3.6, 'text-anchor': 'middle', class: 'nombre-actor' }, g).textContent = e.nombre;
+      }
+      if (j.propio) ojo(j.x, j.y, g);
+      else el('circle', { cx: j.x, cy: j.y, r: .95, style: 'fill:#fff;stroke:var(--c-azul);stroke-width:.35' }, g);
     });
   }
+  function dibujarFoto(svg, f) { dibujarEstado(svg, f ? fotoAEstado(f) : null); }
 
   // ---------- piezas de contenido ----------
   function tarjeta(p, grande) {
@@ -216,14 +298,19 @@
     document.querySelectorAll('.filtro').forEach(function (b) { b.addEventListener('click', function () { b.remove(); }); });
   }
 
-  // ---------- reproductor ----------
+  // ---------- reproductor: minuto a minuto (fundido) y jugadas animadas (Voronoi en movimiento) ----------
   function reproductor() {
     var R = D.reproductor, svg = crearCancha(document.querySelector('[data-slot="cancha-repro"]'));
     var repro = document.getElementById('repro'), tiempo = document.getElementById('tiempo');
     var reloj = document.getElementById('reloj'), accion = document.getElementById('accion'), play = document.getElementById('play');
-    var modo = 'partido', i = 0, timer = null, VEL = { partido: 650, jugada: 1100 };  // ms por paso (solo presentación)
-    var btnJugada = document.getElementById('btn-jugada');
-    if (!R.jugada || !R.jugada.fotos.length) btnJugada.hidden = true; else btnJugada.textContent = R.jugada.titulo;
+    var A = R.animacion || { escala: 1.5, duracion: [0.35, 2.5], alcance: 20, cuartos_circulo: 8 };
+    var modo = 'partido', jugada = null, i = 0, p = 0, timer = null, raf = null, previo = null;
+    var PASO_MINUTO = 650;  // ms por minuto en el modo partido (solo presentación)
+
+    // Botones de modo: partido completo y una por jugada animada
+    var modos = document.querySelector('.modos');
+    modos.innerHTML = '<button type="button" data-modo="partido" aria-pressed="true">Partido completo</button>' +
+      (R.jugadas || []).map(function (j, k) { return '<button type="button" data-modo="jugada" data-j="' + k + '" aria-pressed="false">▶ ' + esc(j.titulo) + '</button>'; }).join('');
 
     function etiquetaIndice(v) { return v >= BANDAS[1] ? 'proactivo' : (v <= BANDAS[0] ? 'reactivo' : 'equilibrado'); }
     function formato(c, v) { if (v == null) return '—'; if (c.formato === 'pct') return pct(v); if (c.formato === 'yd') return v.toFixed(1) + ' yd'; return v.toFixed(2); }
@@ -237,8 +324,8 @@
         el('polygon', { points: ps.join(' '), style: 'fill:none;stroke:rgba(255,255,255,' + (z === 0 ? .45 : .15) + ');stroke-width:' + (z === 0 ? 1.2 : .8) }, s);
       });
       R.componentes.forEach(function (c, k) {
-        var p = punto(k, 2.5), a = -Math.PI / 2 + 2 * Math.PI * k / n;
-        el('line', { x1: cx, y1: cy, x2: p[0], y2: p[1], style: 'stroke:rgba(255,255,255,.15)' }, s);
+        var q = punto(k, 2.5), a = -Math.PI / 2 + 2 * Math.PI * k / n;
+        el('line', { x1: cx, y1: cy, x2: q[0], y2: q[1], style: 'stroke:rgba(255,255,255,.15)' }, s);
         el('text', { x: cx + (Rr + 12) * Math.cos(a), y: cy + (Rr + 12) * Math.sin(a) + 3, 'text-anchor': Math.abs(Math.cos(a)) < .2 ? 'middle' : (Math.cos(a) > 0 ? 'start' : 'end'),
                      style: 'fill:rgba(255,255,255,.85);font:600 9px Poppins, sans-serif' }, s).textContent = c.radar;
       });
@@ -258,41 +345,88 @@
       R.componentes.forEach(function (c, k) { filas += '<tr><th>' + esc(c.nombre) + '</th><td>' + formato(c, m.va[k]) + '</td><td>' + formato(c, m.vr[k]) + '</td></tr>'; });
       document.getElementById('tabla-momento').innerHTML = filas + '</tbody>';
     }
-    function mostrarFoto(f) {
-      dibujarFoto(svg, f);
-      accion.textContent = f ? f.reloj + ' · ' + f.texto + ' · control del ' + D.equipo + ': ' + pct(f.control) : '';
+
+    // Instante interpolado entre la foto k y la k+1 de una jugada (p de 0 a 1)
+    function instante(fotos, k, prog) {
+      var a = fotos[k], b = fotos[Math.min(k + 1, fotos.length - 1)];
+      if (a === b) prog = 0;
+      var enB = {}; b.ids.forEach(function (id, j) { enB[id] = j; });
+      var enA = {}; a.ids.forEach(function (id) { enA[id] = true; });
+      var base = prog < .5 ? a : b, jug = [];
+      a.jugadores.forEach(function (ja, k2) {
+        var id = a.ids[k2];
+        if (id in enB) {
+          var jb = b.jugadores[enB[id]];
+          jug.push({ x: ja[0] + (jb[0] - ja[0]) * prog, y: ja[1] + (jb[1] - ja[1]) * prog, propio: !!ja[2], actor: prog < .5 ? !!ja[3] : !!jb[3], op: 1 });
+        } else if (prog < .5) jug.push({ x: ja[0], y: ja[1], propio: !!ja[2], actor: !!ja[3], op: 1 - 2 * prog });  // sale de cámara
+      });
+      b.jugadores.forEach(function (jb, j) {
+        if (!enA[b.ids[j]] && prog >= .5) jug.push({ x: jb[0], y: jb[1], propio: !!jb[2], actor: !!jb[3], op: 2 * prog - 1 });  // entra a cámara
+      });
+      var v = voronoiJS(jug, mayorVisible(base.visible), A.alcance, 4 * A.cuartos_circulo);
+      return { celdas: v.celdas.map(function (c, k2) { return { poli: c, propio: jug[k2].propio }; }), frontera: v.frontera,
+               visibles: base.visible.map(aPuntos), jugadores: jug, flecha: a.flecha, opFlecha: 1 - prog, eq: base.eq,
+               nombre: base.nombre, control: v.control, texto: base.texto, reloj: base.reloj };
     }
-    function lista() { return modo === 'partido' ? R.minutos : R.jugada.fotos; }
+    function duracion(fotos, k) {
+      if (k >= fotos.length - 1) return 1;
+      return Math.max(A.duracion[0], Math.min(A.duracion[1], (fotos[k + 1].t - fotos[k].t) * A.escala));
+    }
+    function mostrarJugada() {
+      var e = instante(jugada.fotos, i, p);
+      dibujarEstado(svg, e);
+      reloj.textContent = e.reloj;
+      accion.textContent = e.reloj + ' · ' + e.texto + ' · control del ' + D.equipo + ': ' + (e.control == null ? '—' : pct(e.control)) +
+        ' · posiciones entre fotos estimadas';
+    }
+    function mostrarMinuto() {
+      var m = R.minutos[i], f = m.foto == null ? null : R.fotos[m.foto], capa = svg.querySelector('.capa');
+      capa.style.opacity = 0;  // fundido entre minutos: las fotos están a 60 s, no se inventa movimiento
+      dibujarFoto(svg, f);
+      requestAnimationFrame(function () { capa.style.opacity = 1; });
+      accion.textContent = f ? f.reloj + ' · ' + f.texto + ' · control del ' + D.equipo + ': ' + pct(f.control) : '';
+      reloj.textContent = m.etq + ' · ' + m.marcador;
+      panelMinuto(m); marcarLinea();
+    }
+    function lista() { return modo === 'partido' ? R.minutos : jugada.fotos; }
     function actualizar() {
       var L = lista(); i = Math.max(0, Math.min(i, L.length - 1)); tiempo.max = L.length - 1; tiempo.value = i;
-      if (modo === 'partido') {
-        var m = R.minutos[i]; mostrarFoto(m.foto == null ? null : R.fotos[m.foto]); reloj.textContent = m.etq + ' · ' + m.marcador;
-        panelMinuto(m); marcarLinea();
-      } else {
-        var f = R.jugada.fotos[i]; mostrarFoto(f); reloj.textContent = f.reloj;
-        var mm = R.minutos[R.jugada.minuto]; if (mm) panelMinuto(mm);
+      if (modo === 'partido') mostrarMinuto();
+      else { mostrarJugada(); var mm = R.minutos[jugada.minuto]; if (mm) panelMinuto(mm); }
+    }
+    function detener() {
+      if (timer) clearInterval(timer); if (raf) cancelAnimationFrame(raf);
+      timer = raf = previo = null; play.textContent = '▶'; play.setAttribute('aria-label', 'Reproducir'); repro.classList.remove('reproduciendo');
+    }
+    function cuadro(ahora) {  // animación continua de la jugada
+      if (previo != null) {
+        p += (ahora - previo) / 1000 / duracion(jugada.fotos, i);
+        while (p >= 1 && i < jugada.fotos.length - 1) { p -= 1; i++; }
+        if (i >= jugada.fotos.length - 1) { p = 0; mostrarJugada(); tiempo.value = i; detener(); return; }
+        tiempo.value = i; mostrarJugada();
       }
+      previo = ahora; raf = requestAnimationFrame(cuadro);
     }
-    function detener() { if (timer) clearInterval(timer); timer = null; play.textContent = '▶'; play.setAttribute('aria-label', 'Reproducir'); repro.classList.remove('reproduciendo'); }
     function reproducir() {
-      if (i >= lista().length - 1) i = 0;
+      if (i >= lista().length - 1) { i = 0; p = 0; }
       play.textContent = '❚❚'; play.setAttribute('aria-label', 'Pausar'); repro.classList.add('reproduciendo');
-      timer = setInterval(function () { if (i >= lista().length - 1) { detener(); return; } i++; actualizar(); }, VEL[modo]);
+      if (modo === 'partido') timer = setInterval(function () { if (i >= lista().length - 1) { detener(); return; } i++; actualizar(); }, PASO_MINUTO);
+      else raf = requestAnimationFrame(cuadro);
     }
-    play.addEventListener('click', function () { if (timer) detener(); else reproducir(); });
-    tiempo.addEventListener('input', function () { detener(); i = +tiempo.value; actualizar(); });
+    play.addEventListener('click', function () { if (timer || raf) detener(); else reproducir(); });
+    tiempo.addEventListener('input', function () { detener(); i = +tiempo.value; p = 0; actualizar(); });
     repro.addEventListener('keydown', function (e) {
       if (e.target.tagName === 'INPUT') return;
-      if (e.key === ' ') { e.preventDefault(); if (timer) detener(); else reproducir(); }
-      if (e.key === 'ArrowRight') { detener(); i++; actualizar(); }
-      if (e.key === 'ArrowLeft') { detener(); i--; actualizar(); }
+      if (e.key === ' ') { e.preventDefault(); if (timer || raf) detener(); else reproducir(); }
+      if (e.key === 'ArrowRight') { detener(); i++; p = 0; actualizar(); }
+      if (e.key === 'ArrowLeft') { detener(); i--; p = 0; actualizar(); }
     });
-    document.querySelectorAll('.modos button').forEach(function (b) {
-      b.addEventListener('click', function () {
-        detener(); modo = b.dataset.modo; i = 0;
-        document.querySelectorAll('.modos button').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
-        document.querySelector('.linea-js').hidden = modo !== 'partido'; actualizar();
-      });
+    modos.addEventListener('click', function (ev) {
+      var b = ev.target.closest('button'); if (!b) return;
+      detener(); modo = b.dataset.modo; jugada = modo === 'jugada' ? R.jugadas[+b.dataset.j] : null; i = 0; p = 0;
+      modos.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+      document.querySelector('.linea-js').hidden = modo !== 'partido'; actualizar();
+      if (modo === 'jugada') reproducir();  // al elegir una jugada, arranca la animación
     });
     // Línea del índice (modo partido): clic para saltar
     var linea = document.getElementById('linea'), W = 640, H = 210, M = { i: 34, d: 8, a: 40, b: 24 }, cursor;

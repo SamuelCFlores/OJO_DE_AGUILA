@@ -83,3 +83,50 @@ def por_minuto(eventos: pd.DataFrame, frames: pd.DataFrame, jugadores: pd.DataFr
         if resultado is not None:
             fotos[clave] = foto(resultado, sc.reloj(e.minuto, e.segundo), describir(e), del_equipo, flecha_de(e, del_equipo))
     return fotos
+
+
+def segundos(timestamp: str) -> float:
+    """"00:44:12.345" (reloj de StatsBomb dentro del periodo) → 2652.345 segundos."""
+    h, m, s = str(timestamp).split(":")
+    return int(h) * 3600 + int(m) * 60 + float(s)
+
+
+def secuencia(eventos: pd.DataFrame, indice_final: int, frames: pd.DataFrame, jugadores: pd.DataFrame, equipo_id: int,
+              describir, nombres: dict[int, str], posesiones_previas: int = 1) -> list[dict]:
+    """Fotos de una jugada para animarla: todas las acciones con 360 de la posesión (y la anterior) hasta indice_final.
+
+    Cada foto agrega t (segundos desde la primera), ids (pista estimada de cada jugador, ojo.lentes.seguimiento)
+    y nombre (quien ejecuta, de Events + Lineups; el 360 no trae nombres).
+    """
+    from ojo.lentes import seguimiento  # import local: la lente solo se usa al animar
+
+    cfg = params()["animacion"]
+    ev = eventos.sort_values("indice")
+    fila = ev[ev["indice"] == indice_final].iloc[0]
+    sel = ev[ev["posesion"].between(fila["posesion"] - posesiones_previas, fila["posesion"]) & (ev["indice"] <= indice_final)
+             & (ev["periodo"] == fila["periodo"]) & ev["id"].isin(frames["event_uuid"])]
+    areas = frames.set_index("event_uuid")["area_visible"]
+    por_uuid = dict(tuple(jugadores[jugadores["event_uuid"].isin(sel["id"])].groupby("event_uuid")))
+    lista, tiempos, ultimo = [], [], None
+    for e in sel.itertuples():
+        t = segundos(e.timestamp)
+        if e.id not in por_uuid:
+            continue
+        del_equipo = e.equipo_id == equipo_id
+        todos, area = sc.frame_del_equipo(por_uuid[e.id], areas[e.id], del_equipo)
+        resultado = voronoi.analizar_frame(todos, area)
+        if resultado is None:
+            continue
+        f = foto(resultado, sc.reloj(e.minuto, e.segundo), describir(e), del_equipo, flecha_de(e, del_equipo))
+        f["nombre"] = nombres.get(e.jugador_id, "")
+        if ultimo is not None and t - ultimo < cfg["min_dt_s"]:  # casi el mismo instante: se queda la más reciente
+            lista.pop()
+            tiempos.pop()
+        lista.append(f)
+        tiempos.append(t)
+        ultimo = t
+    lista, tiempos = lista[-cfg["max_fotos"]:], tiempos[-cfg["max_fotos"]:]
+    pistas = seguimiento.pistas([[(j[0], j[1], bool(j[2])) for j in f["jugadores"]] for f in lista], tiempos)
+    for f, t, ids in zip(lista, tiempos, pistas):
+        f["t"], f["ids"] = round(t - tiempos[0], 2), ids
+    return lista

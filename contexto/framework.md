@@ -138,6 +138,12 @@ Escala de 0 a 100 que resume cómo juega un equipo en cada minuto: **0 = reactiv
 
 **Supuestos.** Pesos iguales hasta verificar con PCA que el primer componente coincide con el eje (TODO1 en `ojo.lentes.indice`). La escala es relativa a los partidos del América y sus rivales, no a toda la liga (solo hay eventos de esos partidos).
 
+## Animación del Voronoi (seguimiento estimado)
+
+El 360 no identifica a los jugadores entre fotos: solo marca al que ejecuta (`actor`). Los **nombres** de la página salen de Events (`player` del evento, `pass.recipient` del pase) y de Lineups (`player_nickname`); ningún otro punto de la foto lleva nombre.
+
+Para animar una jugada (`ojo.lentes.seguimiento`) se **estima** la correspondencia entre fotos consecutivas: en cada equipo, asignación de costo mínimo (distancia total) y solo parejas con distancia ≤ `animacion.velocidad_max_yd_s` × Δt + `animacion.tolerancia_yd`; los demás entran o salen de cámara. Entre dos fotos, las posiciones se interpolan y el Voronoi se recalcula en el navegador con las mismas reglas (cancha ∩ área visible ∩ alcance). Fotos a menos de `animacion.min_dt_s` se tratan como la misma. Es una estimación para dibujar, no un dato: ninguna métrica la usa. En el modo minuto a minuto (fotos a 60 s) no se interpola movimiento: se funde una foto con la siguiente.
+
 ## Situaciones del explorador
 
 Filtros de la barra lateral del reporte (`contexto/resumenes.md`). Cada evento con 360 cae en las situaciones que cumple; "todas" no filtra. Coordenadas en la perspectiva de quien ejecuta el evento.
@@ -232,5 +238,6 @@ forma: {min_jugadores_equipo: 4}
 agresividad: {tramo_min: 5, tardio_min: 65}
 casos: {tramo_min: 5, max_jugadas: 12, simplificar_yd: 0.25}
 indice: {ventana_min: 5, bandas: [40, 60], componentes: {control: 1, posesion: 1, field_tilt: 1, control_campo_rival: 1, altura_sin_balon: 1, presion_alta: 1, directness: -1, largo_pase: -1}}
+animacion: {velocidad_max_yd_s: 10, tolerancia_yd: 3, min_dt_s: 0.3, escala_tiempo: 1.5, duracion_s: [0.35, 2.5], max_fotos: 30}
 hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10}
 ```

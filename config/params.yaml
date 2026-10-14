@@ -50,4 +50,11 @@ indice:   # Proactivo–Reactivo (PROPUESTA del 14 oct, pendiente de confirmar; 
   bandas: [40, 60]   # bajo 40 se lee "reactivo", sobre 60 "proactivo", en medio "equilibrado"
   componentes: {control: 1, posesion: 1, field_tilt: 1, control_campo_rival: 1, altura_sin_balon: 1, presion_alta: 1,
                 directness: -1, largo_pase: -1}
+animacion:   # Voronoi animado en las jugadas (seguimiento estimado entre fotos; solo para dibujar, framework.md)
+  velocidad_max_yd_s: 10     # un jugador no recorre más de esto por segundo (≈ 9 m/s, sprint)
+  tolerancia_yd: 3           # ruido de posición de la foto 360
+  min_dt_s: 0.3              # fotos más cercanas que esto se tratan como la misma
+  escala_tiempo: 1.5         # la animación dura 1.5 veces el tiempo real entre fotos
+  duracion_s: [0.35, 2.5]    # límites de cada paso de la animación
+  max_fotos: 30              # fotos por jugada animada
 hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10}   # criterio fijado el 12 oct (framework.md); partidos_aviso solo marca, no filtra

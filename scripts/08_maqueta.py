@@ -110,7 +110,7 @@ def tabla_indice(partidos: pd.DataFrame) -> pd.DataFrame:
     return indice.calcular(comp, indice.ajustar(entrenamiento))
 
 
-def datos_reproductor(tab: pd.DataFrame, ev: pd.DataFrame, fotos: dict, jugada: dict | None, todos_q: pd.DataFrame,
+def datos_reproductor(tab: pd.DataFrame, ev: pd.DataFrame, fotos: dict, jugadas: list[dict], todos_q: pd.DataFrame,
                       equipo: str, rival: str, team: int, q: pd.Series) -> dict:
     """JSON del reproductor: un paso por minuto (índice, radar, componentes, marcador y foto) y la jugada."""
     comps = list(params()["indice"]["componentes"])
@@ -148,10 +148,13 @@ def datos_reproductor(tab: pd.DataFrame, ev: pd.DataFrame, fotos: dict, jugada: 
             etiquetas.append({"k": k, "etq": f"{nombres_periodo.get(p, p)} {m}'", "periodo": True})
         elif m % 15 == 0 and m < contexto.FIN_PERIODO.get(p, 999) and m != contexto.INICIO_PERIODO.get(p):
             etiquetas.append({"k": k, "etq": f"{m}'", "periodo": False})
-    if jugada is not None:
+    for jugada in jugadas:
         jugada["minuto"] = pos.get(jugada.pop("clave"), 0)
+    anim = params()["animacion"]
     return {"equipo": equipo, "rival": rival, "componentes": [{"id": c, "nombre": indice.NOMBRES[c], "radar": indice.NOMBRES_RADAR[c], "formato": FORMATOS[c]} for c in comps],
-            "minutos": minutos, "fotos": lista_fotos, "quiebres": marcas, "etiquetasX": etiquetas, "jugada": jugada,
+            "minutos": minutos, "fotos": lista_fotos, "quiebres": marcas, "etiquetasX": etiquetas, "jugadas": jugadas,
+            "animacion": {"escala": anim["escala_tiempo"], "duracion": anim["duracion_s"],
+                          "alcance": params()["voronoi"]["alcance_max_yd"], "cuartos_circulo": voronoi.CUARTOS_CIRCULO},
             "inicio": pos.get((int(q["periodo"]), int(q["minuto"])), 0)}
 
 
@@ -230,29 +233,20 @@ def generar(args: argparse.Namespace) -> int:
     fotos = reproductor.por_minuto(ev, frames, jugadores, team, describir)
     tab = tab_todos[tab_todos["match_id"] == args.partido]
     goles = todos_q[(todos_q["tipo"] == "gol_favor") & (todos_q["indice"] > q["indice"])]
-    jugada = None
+    jugadas = []
     frames_i = frames.set_index("event_uuid")
     if not goles.empty:
         g0 = goles.iloc[0]
-        cadena = sc.cadena(ev, g0["indice"])
-        por_uuid = dict(tuple(jugadores.groupby("event_uuid")))
-        lista = []
-        for c in cadena.itertuples():
-            if c.id in por_uuid and c.id in frames_i.index:
-                todos, area = sc.frame_del_equipo(por_uuid[c.id], frames_i.loc[c.id, "area_visible"], c.equipo_id == team)
-                res = voronoi.analizar_frame(todos, area)
-                if res is not None:
-                    lista.append(reproductor.foto(res, sc.reloj(c.minuto, c.segundo), describir(c), c.equipo_id == team))
         autor = noms.get(ev.loc[ev["indice"] == g0["indice"], "jugador_id"].iloc[0], "")
-        jugada = {"titulo": f"El gol del {g0['minuto']}' ({autor})", "fotos": lista[-p["casos"]["max_jugadas"]:],
-                  "clave": (int(g0["periodo"]), int(g0["minuto"]))}
-    repro = datos_reproductor(tab, ev, fotos, jugada, todos_q, equipo, rival, team, q)
+        jugadas.append({"titulo": f"El gol del {g0['minuto']}' ({autor})",
+                        "fotos": reproductor.secuencia(ev, int(g0["indice"]), frames, jugadores, team, describir, noms),
+                        "clave": (int(g0["periodo"]), int(g0["minuto"]))})
 
     # Foto destacada: la acción del equipo con más control en campo rival en la ventana después del quiebre
     ventana = ev[(ev["periodo"] == q["periodo"]) & ev["minuto"].between(q["despues_desde"], q["despues_hasta"])
                  & (ev["equipo_id"] == team) & ev["id"].isin(frames_i.index) & (ev["x"] >= p["presion"]["campo_rival_min_x"])]
     por_uuid = dict(tuple(jugadores[jugadores["event_uuid"].isin(ventana["id"])].groupby("event_uuid")))
-    principal, mejor = None, -1.0
+    principal, mejor, indice_destacada = None, -1.0, None
     for c in ventana.itertuples():
         if c.id not in por_uuid:
             continue
@@ -260,10 +254,15 @@ def generar(args: argparse.Namespace) -> int:
         res = voronoi.analizar_frame(todos, area)
         if res is not None and res.control > mejor:
             principal = reproductor.foto(res, sc.reloj(c.minuto, c.segundo), describir(c), True, reproductor.flecha_de(c, True))
-            mejor = res.control
+            mejor, indice_destacada = res.control, int(c.indice)
     if principal is None:
         print("✗ No hay una foto analizable del equipo en campo rival después del quiebre.")
         return 1
+    d0 = ev[ev["indice"] == indice_destacada].iloc[0]
+    jugadas.insert(0, {"titulo": f"Con uno más, arriba ({d0['minuto']}')",
+                       "fotos": reproductor.secuencia(ev, indice_destacada, frames, jugadores, team, describir, noms),
+                       "clave": (int(d0["periodo"]), int(d0["minuto"]))})
+    repro = datos_reproductor(tab, ev, fotos, [j for j in jugadas if len(j["fotos"]) > 1], todos_q, equipo, rival, team, q)
 
     # Lectura: índice y field tilt antes y después del quiebre
     def media(lado: str, desde: int, hasta: int, col: str) -> float:
