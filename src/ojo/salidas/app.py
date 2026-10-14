@@ -189,8 +189,31 @@ def pagina(caso: Caso, ruta_marca: str) -> str:
         "NOTAS": "".join(f'<p class="nota">{escape(x)}</p>' for x in caso.notas),
         "PLACA_MAX": str(PLACA_MAX_PX), "PLACA_ANCHO": str(PLACA_ANCHO_PX), "PLACA_EM": str(PLACA_EM_LETRA),
     }
-    texto = PLANTILLA
+    comunes = ("TOKENS", "MARCA", "PATRON", "PALETA", "NOMBRE_PALETA", "TITULO", "N_FILTROS",
+               "PLACA_MAX", "PLACA_ANCHO", "PLACA_EM")
+    cuerpo = MAIN_CASO
     for clave, valor in reemplazos.items():
+        if clave not in comunes or clave == "TITULO":
+            cuerpo = cuerpo.replace(f"@@{clave}@@", valor)
+    return envolver(caso.titulo, ruta_marca, len(caso.filtros), cuerpo)
+
+
+def envolver(titulo: str, ruta_marca: str, n_filtros: int, cuerpo: str, css_extra: str = "", js_extra: str = "") -> str:
+    """Página completa: encabezado, entrada, estilos y scripts comunes alrededor del contenido de <main>.
+
+    cuerpo lleva las dos vistas (#portada y #explorar); css_extra y js_extra se agregan al final de los
+    estilos y de los scripts. Los colores salen de la paleta activa de ojo.salidas.estilo.
+    """
+    reemplazos = {
+        "MAIN": cuerpo, "CSS_EXTRA": css_extra, "JS_EXTRA": js_extra,
+        "TOKENS": ARCHIVO_TOKENS.read_text(encoding="utf-8"), "MARCA": ruta_marca, "PATRON": _con_colores(PATRON),
+        "PALETA": (f"--c-azul: {color('azul')}; --c-acento: {color('dorado')}; --c-rojo: {color('rojo')}; "
+                   f"--c-azul-hover: {color('azul-hover')}; --c-lectura: {color('lectura')};"),
+        "NOMBRE_PALETA": paleta_activa(), "TITULO": escape(titulo), "N_FILTROS": str(n_filtros),
+        "PLACA_MAX": str(PLACA_MAX_PX), "PLACA_ANCHO": str(PLACA_ANCHO_PX), "PLACA_EM": str(PLACA_EM_LETRA),
+    }
+    texto = PLANTILLA
+    for clave, valor in reemplazos.items():  # MAIN primero: el cuerpo también usa los marcadores comunes
         texto = texto.replace(f"@@{clave}@@", valor)
     return texto
 
@@ -421,6 +444,7 @@ PLANTILLA = r"""<!doctype html>
     .titulo h1 { font-size: 34px; } .btn-explorar { white-space: normal; }
   }
   @media (prefers-reduced-motion: reduce) { aside.barra { transition: none; } .btn-explorar:hover { transform: none; } }
+@@CSS_EXTRA@@
 </style>
 </head>
 <body data-vista="portada" data-paleta="@@NOMBRE_PALETA@@">
@@ -446,72 +470,7 @@ PLANTILLA = r"""<!doctype html>
 </header>
 
 <main>
-<div class="vista" id="portada">
-  <section class="titulo">
-    <div><span class="ante">Hackathon ISAC 2026 · La historia de un entrenador a través de los datos</span>
-      <h1>André Jardine en el <span class="club">América</span>, leído frente a cada rival</h1></div>
-    <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button>
-  </section>
-  <section class="ejemplo">
-    <div class="col"><span class="etq-p">Pilar 1 · Espacio</span><p>Ejemplo: @@EJEMPLO@@</p><span class="uno" aria-hidden="true">1</span></div>
-    <div class="cont">
-      <h2>Así se ve un dato con la identidad de Ojo de Águila</h2>
-      <div class="figura">@@FIGURA_PORTADA@@</div>
-      @@LEYENDA_FILA@@
-      <p class="pie">@@QUE_MUESTRA@@</p>
-    </div>
-  </section>
-  <section class="pilares">
-    <div class="pilar"><span class="n">1</span><h3>Espacio</h3><p>Voronoi sobre el 360: qué zona controla cada equipo en cada acción clave.</p></div>
-    <div class="pilar"><span class="n">2</span><h3>Validación</h3><p>Lo aprendido en AP23–AP25 se prueba en el Clausura 2026, que el modelo no vio.</p></div>
-    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Matriz de situaciones y ficha de 10 segundos por rival.</p></div>
-  </section>
-  <section class="cierre-p"><strong>Elige un rival y mira el mismo análisis</strong>
-    <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button></section>
-</div>
-
-<div class="vista" id="explorar">
-  <div class="explorar">
-    <aside class="barra" aria-label="Filtros">@@BARRA@@</aside>
-    <div class="velo" data-cajon></div>
-    <div class="contenido">
-      <span class="ante chico">@@ANTETITULO@@</span>
-      <h1>@@EQUIPO_MAYUS@@ vs @@RIVAL_MAYUS@@</h1>
-      <div class="filtros">@@FILTROS@@</div>
-      <p class="maqueta">Maqueta con un caso real: los filtros cambian de estado, pero todavía no recalculan la vista. Se muestra «@@TITULO@@».</p>
-      <div class="principal">
-        <div class="figura">@@FIGURA_EXPLORAR@@</div>
-        <aside class="panel" aria-label="Cómo leerla">
-          <header>Cómo leerla<i aria-hidden="true"></i></header>
-          <section><span class="etq-p">Leyenda</span>@@LEYENDA_COLUMNA@@</section>
-          <section><span class="etq-p">Qué muestra</span><p>@@QUE_MUESTRA@@</p></section>
-          <section><span class="etq-p lectura">Lectura frente a @@RIVAL@@</span><div class="espacio">@@LECTURA@@</div></section>
-          <section><span class="etq-p">Cómo se calcula</span><div class="espacio">@@METODO@@</div></section>
-        </aside>
-      </div>
-
-      <section class="bloque"><div class="datos">@@CHIPS@@</div></section>
-      <section class="bloque"><span class="ante chico">1 · El partido hasta aquí</span>
-        <h2>Los quiebres que llevaron a este momento</h2><ul class="quiebres">@@QUIEBRES@@</ul></section>
-      <section class="bloque"><span class="ante chico">2 · A dos bandas</span><h2>Quién mandaba, tramo a tramo</h2>
-        <p class="pie">Dorado: @@EQUIPO@@. Blanco: @@RIVAL@@. Tramos de 5 minutos; las verticales son los quiebres (continuas: goles y expulsiones).</p>
-        <div class="figura">@@LINEA_TIEMPO@@</div></section>
-      <section class="bloque"><span class="ante chico">3 · Los minutos previos</span><h2>Los últimos 10 minutos frente a todo el partido</h2>
-        <div class="tabla-scroll"><table>@@TABLA@@</table></div></section>
-      <section class="bloque"><span class="ante chico">4 · La jugada</span><h2>Los segundos que llevan al quiebre</h2>
-        <ul class="cadena">@@CADENA@@</ul>
-        <p class="pie">Cada cancha es la foto 360 de esa acción, con @@EQUIPO@@ atacando hacia la derecha. El anillo marca a quien ejecuta; la línea blanca, dónde chocan los equipos.</p>
-        <div class="jugadas">@@JUGADAS@@</div></section>
-      <section class="bloque"><span class="ante chico">5 · El protagonista</span><h2>@@PROTAGONISTA@@ antes del quiebre</h2>
-        <div class="dos"><div class="figura">@@FIGURA_PROTAGONISTA@@</div>
-          <div class="bloque" style="margin:0"><ul class="lista">@@RESUMEN_PROTAGONISTA@@</ul>
-            <p class="nota">Puntos grandes: acciones sin balón (presión, duelos, recuperaciones, faltas). Chicos: con balón. Resaltados: los minutos recientes. X: faltas.</p></div></div></section>
-      <section class="bloque hasta"><h2>Hasta aquí</h2><ul class="lista">@@CIERRE@@</ul></section>
-      <section class="bloque">@@NOTAS@@</section>
-    </div>
-  </div>
-</div>
-</main>
+@@MAIN@@</main>
 
 <script src="@@MARCA@@/dist/vendor/react.production.min.js"></script>
 <script src="@@MARCA@@/dist/vendor/react-dom.production.min.js"></script>
@@ -586,6 +545,76 @@ PLANTILLA = r"""<!doctype html>
     window.addEventListener('keydown', function (e) { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') cerrar(); });
   })();
 </script>
+@@JS_EXTRA@@
 </body>
 </html>
+"""
+
+
+# Contenido de <main> de la maqueta 2 (caso puntual): portada y explorar.
+MAIN_CASO = r"""<div class="vista" id="portada">
+  <section class="titulo">
+    <div><span class="ante">Hackathon ISAC 2026 · La historia de un entrenador a través de los datos</span>
+      <h1>André Jardine en el <span class="club">América</span>, leído frente a cada rival</h1></div>
+    <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button>
+  </section>
+  <section class="ejemplo">
+    <div class="col"><span class="etq-p">Pilar 1 · Espacio</span><p>Ejemplo: @@EJEMPLO@@</p><span class="uno" aria-hidden="true">1</span></div>
+    <div class="cont">
+      <h2>Así se ve un dato con la identidad de Ojo de Águila</h2>
+      <div class="figura">@@FIGURA_PORTADA@@</div>
+      @@LEYENDA_FILA@@
+      <p class="pie">@@QUE_MUESTRA@@</p>
+    </div>
+  </section>
+  <section class="pilares">
+    <div class="pilar"><span class="n">1</span><h3>Espacio</h3><p>Voronoi sobre el 360: qué zona controla cada equipo en cada acción clave.</p></div>
+    <div class="pilar"><span class="n">2</span><h3>Validación</h3><p>Lo aprendido en AP23–AP25 se prueba en el Clausura 2026, que el modelo no vio.</p></div>
+    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Matriz de situaciones y ficha de 10 segundos por rival.</p></div>
+  </section>
+  <section class="cierre-p"><strong>Elige un rival y mira el mismo análisis</strong>
+    <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button></section>
+</div>
+
+<div class="vista" id="explorar">
+  <div class="explorar">
+    <aside class="barra" aria-label="Filtros">@@BARRA@@</aside>
+    <div class="velo" data-cajon></div>
+    <div class="contenido">
+      <span class="ante chico">@@ANTETITULO@@</span>
+      <h1>@@EQUIPO_MAYUS@@ vs @@RIVAL_MAYUS@@</h1>
+      <div class="filtros">@@FILTROS@@</div>
+      <p class="maqueta">Maqueta con un caso real: los filtros cambian de estado, pero todavía no recalculan la vista. Se muestra «@@TITULO@@».</p>
+      <div class="principal">
+        <div class="figura">@@FIGURA_EXPLORAR@@</div>
+        <aside class="panel" aria-label="Cómo leerla">
+          <header>Cómo leerla<i aria-hidden="true"></i></header>
+          <section><span class="etq-p">Leyenda</span>@@LEYENDA_COLUMNA@@</section>
+          <section><span class="etq-p">Qué muestra</span><p>@@QUE_MUESTRA@@</p></section>
+          <section><span class="etq-p lectura">Lectura frente a @@RIVAL@@</span><div class="espacio">@@LECTURA@@</div></section>
+          <section><span class="etq-p">Cómo se calcula</span><div class="espacio">@@METODO@@</div></section>
+        </aside>
+      </div>
+
+      <section class="bloque"><div class="datos">@@CHIPS@@</div></section>
+      <section class="bloque"><span class="ante chico">1 · El partido hasta aquí</span>
+        <h2>Los quiebres que llevaron a este momento</h2><ul class="quiebres">@@QUIEBRES@@</ul></section>
+      <section class="bloque"><span class="ante chico">2 · A dos bandas</span><h2>Quién mandaba, tramo a tramo</h2>
+        <p class="pie">Dorado: @@EQUIPO@@. Blanco: @@RIVAL@@. Tramos de 5 minutos; las verticales son los quiebres (continuas: goles y expulsiones).</p>
+        <div class="figura">@@LINEA_TIEMPO@@</div></section>
+      <section class="bloque"><span class="ante chico">3 · Los minutos previos</span><h2>Los últimos 10 minutos frente a todo el partido</h2>
+        <div class="tabla-scroll"><table>@@TABLA@@</table></div></section>
+      <section class="bloque"><span class="ante chico">4 · La jugada</span><h2>Los segundos que llevan al quiebre</h2>
+        <ul class="cadena">@@CADENA@@</ul>
+        <p class="pie">Cada cancha es la foto 360 de esa acción, con @@EQUIPO@@ atacando hacia la derecha. El anillo marca a quien ejecuta; la línea blanca, dónde chocan los equipos.</p>
+        <div class="jugadas">@@JUGADAS@@</div></section>
+      <section class="bloque"><span class="ante chico">5 · El protagonista</span><h2>@@PROTAGONISTA@@ antes del quiebre</h2>
+        <div class="dos"><div class="figura">@@FIGURA_PROTAGONISTA@@</div>
+          <div class="bloque" style="margin:0"><ul class="lista">@@RESUMEN_PROTAGONISTA@@</ul>
+            <p class="nota">Puntos grandes: acciones sin balón (presión, duelos, recuperaciones, faltas). Chicos: con balón. Resaltados: los minutos recientes. X: faltas.</p></div></div></section>
+      <section class="bloque hasta"><h2>Hasta aquí</h2><ul class="lista">@@CIERRE@@</ul></section>
+      <section class="bloque">@@NOTAS@@</section>
+    </div>
+  </div>
+</div>
 """

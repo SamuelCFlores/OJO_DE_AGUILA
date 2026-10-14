@@ -117,6 +117,27 @@ IMPOR1: el Clausura 2026 es el torneo de prueba (sección "Validación, causalid
 
 Se reporta cuántas pruebas se hicieron, porque con muchas pruebas algunas pasan por azar. Agregado al ver los primeros resultados, sin cambiar qué pasa: los efectos con menos de `hallazgo.partidos_aviso` partidos se marcan como muestra chica (con tan pocos partidos el bootstrap subestima la incertidumbre). OBS1: en los quiebres, la condición 2 filtra poco, porque una ventana de 10 minutos cambia mucho más que el promedio de un partido completo; los filtros que pesan son la 1 y la 3. **Voronoi** sigue como lente estructural si alguna de sus métricas (control en campo rival, forma) cumple el criterio después de algún quiebre; si no, queda como apoyo visual. El resultado final es una tabla de qué pasa y qué no.
 
+## Índice Proactivo–Reactivo (propuesta del 14 oct, pendiente de confirmar)
+
+Escala de 0 a 100 que resume cómo juega un equipo en cada minuto: **0 = reactivo** (juego directo y transiciones), **100 = proactivo** (iniciativa y posesión asentada). Se calcula para los dos equipos (dos bandas). Código: `ojo.lentes.indice`.
+
+| Componente | Definición (ventana hacia atrás de `indice.ventana_min` minutos) | Signo |
+| --- | --- | --- |
+| Juego asentado | Duración de pases, conducciones y tiros en estado de control (Phases of Play: `is_transition` falso) entre la duración de los que tienen fase | + |
+| Posesión | Duración de las acciones con balón del equipo entre las de ambos | + |
+| Field tilt | Pases completos en el último tercio entre los de ambos equipos | + |
+| Espacio en campo rival | Control medio (Voronoi) de las acciones del equipo en campo rival | + |
+| Altura del bloque | x media de los jugadores visibles del equipo sin balón (sin porteros) | + |
+| Presión alta | Presiones en campo rival por minuto | + |
+| Juego directo | `possession_directness` medio de las acciones con balón | − |
+| Pase largo | Largo medio de los pases (yd) | − |
+
+**Cálculo.** Cada componente se estandariza (z) con media y DE de los minutos de entrenamiento (ambos equipos, partidos del América sin el torneo de prueba); se multiplica por su signo; el compuesto es el promedio de los z disponibles (mismo peso); el índice es el percentil del compuesto frente a los minutos de entrenamiento. Por minuto y no por foto: las fotos 360 solo existen en eventos y dependen de la cámara.
+
+**Lectura.** Bajo `indice.bandas[0]` el minuto se lee como reactivo, sobre `indice.bandas[1]` como proactivo y en medio como equilibrado.
+
+**Supuestos.** Pesos iguales hasta verificar con PCA que el primer componente coincide con el eje (TODO1 en `ojo.lentes.indice`). La escala es relativa a los partidos del América y sus rivales, no a toda la liga (solo hay eventos de esos partidos).
+
 ## Situaciones del explorador
 
 Filtros de la barra lateral del reporte (`contexto/resumenes.md`). Cada evento con 360 cae en las situaciones que cumple; "todas" no filtra. Coordenadas en la perspectiva de quien ejecuta el evento.
@@ -209,6 +230,7 @@ estadistica: {bootstrap_repeticiones: 2000, nivel_confianza: 0.95, min_eventos_z
 quiebres: {ventana_min: 10, exclusion_min: 1, min_ventana_min: 4, tolerancia_control_min: 5, max_controles: 20}
 forma: {min_jugadores_equipo: 4}
 agresividad: {tramo_min: 5, tardio_min: 65}
-casos: {tramo_min: 5, max_jugadas: 12}
+casos: {tramo_min: 5, max_jugadas: 12, simplificar_yd: 0.25}
+indice: {ventana_min: 5, bandas: [40, 60], componentes: {control: 1, posesion: 1, field_tilt: 1, control_campo_rival: 1, altura_sin_balon: 1, presion_alta: 1, directness: -1, largo_pase: -1}}
 hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10}
 ```

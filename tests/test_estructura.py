@@ -17,7 +17,7 @@ SUBPAQUETES = ["ojo", "ojo.ingesta", "ojo.datos", "ojo.framework", "ojo.lentes",
 # Secciones de la propuesta de params.yaml en contexto/framework.md
 SECCIONES_PARAMS = [
     "equipo", "entrenador", "predecesores", "liga", "validacion", "relevos", "campo", "tercios", "presion", "transicion",
-    "pase_progresivo", "balon_parado", "tramos_min", "red_pases", "voronoi", "simulacion", "resumenes", "estadistica", "quiebres", "forma", "agresividad", "casos", "hallazgo",
+    "pase_progresivo", "balon_parado", "tramos_min", "red_pases", "voronoi", "simulacion", "resumenes", "estadistica", "quiebres", "forma", "agresividad", "casos", "indice", "hallazgo",
 ]
 
 # Rutas que nunca deben entrar a git (reglas no negociables 1 y 2)

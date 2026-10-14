@@ -47,6 +47,13 @@ VERBOS = {
 PATRONES = {"From Throw In": "saque de banda", "From Free Kick": "tiro libre", "From Corner": "tiro de esquina",
             "From Goal Kick": "saque de meta", "From Keeper": "saque del portero", "From Kick Off": "saque de centro",
             "From Counter": "contragolpe", "Regular Play": "juego abierto", "Other": "otro"}
+OTRAS_ACCIONES = {  # solo para describir; no entran a la cadena de jugadas
+    "Ball Receipt*": "recibe", "Foul Won": "recibe falta", "Dribbled Past": "es superado",
+    "50/50": "disputa un balón dividido", "Shield": "protege el balón", "Error": "comete un error",
+    "Bad Behaviour": "es amonestado", "Offside": "queda en fuera de lugar", "Own Goal Against": "anota en su portería",
+    "Own Goal For": "se beneficia de un autogol", "Injury Stoppage": "pide atención médica", "Substitution": "sale de cambio",
+    "Tactical Shift": "cambia la táctica", "Half Start": "inicia el periodo", "Half End": "termina el periodo",
+}
 SIN_BALON = frozenset({"Pressure", "Duel", "Foul Committed", "Ball Recovery", "Interception", "Block", "Clearance"})
 ETIQUETAS_QUIEBRE = {
     "gol_favor": "gol del {e}", "gol_contra": "gol del {r}", "expulsion_favor": "expulsión en el {r}",
@@ -99,7 +106,7 @@ def etiqueta_quiebre(q, equipo: str, rival: str) -> str:
 def describir(e, nombres_: dict[int, str], nombre_equipo: dict[int, str]) -> str:
     """Una acción en lenguaje de cancha: "Zendejas pierde el control bajo presión"."""
     quien = nombres_.get(e.jugador_id, nombre_equipo.get(e.equipo_id, ""))
-    texto = f"{quien} {VERBOS.get(e.tipo, e.tipo.lower())}"
+    texto = f"{quien} {VERBOS.get(e.tipo) or OTRAS_ACCIONES.get(e.tipo, e.tipo.lower())}"
     if e.tipo == "Pass" and pd.notna(e.pase_receptor_id):
         texto += f" a {nombres_.get(e.pase_receptor_id, 'un compañero')}"
         if pd.notna(e.pase_resultado):
