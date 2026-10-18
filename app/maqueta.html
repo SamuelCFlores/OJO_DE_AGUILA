@@ -17,11 +17,16 @@
 <div id="intro" role="img" aria-label="Animación de entrada de Ojo de Águila"><div id="intro-lienzo"></div>
   <button id="intro-saltar" type="button">Saltar ›</button></div>
 <script>
+  // La entrada se ve una vez por sesión del navegador y nunca con ?sin-intro (grabación, revisiones) ni con movimiento reducido
   (function () {
     var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.__ojoMostrarIntro = !reducir;
-    if (window.__ojoMostrarIntro) document.documentElement.classList.add('con-intro');
-    else document.getElementById('intro').classList.add('oculto');
+    var sinIntro = /[?&]sin-intro(&|=|$)/.test(location.search), vista = false;
+    try { vista = sessionStorage.getItem('ojo.intro') === '1'; } catch (e) { /* sin almacenamiento: se muestra */ }
+    window.__ojoMostrarIntro = !reducir && !sinIntro && !vista;
+    if (window.__ojoMostrarIntro) {
+      document.documentElement.classList.add('con-intro');
+      try { sessionStorage.setItem('ojo.intro', '1'); } catch (e) { /* sin almacenamiento */ }
+    } else document.getElementById('intro').classList.add('oculto');
   })();
 </script>
 

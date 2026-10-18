@@ -231,6 +231,7 @@
       '<div class="pie-barra"><p class="muestra">' + esc(b.muestra) + '</p>' +
       '<button type="button" class="btn-borde" disabled title="Llega con resumenes.json">Ficha de 10 segundos · pronto</button></div>');
   }
+  function montarBarra() { renderBarra(D.barra); actualizarResumenes(); }  // también "Restablecer": vuelve al estado inicial sin recargar
   function activos(sel, raiz) { return Array.prototype.map.call((raiz || document).querySelectorAll(sel), function (b) { return b.textContent; }); }
   function actualizarResumenes() {
     var total = 0;
@@ -255,7 +256,7 @@
       else if (b.classList.contains('rival-btn')) cambiarRival(b);
       else if (b.classList.contains('ver-todos')) { var l = aside.querySelector('.lista-rivales'); l.classList.toggle('todos'); b.textContent = l.classList.contains('todos') ? 'Ver menos' : 'Ver todos (' + l.children.length + ')'; }
       else if (b.hasAttribute('data-ocultar')) ocultarBarra(!cuerpo.classList.contains('barra-oculta'));
-      else if (b.hasAttribute('data-volver')) location.reload();
+      else if (b.hasAttribute('data-volver')) { montarBarra(); var v = aside.querySelector('[data-volver]'); if (v) v.focus(); return; }
       actualizarResumenes();
     });
   }
@@ -297,7 +298,6 @@
     texto('lectura', X.lectura); texto('metodo', X.metodo);
     html('pendientes', X.pendientes.map(function (p) { return '<article class="pendiente"><span class="estado">En construcción · ' + esc(p.requisito) + '</span><h3>' + esc(p.titulo) + '</h3><p>' + esc(p.texto) + '</p></article>'; }).join(''));
     html('notas', X.notas.map(function (n) { return '<p class="nota">' + esc(n) + '</p>'; }).join(''));
-    renderBarra(D.barra);
     document.querySelectorAll('.filtro').forEach(function (b) { b.addEventListener('click', function () { b.remove(); }); });
   }
 
@@ -507,7 +507,7 @@
     document.getElementById('sin-datos').hidden = false;
     document.querySelectorAll('.vista').forEach(function (v) { v.remove(); });
   } else {
-    render(); conectarBarra(); actualizarResumenes(); reproductor();
+    render(); montarBarra(); conectarBarra(); reproductor();
     var oculta = false;
     try { oculta = localStorage.getItem('ojo.barraOculta') === '1'; } catch (e) { /* sin almacenamiento */ }
     ocultarBarra(oculta);
