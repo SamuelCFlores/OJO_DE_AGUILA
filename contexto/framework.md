@@ -242,6 +242,7 @@ validacion:
   season_id_prueba: 318          # 2025/26
   torneo_prueba: "Clausura"
   plan_b: {season_id_prueba: 317, torneo_prueba: "Clausura"}
+  min_partidos_prueba: 3
 relevos: {min_partidos: 5, ventana_partidos: 10}
 
 campo: {largo: 120, ancho: 80, porteria: [120, 40], area_min_x: 102, area_y: [18, 62], area_chica_min_x: 114, area_chica_y: [30, 50]}
