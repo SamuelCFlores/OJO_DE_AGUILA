@@ -24,10 +24,10 @@ from ojo.config import DIR_SALIDAS, RAIZ, params
 from ojo.datos import almacen, crudo
 from ojo.framework import contexto, quiebres
 from ojo.framework import partidos as fp
-from ojo.lentes import indice, minuto, simulacion, voronoi
+from ojo.lentes import balon_parado, indice, jugadores, minuto, rivales, simulacion, voronoi
 from ojo.salidas import barra as sb
 from ojo.salidas import caso as sc
-from ojo.salidas import datos_app, reproductor
+from ojo.salidas import datos_app, decision, reproductor
 
 DIR_HALLAZGOS = DIR_SALIDAS / "hallazgos"
 COLUMNAS_INDICE = ["match_id", "periodo", "minuto", "equipo_id", "tipo", "duracion", "es_transicion", "directness",
@@ -67,6 +67,12 @@ PRINCIPIOS = [
      "frase": "Tras sus cambios de sistema, el xG del América cambia {jardine} con Jardine; con Solari y Ortiz, {previos}.",
      "significa": "Los 10 minutos que siguen a un cambio de sistema produce menos. Puede ser porque el cambio responde a algo que ya iba mal: es una pista, no una causa.",
      "uso": "Para el cuerpo técnico: cuidar el paso al nuevo sistema. Para el rival: es una ventana para atacar."},
+    {"archivo": "jugadores_lineas_criterio", "filtro": {"metrica": "tacticos_defensa"}, "escala": 1, "unidad": " por partido",
+     "dec": 2, "cambio": False,
+     "titulo": "Refresca las bandas",
+     "frase": "Con Jardine, los cambios tácticos de defensas son {jardine}; con Solari y Ortiz, {previos}.",
+     "significa": "Mueve laterales y centrales (mediana del minuto 76) más que mediocampistas: gestión de piernas más que golpe táctico.",
+     "uso": "Desde el minuto 70, esperar laterales frescos del América: el rival puede preparar sus cambios de banda para ese momento."},
 ]
 
 
@@ -353,12 +359,73 @@ def generar(args: argparse.Namespace) -> int:
             "montecarlo": montecarlo, "simulaciones": p["simulacion"]["repeticiones"], "lectura": lectura, "metodo": metodo, "que_muestra": que_muestra,
             "pendientes": [{"titulo": a_, "texto": b_, "requisito": c_} for a_, b_, c_ in pendientes], "notas": notas,
         },
-        "barra": barra, "reproductor": repro,
+        "barra": barra, "reproductor": repro, "decidir": datos_decidir(p, team),
     }
     ruta = datos_app.escribir(datos)
     print(f"Maqueta 3: {titulo}\nDatos: {ruta.relative_to(RAIZ)} ({ruta.stat().st_size // 1024} KB; reales: no se publican ni se suben a git)\n"
           "Página: app/maqueta.html")
     return 0
+
+
+def _num(v: float, dec: int = 2) -> float | None:
+    """Número para el JSON (los vacíos van como null)."""
+    return None if v is None or pd.isna(v) else round(float(v), dec)
+
+
+def fichas_rivales(p: dict, team: int) -> list[dict]:
+    """Ficha de 10 segundos de cada rival del América en los torneos de entrenamiento de Jardine (sin el de prueba)."""
+    liga = fp.con_torneo(fp.validos(almacen.cargar("partidos")))
+    liga["prueba"] = fp.es_prueba(liga)
+    america = fp.del_equipo(liga, team)
+    ventana = set(america.loc[(america["entrenador_id"] == p["entrenador"]["manager_id"]) & ~america["prueba"], "torneo_corto"])
+    liga_v = liga[liga["torneo_corto"].isin(ventana) & ~liga["prueba"]]
+    ids = set(liga_v["match_id"])
+    tms = almacen.cargar("estadisticas_equipo", columnas=["match_id", "team_id", "team_match_np_xgd", *rivales.COLUMNAS])
+    tms = tms[tms["match_id"].isin(ids)]
+    medias, z = rivales.perfiles(tms)
+    nombres = pd.concat([liga_v.set_index("local_id")["local"], liga_v.set_index("visitante_id")["visitante"]])
+    nombres = nombres[~nombres.index.duplicated()]
+    xg_neto = tms[tms["team_id"] == team].set_index("match_id")["team_match_np_xgd"]
+    am = america[america["match_id"].isin(ids)].assign(xg_neto=lambda d: d["match_id"].map(xg_neto))
+    salida = []
+    for rid, g in am.groupby("rival_id"):
+        if rid not in z.index:
+            continue
+        parecidos = rivales.similares(z, rid, excluir=(team,))
+        f = decision.ficha(rid, nombres.get(rid, g["rival"].iloc[0]), z, medias, decision.registro(g),
+                           [nombres.get(x, str(x)) for x in parecidos], decision.registro(am[am["rival_id"].isin(parecidos)]))
+        f["partidos"] = int(len(g))
+        salida.append(f)
+    return sorted(salida, key=lambda f: (-f["partidos"], f["rival"]))
+
+
+def datos_decidir(p: dict, team: int) -> dict:
+    """Matriz de situaciones (notebook 05), fichas de 10 segundos, balón parado y uso de jugadores (notebook 04)."""
+    salida: dict = {"matriz": [], "base": None, "fichas": fichas_rivales(p, team), "balon_parado": None, "jugadores": None}
+    rm, rb = DIR_HALLAZGOS / "matriz.parquet", DIR_HALLAZGOS / "matriz_base.parquet"
+    if rm.exists() and rb.exists():
+        base = pd.read_parquet(rb).iloc[0]
+        salida["matriz"] = [decision.fila_matriz(r, base) for _, r in pd.read_parquet(rm).iterrows()]
+        salida["base"] = {"indice": _num(base["indice"], 0), "ppda": _num(base["ppda"], 1), "xg_dif_90": _num(base["xg_dif_90"])}
+
+    def resumen(archivo: str, nombres: dict, dec: int) -> list[dict]:
+        ruta = DIR_HALLAZGOS / f"{archivo}.parquet"
+        if not ruta.exists():
+            return []
+        t = pd.read_parquet(ruta)
+        return [{"etq": nombres.get(r.metrica, r.metrica), "jardine": _num(r.nuevo, dec), "previos": _num(r.previos, dec),
+                 "q": _num(r.q, 3), "pasa": bool(r.pasa)} for r in t.itertuples()]
+
+    rz = DIR_HALLAZGOS / "balon_parado_zonas.parquet"
+    if rz.exists():
+        zt = pd.read_parquet(rz).pivot_table(index=["lado", "zona"], columns="grupo", values="xg_por_partido")
+        salida["balon_parado"] = {
+            "resumen": resumen("balon_parado", balon_parado.NOMBRES, 2),
+            "zonas": [{"lado": lado, "zona": zona, "jardine": _num(f.get("Jardine")), "previos": _num(f.get("Predecesores"))}
+                      for (lado, zona), f in zt.iterrows()]}
+    if (DIR_HALLAZGOS / "jugadores.parquet").exists():
+        salida["jugadores"] = {"resumen": resumen("jugadores", jugadores.NOMBRES, 2) + resumen("jugadores_lineas_criterio", jugadores.NOMBRES, 2)}
+    return salida
 
 
 if __name__ == "__main__":

@@ -15,6 +15,10 @@ from ojo.framework import contexto
 LINEAS = {1: "Portero", **{i: "Defensa" for i in range(2, 9)}, **{i: "Medio" for i in range(9, 17)},
           **{i: "Ataque" for i in range(17, 26)}}
 LESION = "Injury"
+NOMBRES = {"cambios": "Cambios por partido", "cambios_tacticos": "Cambios tácticos", "cambios_lesion": "Cambios por lesión",
+           "primer_cambio_tactico": "Minuto del primer cambio táctico", "tacticos_tempranos": "Cambios tácticos tempranos",
+           "tacticos_defensa": "Cambios tácticos de defensas", "tacticos_medio": "Cambios tácticos de mediocampistas",
+           "tacticos_ataque": "Cambios tácticos de delanteros"}
 
 
 def sustituciones(eventos: pd.DataFrame, equipo_id: int) -> pd.DataFrame:

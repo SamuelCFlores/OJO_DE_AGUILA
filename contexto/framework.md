@@ -251,6 +251,8 @@ transicion: {fuente: "is_transition", plan_b_segundos: 10}
 pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
 jugadores: {cambio_temprano_min: 60}
+ficha: {umbral_z: 0.5, similares: 4}
+matriz: {dif_indice: 5, dif_ppda: 2, minutos_min: 300}
 tramos_min: 15            # 5 para lectura fina del flujo
 red_pases: {min_pases_arista: 3, min_pases_ventana: 15}
 voronoi: {min_dist_borde: 2.0, alcance_max_yd: 20, min_borde_arista_yd: 0.5, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
