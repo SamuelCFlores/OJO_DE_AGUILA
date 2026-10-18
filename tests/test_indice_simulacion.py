@@ -53,3 +53,16 @@ def test_foto_del_reproductor_es_liviana_y_completa() -> None:
     assert len(f["celdas"]) == len(f["propias"]) == 6 and len(f["jugadores"]) == 6
     assert f["frontera"] and f["visible"] and 0 < f["control"] < 1
     assert all(round(v, 1) == v for celda in f["celdas"] for v in celda)
+
+
+def test_pca_reconoce_un_eje_comun() -> None:
+    """Si todos los componentes salen de un mismo factor (con su signo), la PCA lo encuentra y coincide con el promedio."""
+    rng = np.random.default_rng(0)
+    factor = rng.normal(size=2000)
+    signos = {"a": 1, "b": 1, "c": -1, "d": -1}
+    comp = pd.DataFrame({c: s * factor + rng.normal(scale=.6, size=2000) for c, s in signos.items()})
+    v = indice.verificar_pca(comp, signos)
+    assert v.mismo_signo
+    assert v.varianza > .6
+    assert v.correlacion > .95
+    assert v.minutos == 2000

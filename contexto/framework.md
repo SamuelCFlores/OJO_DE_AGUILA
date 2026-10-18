@@ -131,7 +131,7 @@ IMPOR1: el Clausura 2026 es el torneo de prueba (sección "Validación, causalid
 
 Se reporta cuántas pruebas se hicieron, porque con muchas pruebas algunas pasan por azar. Agregado al ver los primeros resultados, sin cambiar qué pasa: los efectos con menos de `hallazgo.partidos_aviso` partidos se marcan como muestra chica (con tan pocos partidos el bootstrap subestima la incertidumbre). OBS1: en los quiebres, la condición 2 filtra poco, porque una ventana de 10 minutos cambia mucho más que el promedio de un partido completo; los filtros que pesan son la 1 y la 3. **Voronoi** sigue como lente estructural si alguna de sus métricas (control en campo rival, forma) cumple el criterio después de algún quiebre; si no, queda como apoyo visual. El resultado final es una tabla de qué pasa y qué no.
 
-## Índice Proactivo–Reactivo (propuesta del 14 oct, pendiente de confirmar)
+## Índice Proactivo–Reactivo (definido el 14 oct, confirmado el 18 oct)
 
 Escala de 0 a 100 que resume cómo juega un equipo en cada minuto: **0 = reactivo** (juego directo y transiciones), **100 = proactivo** (iniciativa y posesión asentada). Se calcula para los dos equipos (dos bandas). Código: `ojo.lentes.indice`.
 
@@ -150,7 +150,14 @@ Escala de 0 a 100 que resume cómo juega un equipo en cada minuto: **0 = reactiv
 
 **Lectura.** Bajo `indice.bandas[0]` el minuto se lee como reactivo, sobre `indice.bandas[1]` como proactivo y en medio como equilibrado.
 
-**Supuestos.** Pesos iguales hasta verificar con PCA que el primer componente coincide con el eje (TODO1 en `ojo.lentes.indice`). La escala es relativa a los partidos del América y sus rivales, no a toda la liga (solo hay eventos de esos partidos).
+**Confirmación con PCA** (18 oct, `indice.verificar_pca`). Sobre los 34,371 minutos de entrenamiento con los 8 componentes:
+- Las 8 cargas del primer componente tienen el signo propuesto.
+- Ese componente explica el 33 % de la varianza (autovalor 2.44; el segundo, 1.23).
+- Su puntaje correlaciona 0.94 con el promedio de pesos iguales.
+
+Se conservan los pesos iguales, que se fijaron antes de ver resultados. OBS2: el control en campo rival (Voronoi, carga 0.03) y la presión alta (0.13) casi no aportan al eje: miden otra cosa. El Voronoi depende además de la cámara (auditoría A4).
+
+**Supuestos.** La escala es relativa a los partidos del América y sus rivales, no a toda la liga (solo hay eventos de esos partidos).
 
 ## Animación del Voronoi (seguimiento estimado)
 

@@ -1,4 +1,4 @@
-"""Índice Proactivo–Reactivo por minuto, a dos bandas (PROPUESTA del 14 oct, pendiente de confirmar).
+"""Índice Proactivo–Reactivo por minuto, a dos bandas (definido el 14 oct, confirmado con PCA el 18 oct).
 
 Ordena el juego en una escala: 0 = reactivo (juego directo y transiciones), 100 = proactivo (iniciativa
 y posesión asentada). Cada componente es una métrica con sentido de cancha; se estandariza (z) con
@@ -11,7 +11,8 @@ equipo llevaba hasta ese minuto), no por foto: las fotos 360 solo existen en los
 de la cámara (auditoría A4).
 NOTA2: el eje "control" usa Phases of Play de StatsBomb (is_transition sobre pases, conducciones y
 tiros, ponderado por su duración), igual que time_in_control de Team Match Stats.
-TODO1: verificar con PCA que el primer componente coincide con el eje antes de fijar los pesos.
+NOTA3: verificado con PCA el 18 oct (verificar_pca): las 8 cargas con su signo, 33 % de la varianza y correlación de
+0.94 con los pesos iguales, que se conservan (framework.md).
 """
 
 from __future__ import annotations
@@ -131,3 +132,27 @@ def calcular(comp: pd.DataFrame, escala: Escala, signos: dict[str, int] | None =
     rango = np.searchsorted(escala.compuestos, tabla["compuesto"].to_numpy(), side="right")
     tabla["indice"] = np.where(tabla["compuesto"].notna(), 100 * rango / max(len(escala.compuestos), 1), np.nan)
     return tabla
+
+
+@dataclass
+class VerificacionPCA:
+    """Qué tanto el promedio de pesos iguales coincide con el eje principal de los componentes (TODO1)."""
+
+    cargas: pd.Series        # cargas del primer componente sobre los z con signo (orientado a que su suma sea positiva)
+    varianza: float          # proporción de la varianza que explica el primer componente
+    correlacion: float       # correlación entre el puntaje del primer componente y el compuesto de pesos iguales
+    mismo_signo: bool        # todas las cargas positivas: cada componente empuja en la dirección de su signo
+    minutos: int             # minutos con los 8 componentes (los que entran a la PCA)
+
+
+def verificar_pca(comp: pd.DataFrame, signos: dict[str, int] | None = None) -> VerificacionPCA:
+    """PCA sobre los componentes estandarizados y con signo, con los minutos completos de `comp` (entrenamiento)."""
+    signos = signos or params()["indice"]["componentes"]
+    cols = list(signos)
+    z = _z(comp, comp[cols].mean(), comp[cols].std(), signos).dropna()
+    valores, vectores = np.linalg.eigh(np.cov(z.to_numpy(), rowvar=False))
+    v = vectores[:, -1] * (1 if vectores[:, -1].sum() >= 0 else -1)
+    puntaje = z.to_numpy() @ v
+    return VerificacionPCA(cargas=pd.Series(v, index=cols), varianza=float(valores[-1] / valores.sum()),
+                           correlacion=float(np.corrcoef(puntaje, z.mean(axis=1))[0, 1]),
+                           mismo_signo=bool((v > 0).all()), minutos=len(z))

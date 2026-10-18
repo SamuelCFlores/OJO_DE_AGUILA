@@ -101,13 +101,13 @@ def principios(caso_tipo: str, caso_texto: str) -> tuple[list[datos_app.Principi
     return tarjetas, del_caso
 
 
-def tabla_indice(partidos: pd.DataFrame) -> pd.DataFrame:
-    """Índice por minuto y equipo de todos los partidos, con la escala de los torneos de entrenamiento."""
+def tabla_indice(partidos: pd.DataFrame) -> tuple[pd.DataFrame, indice.VerificacionPCA]:
+    """Índice por minuto y equipo de todos los partidos (escala de los torneos de entrenamiento) y su verificación con PCA."""
     ids = partidos["match_id"].astype(int).tolist()
     piezas = indice.piezas_por_minuto(almacen.cargar("eventos", ids, columnas=COLUMNAS_INDICE))
     comp = indice.componentes(minuto.cargar_panel("minuto").query("match_id in @ids"), piezas)
     entrenamiento = comp[comp["match_id"].isin(partidos.loc[~partidos["prueba"], "match_id"])]
-    return indice.calcular(comp, indice.ajustar(entrenamiento))
+    return indice.calcular(comp, indice.ajustar(entrenamiento)), indice.verificar_pca(entrenamiento)
 
 
 def datos_reproductor(tab: pd.DataFrame, ev: pd.DataFrame, fotos: dict, jugadas: list[dict], todos_q: pd.DataFrame,
@@ -184,7 +184,7 @@ def generar(args: argparse.Namespace) -> int:
     info = partidos[partidos["match_id"] == args.partido].iloc[0]
     rival = info["rival"]
     print("Calculando el índice de todos los partidos (unos 20 s)…")
-    tab_todos = tabla_indice(partidos)
+    tab_todos, pca = tabla_indice(partidos)
 
     # Portada: índice por torneo (sin el torneo de prueba) y cifras clave
     entr = tab_todos.merge(partidos[["match_id", "torneo_corto", "entrenador_corto", "prueba", "fecha"]], on="match_id")
@@ -285,7 +285,7 @@ def generar(args: argparse.Namespace) -> int:
                    f"blanco: de {rival}; la línea blanca marca dónde chocan los equipos. El {equipo} ataca hacia la derecha.")
     v = p["voronoi"]
     metodo = (f"Índice Proactivo–Reactivo por minuto (ventana de {p['indice']['ventana_min']} minutos, 8 componentes con el "
-              f"mismo peso, percentil frente a los minutos de AP21–AP25; propuesta del 14 oct). Voronoi sobre el 360, recortado al "
+              f"mismo peso, percentil frente a los minutos de AP21–AP25; confirmado con PCA: correlación de {pca.correlacion:.2f} con su primer componente). Voronoi sobre el 360, recortado al "
               f"área visible y a {v['alcance_max_yd']:g} yd por jugador. Una foto por minuto: la acción con más jugadores visibles. "
               "Principios: diferencia en diferencias frente a ventanas de control (notebook 02) y estilo frente a la liga (notebook 03).")
 
@@ -327,7 +327,8 @@ def generar(args: argparse.Namespace) -> int:
         ("Balón parado", "Córners y tiros libres a favor y en contra: xG, zonas de remate y de vulnerabilidad.", "componente del reto"),
         ("Uso de jugadores", "Qué cambia con las sustituciones de Jardine y cómo reparte los roles por posición.", "componente del reto"),
     ]
-    notas = ["Índice provisional: definición del 14 oct en contexto/framework.md, pendiente de confirmar (pesos iguales, falta la verificación con PCA).",
+    notas = [f"Índice confirmado con PCA: {'los 8 componentes cargan' if pca.mismo_signo else 'no todos los componentes cargan'} con su signo en el primer "
+             f"componente ({pca.varianza * 100:.0f} % de la varianza) y el promedio de pesos iguales correlaciona {pca.correlacion:.2f} con él.",
              "Principios: pasan el criterio v2 (18 oct): intervalo sin cero, tamaño frente al cambio en las ventanas de control, 4 de 5 torneos y FDR de Benjamini-Hochberg. En la prueba placebo, 0 de 280 quiebres falsos lo pasan.",
              "Página con datos reales de StatsBomb: solo para la competencia; no se sube a git ni se publica."]
     datos = {

@@ -45,7 +45,7 @@ quiebres:
 forma: {min_jugadores_equipo: 4}       # jugadores visibles mínimos para medir la forma de un equipo
 agresividad: {tramo_min: 5, tardio_min: 65}   # tramos de 5 min; tardío = tramos desde el 65'
 casos: {tramo_min: 5, max_jugadas: 12, simplificar_yd: 0.25}   # caso puntual (07 y 08): tramos, jugadas con Voronoi y simplificación de celdas del reproductor
-indice:   # Proactivo–Reactivo (PROPUESTA del 14 oct, pendiente de confirmar; framework.md). Signo: +1 proactivo, −1 reactivo
+indice:   # Proactivo–Reactivo (definido el 14 oct, confirmado con PCA el 18 oct; framework.md). Signo: +1 proactivo, −1 reactivo
   ventana_min: 5
   bandas: [40, 60]   # bajo 40 se lee "reactivo", sobre 60 "proactivo", en medio "equilibrado"
   componentes: {control: 1, posesion: 1, field_tilt: 1, control_campo_rival: 1, altura_sin_balon: 1, presion_alta: 1,
