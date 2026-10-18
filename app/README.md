@@ -1,6 +1,10 @@
 # app/: la página de Ojo de Águila (maqueta definitiva)
 
-**Esta es la maqueta definitiva desde el 18 oct: todo cambio visual se hace aquí.** Las anteriores (maqueta 2 de `scripts/07_caso.py` y los `outputs/reportes/maqueta_*.html`) quedan como históricas y no se editan.
+**Esta es la maqueta definitiva desde el 18 oct: todo cambio visual se hace aquí.** Tiene cuatro vistas:
+- **Portada:** tesis, KPI, índice por torneo y principios.
+- **Explorar:** principio → caso, reproductor con Voronoi y Monte Carlo explicativo.
+- **Decidir:** matriz de situaciones, ficha de 10 segundos, balón parado, uso de jugadores y casos del CL26.
+- **Método:** el reporte, con datos, lentes, criterio v2, principios con evidencia, validación, límites y glosario. Las anteriores (maqueta 2 de `scripts/07_caso.py` y los `outputs/reportes/maqueta_*.html`) quedan como históricas y no se editan.
 
 El **diseño** vive aquí y se edita directo; los **datos** los genera Python y nunca entran a git.
 
@@ -45,7 +49,8 @@ Lo valida `ojo.salidas.datos_app.validar` (claves obligatorias y JSON válido). 
 | `portada` | `kpis` [{etq, valor, detalle}], `torneos` [{torneo, entrenador, propio, rival, nuevo}], `principios` [tarjetas], `ejemplo` {texto, foto, que_muestra} |
 | `explorar` | `antetitulo`, `filtros`, `principio` (tarjeta grande), `caso` {titulo, chips, quiebres}, `montecarlo` [...], `simulaciones` (repeticiones del Monte Carlo), `lectura`, `metodo`, `que_muestra`, `pendientes`, `notas` |
 | `barra` | Barra compacta (ver `contexto/barra_lateral.md`, versión 3): `rival`, `rivales`, `torneos`, `momento`, `condicion`, `partidos`, `mas`, `muestra` |
-| `decidir` | `matriz` [{situacion, hace, funciona, recomendacion, evidencia, nivel, muestra_chica}], `base` {indice, ppda, xg_dif_90}, `fichas` [{rival, progresa, defiende, concede, balon_parado, balon_parado_rasgos, jardine, parecidos, jardine_parecidos, partidos}], `balon_parado` {resumen, zonas}, `jugadores` {resumen} |
+| `decidir` (vista Decidir) | `casos` [{id, titulo, regla, marcaba, paso[], lectura}] (notebook 07), `validacion` [{principio, veredicto, texto, entrenamiento, prueba, bajo, alto, partidos}] (notebook 06), `matriz` [{situacion, hace, funciona, recomendacion, evidencia, nivel, muestra_chica}], `base` {indice, ppda, xg_dif_90}, `fichas` [{rival, progresa, defiende, concede, balon_parado, balon_parado_rasgos, jardine, parecidos, jardine_parecidos, partidos}], `balon_parado` {resumen, zonas}, `jugadores` {resumen} |
+| `metodo` (vista Método) | `datos` {liga, nuevo, previos, prueba, torneos_*}, `pca` {varianza, correlacion, mismo_signo, minutos}, `criterio` {placebo_pruebas, placebo_v1, placebo_v2, pruebas, pasan_v1, pasan_v2} |
 | `reproductor` | `componentes`, `minutos` (índice, z, valores y marcador por minuto), `fotos` (Voronoi por minuto), `quiebres`, `etiquetasX`, `jugadas` [{titulo, fotos, minuto}], `animacion` {escala, duracion, pausa_foto, alcance, cuartos_circulo}, `bandas` (40/60 del índice), `inicio` |
 
 Una **foto** (`ojo.salidas.reproductor.foto`) trae celdas y a quién pertenecen, frontera, área visible, jugadores `[x, y, propio, actor]`, la flecha del pase o la conducción y el control, siempre con el América atacando hacia la derecha. En las **jugadas** cada foto agrega `t` (segundos), `ids` (pista estimada de cada jugador, `ojo.lentes.seguimiento`) y `nombre` (quien ejecuta, de Events + Lineups).

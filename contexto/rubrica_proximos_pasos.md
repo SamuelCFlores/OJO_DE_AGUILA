@@ -5,6 +5,10 @@
 > - el paso 5 pasa a "estabilidad fuera de muestra" y el 16 a "HTML único" (`scripts/09_entrega.py`).
 >
 > Lo hacen chamuel y Claude Code. El plan y el cómo se cubre cada criterio están en `contexto/propuesta_base.md`, "Rúbrica oficial".
+>
+> **Estado al cierre del 18 oct:**
+> - **Hechos:** pasos 1 (índice con PCA), 2 (criterio v2, placebo, FDR), 4 (PPDA y altura de recuperación), 5 (estabilidad en el CL26, notebook 06), 7 (balón parado), 8 (uso de jugadores), 10 (ficha), 11 (matriz), 12 (casos), 16 (HTML único) y el guion de 17.
+> - **Pendientes:** 3 (controles por jugadores visibles, A4), 9 (relevo frente a la liga), 17 (grabar el video), 18 (prueba de 90 s), 19 (corrida en limpio) y 21 (promoción a `main`).
 
 Para revisarla entre **chamuel** y **Tilin** en unos 30 minutos y decidir qué hacer en los 8 días que quedan (entrega: 22 oct).
 

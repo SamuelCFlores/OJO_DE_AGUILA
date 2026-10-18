@@ -72,7 +72,25 @@ Entregables (22 de octubre de 2026): **un solo archivo HTML autocontenido** (la 
 - [x] Lente Voronoi + grafo de vecindad (`ojo.lentes.voronoi`, `scripts/04_voronoi.py`) y figuras con la identidad (`ojo.salidas`).
 - [x] Lectura por puntos de quiebre (12 oct): `ojo.framework.quiebres` (quiebres, ventanas, controles), panel por minuto a dos bandas con forma del bloque y red por posición (`ojo.lentes.minuto`, `forma`, `redes`; `scripts/05_panel.py`), criterio de hallazgo (`ojo.lentes.hallazgo`), notebooks 02 (quiebres) y 03 (estilo y tabla final) y el Voronoi paso a paso (`ojo.salidas.paso_a_paso`, `scripts/06_paso_a_paso.py`). Voronoi sigue como lente estructural por la regla fijada.
 - [x] Maqueta 3 (14 oct): narrativa principio → caso confirmador (final AP23, roja a Fulgencio), índice Proactivo–Reactivo por minuto (`ojo.lentes.indice`, confirmado con PCA el 18 oct), reproductor minuto a minuto con Voronoi (`ojo.salidas.reproductor`) y Monte Carlo explicativo (`ojo.lentes.simulacion`). La página es la plantilla `app/maqueta.html` (+ `app.css`, `app.js`); `scripts/08_maqueta.py` solo escribe `outputs/app/datos.js`. Barra lateral v3: compacta, plegable y ocultable. Voronoi en movimiento en las jugadas (seguimiento estimado, `ojo.lentes.seguimiento`; Voronoi recalculado en el navegador). Auditoría del 14 oct en `auditoria/`. Auditoría visual del 16 oct implementada el 17 oct: `app/movimiento.js` (`OjoMov`), barra en tres variantes (por defecto `sobre`) y opciones `?sin-intro`, `?barra=` y `?movimiento=reducido` (`app/README.md`).
-- [ ] Métricas de comportamiento por tramo (PPDA, altura de recuperación), fuerza del rival previa, modelado (R², Monte Carlo), validación en el CL26, ficha, `scripts/09_resumenes.py`, reporte, video.
+- [x] Cierre (18 oct, con la rúbrica oficial; plan en `contexto/plan_cierre.md`):
+  - **Criterio v2** (`ojo.lentes.hallazgo`): escala de los controles, FDR y placebo. El placebo pasa de 11 a 0 de 280 y la tabla final de 69 a 30 de 636.
+  - **Índice confirmado con PCA** (r = 0.94 con los pesos iguales).
+  - **PPDA y altura de recuperación** (`ojo.lentes.defensa`).
+  - **Balón parado y uso de jugadores** (notebook 04).
+  - **Matriz de situaciones** (notebook 05).
+  - **Fichas de 10 segundos** (`ojo.lentes.rivales`, `ojo.salidas.decision`).
+  - **Validación en el CL26** (notebook 06): ningún principio se invierte.
+  - **3 casos de decisión** (notebook 07).
+  - **Vistas Decidir y Método** en la app.
+  - **HTML único** (`scripts/09_entrega.py`) y guion del video (`contexto/guion_video.md`).
+  - Principios v2: sale jugando corto · con uno más, hunde al rival · una lesión no lo frena · tras recibir gol, el rival no lo aprieta · alerta: cambiar el sistema le cuesta · refresca las bandas.
+- [ ] Pendiente de chamuel:
+  - grabar el video;
+  - prueba de 90 segundos con alguien externo;
+  - V-M14 (descargar Poppins);
+  - variante de la barra;
+  - promoción a `main`;
+  - correo de entrega.
 
 Preguntas abiertas (la rúbrica oficial y el HTML único ya están confirmados): ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, al parecer heredado de ediciones anteriores; se usan, con plan B listo), ¿cómo evalúan "la herramienta cambia una decisión real"?, ¿qué implica la nota de que no se necesita programación avanzada? Samuel envía el correo a los organizadores el 8 de octubre.
 
@@ -81,6 +99,8 @@ Preguntas abiertas (la rúbrica oficial y el HTML único ya están confirmados):
 - `contexto/flujo_trabajo.md`: cómo trabajamos en equipo: fases, día a día, ramas y promoción a `main`, commits y simbología de comentarios.
 - `branding/README.md`: identidad (colores, Poppins, logos), animación de entrada (5 s, cada vez que se abre el archivo) e ícono en loop; cómo usarlos y reconstruirlos. Toda salida visual (reporte, figuras, video, presentación) usa la **paleta azulcrema, definitiva desde el 14 oct**: cancha y fondos azul `#0F1D41`, América crema `#F0EB9A`, rival blanco y rojo `#F6303E` solo en acentos puntuales; la placa del logotipo conserva el azul y el dorado de la marca.
 - `CAMBIOS/` (rama `tests`): bitácora diaria; lee el último archivo para saber qué se hizo y qué quedó pendiente.
+- `contexto/plan_cierre.md`: plan del cierre (18 oct): validación en el CL26, casos de decisión, vista Método, guion y verificación, con riesgos y criterios de calidad.
+- `contexto/guion_video.md`: guion del video de 5 minutos y la prueba de 90 segundos.
 - `contexto/resumenes.md`: contrato de `resumenes.json`, el único archivo de datos del explorador (barra lateral rival · torneo · situación). Solo agregados; validador en `ojo.salidas.resumenes`.
 
 - `contexto/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.

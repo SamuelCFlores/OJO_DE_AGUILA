@@ -39,7 +39,19 @@ Los scripts se corren en orden; todos son incrementales (lo ya hecho se salta) y
 
 Pasos 0–2 los corre quien tenga credenciales (Samuel). Del 3 en adelante cualquiera con la caché. Después de agregar una columna a `ojo.datos.tablas`: `python scripts/03_procesar.py --rehacer eventos`.
 
-Los modelos y las pruebas de hipótesis viven en notebooks: `01_voronoi_exploracion` (corte del Voronoi), `02_puntos_de_quiebre` (antes/después de cada quiebre, con controles) y `03_barrido_estilo` (estilo frente a la liga y tabla final de hallazgos).
+Los modelos y las pruebas de hipótesis viven en notebooks:
+
+| Notebook | Qué hace |
+| --- | --- |
+| `01_voronoi_exploracion` | Corte del Voronoi |
+| `02_puntos_de_quiebre` | Antes/después de cada quiebre, con controles, criterio v2 y placebo |
+| `03_barrido_estilo` | Estilo frente a la liga y tabla final de hallazgos |
+| `04_balon_parado_y_jugadores` | Componentes obligatorios: balón parado y uso de jugadores |
+| `05_matriz_de_situaciones` | Qué hace Jardine en cada situación y qué le funciona |
+| `06_validacion_cl26` | Única apertura del torneo de prueba |
+| `07_casos_cl26` | Tres casos de decisión elegidos por regla |
+
+Se corren en orden; el 07 necesita antes `08_maqueta.py` (las fichas).
 
 ## Equipo y forma de trabajo
 
