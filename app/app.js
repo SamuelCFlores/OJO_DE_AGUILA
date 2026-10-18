@@ -22,6 +22,9 @@
   }
   function pares(plano) { var s = []; for (var k = 0; k < plano.length; k += 2) s.push(plano[k] + ',' + plano[k + 1]); return s.join(' '); }
   function pct(v) { return Math.round(v * 100) + ' %'; }
+  // Texto de las gráficas SVG: al menos 12 unidades del viewBox (≥ 11 px en pantalla a 1280 px) y la fuente de la marca
+  function fuente(peso, px) { return 'font:' + peso + ' ' + px + 'px var(--oda-fuente)'; }
+  function corto(nombre) { return String(nombre).split(' ')[0].toUpperCase().slice(0, 8); }
 
   // ---------- canchas con Voronoi ----------
   var OJO_LEYENDA = '<svg viewBox="0 14 102 70" width="34" height="24" aria-hidden="true">' +
@@ -171,22 +174,22 @@
       '<p class="nota">Goles esperados: ' + m.goles_favor.toFixed(2) + ' – ' + m.goles_contra.toFixed(2) + '. Marcadores más frecuentes: ' + marcadores + '.</p></article>';
   }
   function graficaTorneos(contenedor, filas) {
-    var W = 640, H = 270, M = { i: 36, d: 10, a: 22, b: 44 }, svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Índice medio por torneo' });
+    var W = 560, H = 270, M = { i: 36, d: 10, a: 22, b: 46 }, svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Índice medio por torneo' });
     contenedor.innerHTML = ''; contenedor.appendChild(svg);
     el('rect', { x: 0, y: 0, width: W, height: H, rx: 8, style: 'fill:var(--c-azul)' }, svg);
     var ancho = (W - M.i - M.d) / filas.length;
     function y(v) { return M.a + (H - M.a - M.b) * (1 - v / 100); }
     [0, 50, 100].forEach(function (v) {
       el('line', { x1: M.i, x2: W - M.d, y1: y(v), y2: y(v), style: 'stroke:rgba(255,255,255,' + (v === 50 ? .35 : .12) + ');stroke-dasharray:' + (v === 50 ? '3 3' : 'none') }, svg);
-      el('text', { x: M.i - 6, y: y(v) + 3, 'text-anchor': 'end', style: 'fill:rgba(255,255,255,.6);font:600 10px Poppins, sans-serif' }, svg).textContent = v;
+      el('text', { x: M.i - 6, y: y(v) + 4, 'text-anchor': 'end', style: 'fill:rgba(255,255,255,.7);' + fuente(600, 12) }, svg).textContent = v;
     });
     filas.forEach(function (f, k) {
       var x = M.i + ancho * k + ancho * .2, w = ancho * .6;
       el('rect', { x: x, y: y(f.propio), width: w, height: y(0) - y(f.propio), rx: 2, style: f.nuevo ? 'fill:var(--c-acento)' : 'fill:rgba(255,255,255,.45)' }, svg);
-      el('text', { x: x + w / 2, y: y(f.propio) - 5, 'text-anchor': 'middle', style: 'fill:#fff;font:800 11px Poppins, sans-serif' }, svg).textContent = Math.round(f.propio);
+      el('text', { x: x + w / 2, y: y(f.propio) - 5, 'text-anchor': 'middle', style: 'fill:#fff;' + fuente(800, 12) }, svg).textContent = Math.round(f.propio);
       el('circle', { cx: x + w / 2, cy: y(f.rival), r: 5, style: 'fill:#fff;stroke:var(--c-azul);stroke-width:1.5' }, svg);
-      el('text', { x: x + w / 2, y: H - 26, 'text-anchor': 'middle', style: 'fill:rgba(255,255,255,.85);font:700 10px Poppins, sans-serif' }, svg).textContent = f.torneo;
-      el('text', { x: x + w / 2, y: H - 12, 'text-anchor': 'middle', style: 'fill:rgba(255,255,255,.6);font:600 9px Poppins, sans-serif' }, svg).textContent = f.entrenador;
+      el('text', { x: x + w / 2, y: H - 26, 'text-anchor': 'middle', style: 'fill:rgba(255,255,255,.85);' + fuente(700, 12) }, svg).textContent = f.torneo;
+      el('text', { x: x + w / 2, y: H - 10, 'text-anchor': 'middle', style: 'fill:rgba(255,255,255,.7);' + fuente(600, 12) }, svg).textContent = f.entrenador;
     });
   }
 
@@ -316,7 +319,7 @@
     function formato(c, v) { if (v == null) return '—'; if (c.formato === 'pct') return pct(v); if (c.formato === 'yd') return v.toFixed(1) + ' yd'; return v.toFixed(2); }
     function radar(m) {
       var s = document.getElementById('radar'); while (s.firstChild) s.removeChild(s.firstChild);
-      var cx = 160, cy = 114, Rr = 76, n = R.componentes.length;
+      var cx = 160, cy = 114, Rr = 72, n = R.componentes.length;
       function punto(k, z) { var a = -Math.PI / 2 + 2 * Math.PI * k / n, r = Rr * (Math.max(-2.5, Math.min(2.5, z == null ? 0 : z)) + 2.5) / 5; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
       el('rect', { x: 0, y: 0, width: 320, height: 230, rx: 8, style: 'fill:var(--c-azul)' }, s);
       [-2.5, 0, 2.5].forEach(function (z) {
@@ -326,10 +329,11 @@
       R.componentes.forEach(function (c, k) {
         var q = punto(k, 2.5), a = -Math.PI / 2 + 2 * Math.PI * k / n;
         el('line', { x1: cx, y1: cy, x2: q[0], y2: q[1], style: 'stroke:rgba(255,255,255,.15)' }, s);
-        el('text', { x: cx + (Rr + 12) * Math.cos(a), y: cy + (Rr + 12) * Math.sin(a) + 3, 'text-anchor': Math.abs(Math.cos(a)) < .2 ? 'middle' : (Math.cos(a) > 0 ? 'start' : 'end'),
-                     style: 'fill:rgba(255,255,255,.85);font:600 9px Poppins, sans-serif' }, s).textContent = c.radar;
+        el('text', { x: cx + (Rr + 10) * Math.cos(a), y: cy + (Rr + 10) * Math.sin(a) + 4, 'text-anchor': Math.abs(Math.cos(a)) < .2 ? 'middle' : (Math.cos(a) > 0 ? 'start' : 'end'),
+                     style: 'fill:rgba(255,255,255,.9);' + fuente(600, 12) }, s).textContent = c.radar;
       });
-      [['zr', 'fill:#fff;fill-opacity:.12;stroke:#fff;stroke-width:1.4'], ['za', 'fill:var(--c-acento);fill-opacity:.35;stroke:var(--c-acento);stroke-width:2']].forEach(function (par) {
+      // El rival solo con contorno discontinuo: se distingue del América sin depender del color (V-A1)
+      [['zr', 'fill:none;stroke:#fff;stroke-width:1.6;stroke-dasharray:5 4'], ['za', 'fill:var(--c-acento);fill-opacity:.35;stroke:var(--c-acento);stroke-width:2.4']].forEach(function (par) {
         var ps = []; for (var k = 0; k < n; k++) ps.push(punto(k, m[par[0]][k]).join(','));
         el('polygon', { points: ps.join(' '), style: par[1] }, s);
       });
@@ -429,29 +433,53 @@
       if (modo === 'jugada') reproducir();  // al elegir una jugada, arranca la animación
     });
     // Línea del índice (modo partido): clic para saltar
-    var linea = document.getElementById('linea'), W = 640, H = 210, M = { i: 34, d: 8, a: 40, b: 24 }, cursor;
+    var linea = document.getElementById('linea'), W = 560, H = 214, M = { i: 34, d: 70, a: 58, b: 26 }, cursor;
+    var FS = 12.5;  // la línea se ve a ~0.9 de su viewBox a 1280 px: 12.5 unidades ≈ 11.4 px
+    linea.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     function xDe(k) { return M.i + (W - M.i - M.d) * k / Math.max(R.minutos.length - 1, 1); }
     function yDe(v) { return M.a + (H - M.a - M.b) * (1 - v / 100); }
     el('rect', { x: 0, y: 0, width: W, height: H, rx: 8, style: 'fill:var(--c-azul)' }, linea);
+    el('rect', { x: M.i, y: yDe(BANDAS[1]), width: W - M.i - M.d, height: yDe(BANDAS[0]) - yDe(BANDAS[1]), style: 'fill:rgba(255,255,255,.05)' }, linea);  // banda "equilibrado"
     [BANDAS[0], 50, BANDAS[1]].forEach(function (v) {
       el('line', { x1: M.i, x2: W - M.d, y1: yDe(v), y2: yDe(v), style: 'stroke:rgba(255,255,255,' + (v === 50 ? .3 : .12) + ');stroke-dasharray:3 3' }, linea);
-      el('text', { x: M.i - 6, y: yDe(v) + 3, 'text-anchor': 'end', style: 'fill:rgba(255,255,255,.6);font:600 9px Poppins, sans-serif' }, linea).textContent = v;
+      if (v !== 50) el('text', { x: M.i - 6, y: yDe(v) + 4, 'text-anchor': 'end', style: 'fill:rgba(255,255,255,.7);' + fuente(600, FS) }, linea).textContent = v;
     });
     R.etiquetasX.forEach(function (e) { if (e.periodo && e.k > 0) el('line', { x1: xDe(e.k) - .5, x2: xDe(e.k) - .5, y1: M.a, y2: H - M.b, style: 'stroke:rgba(255,255,255,.35)' }, linea); });
-    var nivel = 0;
+    // Quiebres: línea en su minuto; goles y expulsiones con etiqueta en el primer nivel libre (3 niveles), dentro del área
+    var niveles = [[], [], []], marcasQ = [];
     R.quiebres.forEach(function (q) {
-      el('line', { x1: xDe(q.k), x2: xDe(q.k), y1: M.a, y2: H - M.b, style: 'stroke:' + (q.favor ? 'var(--c-acento)' : '#fff') + ';stroke-width:' + (q.fuerte ? 1.6 : .8) + ';opacity:' + (q.fuerte ? .9 : .45) }, linea);
-      if (!q.fuerte) return;  // solo goles y expulsiones llevan etiqueta; escalonadas para no encimarse
-      el('text', { x: xDe(q.k), y: 12 + 11 * (nivel++ % 3), 'text-anchor': 'middle', style: 'fill:' + (q.favor ? 'var(--c-acento)' : '#fff') + ';font:700 9px Poppins, sans-serif' }, linea).textContent = q.corto;
+      var ln = el('line', { x1: xDe(q.k), x2: xDe(q.k), y1: M.a, y2: H - M.b, style: 'stroke:' + (q.favor ? 'var(--c-acento)' : '#fff') + ';stroke-width:' + (q.fuerte ? 1.6 : .8) + ';opacity:' + (q.fuerte ? .9 : .45) }, linea);
+      var marca = { q: q, linea: ln, texto: null }; marcasQ.push(marca);
+      if (!q.fuerte) return;
+      var t = el('text', { y: 0, style: 'fill:' + (q.favor ? 'var(--c-acento)' : '#fff') + ';' + fuente(700, FS + .5) }, linea);
+      t.textContent = q.corto;
+      var w = t.getComputedTextLength() || q.corto.length * 8,  // en una vista oculta no se puede medir: estimación
+          x0 = Math.max(M.i, Math.min(W - M.d - w, xDe(q.k) - w / 2));
+      var choque = niveles.map(function (nv) { return nv.reduce(function (s, r) { return s + Math.max(0, Math.min(r[1], x0 + w + 4) - Math.max(r[0], x0 - 4)); }, 0); });
+      var lv = choque.indexOf(Math.min.apply(null, choque));
+      niveles[lv].push([x0, x0 + w]);
+      t.setAttribute('x', x0); t.setAttribute('y', 16 + 15 * lv);
+      marca.texto = t;
     });
-    [['ir', '#fff', 1.4], ['ia', 'var(--c-acento)', 2.2]].forEach(function (s) {
-      var ps = []; R.minutos.forEach(function (m, k) { if (m[s[0]] != null) ps.push(xDe(k) + ',' + yDe(m[s[0]])); });
-      el('polyline', { points: ps.join(' '), style: 'fill:none;stroke:' + s[1] + ';stroke-width:' + s[2] }, linea);
+    // Rival discontinuo y etiquetas directas al final de cada serie: se distinguen en gris y con daltonismo (V-A1)
+    var SERIES = [['ir', '#fff', 1.6, '5 4', D.rival], ['ia', 'var(--c-acento)', 2.4, 'none', D.equipo]];
+    var finales = [];
+    SERIES.forEach(function (s) {
+      var ps = [], ultimo = null; R.minutos.forEach(function (m, k) { if (m[s[0]] != null) { ps.push(xDe(k) + ',' + yDe(m[s[0]])); ultimo = yDe(m[s[0]]); } });
+      el('polyline', { points: ps.join(' '), style: 'fill:none;stroke:' + s[1] + ';stroke-width:' + s[2] + ';stroke-dasharray:' + s[3] }, linea);
+      if (ultimo != null) finales.push({ y: ultimo, color: s[1], txt: corto(s[4]) });
+    });
+    if (finales.length === 2 && Math.abs(finales[0].y - finales[1].y) < 14) {  // separa las etiquetas si las series terminan juntas
+      var medio = (finales[0].y + finales[1].y) / 2, arriba = finales[0].y <= finales[1].y ? 0 : 1;
+      finales[arriba].y = medio - 7; finales[1 - arriba].y = medio + 7;
+    }
+    finales.forEach(function (f) {
+      el('text', { x: W - 6, y: Math.max(M.a + 6, Math.min(H - M.b - 2, f.y + 4)), 'text-anchor': 'end', style: 'fill:' + f.color + ';' + fuente(800, FS) }, linea).textContent = f.txt;
     });
     R.etiquetasX.forEach(function (e) {
-      el('text', { x: xDe(e.k), y: H - 8, 'text-anchor': e.periodo ? 'start' : 'middle', style: 'fill:rgba(255,255,255,' + (e.periodo ? .9 : .6) + ');font:' + (e.periodo ? 700 : 600) + ' 9px Poppins, sans-serif' }, linea).textContent = e.etq;
+      el('text', { x: xDe(e.k), y: H - 8, 'text-anchor': e.periodo ? 'start' : 'middle', style: 'fill:rgba(255,255,255,' + (e.periodo ? .9 : .7) + ');' + fuente(e.periodo ? 700 : 600, FS) }, linea).textContent = e.etq;
     });
-    cursor = el('line', { y1: M.a - 4, y2: H - M.b + 4, style: 'stroke:#fff;stroke-width:1.2' }, linea);
+    cursor = el('line', { y1: M.a - 4, y2: H - M.b + 4, style: 'stroke:var(--c-rojo);stroke-width:2;stroke-dasharray:.1 3.6;stroke-linecap:round' }, linea);
     linea.addEventListener('click', function (ev) {
       var r = linea.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width;
       detener(); i = Math.round((x - M.i) / (W - M.i - M.d) * (R.minutos.length - 1)); actualizar();
