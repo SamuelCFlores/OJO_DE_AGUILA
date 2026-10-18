@@ -8,6 +8,7 @@
   var NS = 'http://www.w3.org/2000/svg';
   var BANDAS = [40, 60];  // igual que indice.bandas en config/params.yaml: bajo 40 reactivo, sobre 60 proactivo
   var cuerpo = document.body;
+  function reducido() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
 
   // ---------- utilidades ----------
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -445,7 +446,7 @@
       detener(); modo = b.dataset.modo; jugada = modo === 'jugada' ? R.jugadas[+b.dataset.j] : null; i = 0; p = 0;
       modos.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
       document.querySelector('.linea-js').hidden = modo !== 'partido'; actualizar();
-      if (modo === 'jugada') reproducir();  // al elegir una jugada, arranca la animación
+      if (modo === 'jugada' && !reducido()) reproducir();  // al elegir una jugada arranca la animación; con movimiento reducido espera al ▶ (V-M8)
     });
     // Línea del índice (modo partido): clic para saltar
     var linea = document.getElementById('linea'), W = 560, H = 214, M = { i: 34, d: 70, a: 58, b: 26 }, cursor;
