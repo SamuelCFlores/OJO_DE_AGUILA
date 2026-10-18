@@ -158,7 +158,7 @@
 
   // ---------- piezas de contenido ----------
   function tarjeta(p, grande) {
-    var caso = p.caso ? '<span class="insignia">' + esc(p.caso) + '</span>' : '';
+    var caso = p.caso ? '<button type="button" class="insignia ir-caso" title="Ir al partido que lo ilustra">' + esc(p.caso) + ' <span aria-hidden="true">→</span></button>' : '';
     var cifras = '<dl class="cifras"><div><dt>' + esc(D.nuevo) + '</dt><dd>' + esc(p.jardine) + '</dd></div>' +
       '<div><dt>Solari y Ortiz</dt><dd>' + esc(p.previos) + '</dd></div>' +
       '<div><dt>Diferencia</dt><dd>' + esc(p.diferencia) + '<small>' + esc(p.intervalo) + '</small></dd></div>' +
@@ -169,12 +169,12 @@
   }
   function montecarlo(m) {
     var marcadores = m.marcadores.slice(0, 3).map(function (x) { return esc(x[0]) + ' (' + pct(x[1]) + ')'; }).join(' · ');
+    var partes = [['g', m.gana, 'Gana ' + D.equipo], ['e', m.empata, 'Empate'], ['p', m.pierde, 'Gana ' + D.rival]];
     return '<article class="mc"><h3>' + esc(m.titulo) + '</h3><p>' + esc(m.texto) + '</p>' +
-      '<div class="mc-barra" role="img" aria-label="Gana ' + pct(m.gana) + ', empate ' + pct(m.empata) + ', pierde ' + pct(m.pierde) + '">' +
-      '<span class="g" style="width:' + (m.gana * 100).toFixed(1) + '%">' + pct(m.gana) + '</span>' +
-      '<span class="e" style="width:' + (m.empata * 100).toFixed(1) + '%">' + pct(m.empata) + '</span>' +
-      '<span class="p" style="width:' + (m.pierde * 100).toFixed(1) + '%">' + pct(m.pierde) + '</span></div>' +
-      '<p class="mc-ley"><span class="cg"></span>Gana ' + esc(D.equipo) + ' <span class="ce"></span>Empate <span class="cp"></span>Gana ' + esc(D.rival) + '</p>' +
+      '<div class="mc-barra" role="img" aria-label="Gana ' + esc(D.equipo) + ' ' + pct(m.gana) + ', empate ' + pct(m.empata) + ', gana ' + esc(D.rival) + ' ' + pct(m.pierde) + '">' +
+      partes.map(function (s) { return '<span class="' + s[0] + '" style="width:' + (s[1] * 100).toFixed(1) + '%"></span>'; }).join('') + '</div>' +
+      '<div class="mc-cifras" aria-hidden="true" style="grid-template-columns:' + partes.map(function (s) { return 'minmax(64px,' + Math.max(1, s[1] * 100).toFixed(1) + 'fr)'; }).join(' ') + '">' +
+      partes.map(function (s) { return '<span><i class="c' + s[0] + '"></i><strong>' + pct(s[1]) + '</strong><small>' + esc(s[2]) + '</small></span>'; }).join('') + '</div>' +
       '<p class="nota">Goles esperados: ' + m.goles_favor.toFixed(2) + ' – ' + m.goles_contra.toFixed(2) + '. Marcadores más frecuentes: ' + marcadores + '.</p></article>';
   }
   function graficaTorneos(contenedor, filas) {
@@ -332,6 +332,7 @@
     html('caso-chips', X.caso.chips.map(function (c) { return '<div class="dato"><span>' + esc(c[0]) + '</span><strong>' + esc(c[1]) + '</strong></div>'; }).join(''));
     html('caso-quiebres', X.caso.quiebres.map(function (q) { return '<li class="' + (q[2] ? 'caso' : '') + '"><span class="min">' + esc(q[0]) + '</span>' + esc(q[1]) + '</li>'; }).join(''));
     html('montecarlo', X.montecarlo.map(montecarlo).join(''));
+    if (MOV) document.querySelectorAll('.mc-barra').forEach(function (b) { MOV.alVer(b, function () { MOV.crecer(b.children, { escalon: 80 }); }); });  // A6, una vez
     texto('lectura', X.lectura); texto('metodo', X.metodo);
     html('pendientes', X.pendientes.map(function (p) { return '<article class="pendiente"><span class="estado">En construcción · ' + esc(p.requisito) + '</span><h3>' + esc(p.titulo) + '</h3><p>' + esc(p.texto) + '</p></article>'; }).join(''));
     html('notas', X.notas.map(function (n) { return '<p class="nota">' + esc(n) + '</p>'; }).join(''));
@@ -585,7 +586,28 @@
     cerrarCajon(); window.scrollTo(0, 0);
   }
   function cerrarCajon() { cuerpo.classList.remove('cajon'); }
-  document.querySelectorAll('button[data-vista]').forEach(function (b) { b.addEventListener('click', function () { mostrar(b.dataset.vista); }); });
+  // A8 · Portada → Explorar: la vista que se va se apaga y la nueva aparece (OjoMov.vista)
+  function cambiarVista(vista, despues) {
+    var hacer = function () { mostrar(vista); if (despues) despues(); };
+    if (cuerpo.dataset.vista === vista) { if (despues) despues(); return; }
+    if (MOV) MOV.vista(hacer); else hacer();
+  }
+  document.querySelectorAll('button[data-vista]').forEach(function (b) { b.addEventListener('click', function () { cambiarVista(b.dataset.vista); }); });
+  // A5 · de la tarjeta del principio al partido que lo ilustra: desplazamiento y resaltado
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.ir-caso')) return;
+    var destino = document.getElementById('caso');
+    cambiarVista('explorar', function () {
+      if (MOV) MOV.irA(destino, { foco: true }); else { destino.scrollIntoView(); destino.focus({ preventScroll: true }); }
+    });
+  });
+  // A7 · conteo de los KPI, una sola vez y solo si la portada está a la vista
+  var contados = false;
+  function contarKPIs() {
+    if (contados || !MOV || cuerpo.dataset.vista !== 'portada') return;
+    contados = true;
+    document.querySelectorAll('.kpi strong').forEach(MOV.contar);
+  }
   document.querySelectorAll('[data-cajon]').forEach(function (b) { b.addEventListener('click', function () { cuerpo.classList.toggle('cajon'); }); });
   window.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarCajon(); });
 
@@ -603,15 +625,14 @@
     mostrar(location.hash === '#explorar' ? 'explorar' : 'portada');
   }
 
-  var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (window.OjoMarca) OjoMarca.loop(document.getElementById('loop-icono'), { estatico: reducir });
+  if (window.OjoMarca) OjoMarca.loop(document.getElementById('loop-icono'), { estatico: reducido() });
   var intro = document.getElementById('intro');
-  if (!window.__ojoMostrarIntro || !window.OjoMarca) { intro.remove(); document.documentElement.classList.remove('con-intro'); return; }
+  if (!window.__ojoMostrarIntro || !window.OjoMarca) { intro.remove(); document.documentElement.classList.remove('con-intro'); if (D) contarKPIs(); return; }
   var control = null, cerrada = false;
   function cerrar() {
     if (cerrada) return; cerrada = true;
     intro.classList.add('saliendo'); document.documentElement.classList.remove('con-intro');
-    setTimeout(function () { if (control) control.detener(); intro.remove(); }, 650);
+    setTimeout(function () { if (control) control.detener(); intro.remove(); if (D) contarKPIs(); }, 650);
   }
   control = OjoMarca.intro(document.getElementById('intro-lienzo'), { segundos: 5, alTerminar: cerrar });
   intro.addEventListener('click', cerrar);

@@ -23,6 +23,12 @@
     return isNaN(n) ? 0 : (/ms$/.test(v) ? n : n * 1000);
   }
   function suave(x) { return 1 - Math.pow(1 - Math.max(0, Math.min(1, x)), 3); }  // salida cúbica
+  // Llama a fn una vez al terminar la animación o, si el evento no llega (pestaña en segundo plano), al cumplirse su duración
+  function alTerminar(anim, ms, fn) {
+    var hecho = false, una = function () { if (!hecho) { hecho = true; fn(); } };
+    anim.onfinish = anim.oncancel = una;
+    setTimeout(una, ms + 60);
+  }
 
   // A4 · fundido real entre dos estados de una capa SVG: la vieja se apaga mientras la nueva aparece
   function cruce(capa, dibujar) {
@@ -35,7 +41,7 @@
     padre.insertBefore(vieja, capa.nextSibling);
     dibujar();
     var a = vieja.animate([{ opacity: 1 }, { opacity: 0 }], { duration: d, easing: 'linear', fill: 'forwards' });
-    a.onfinish = a.oncancel = function () { vieja.remove(); };
+    alTerminar(a, d, function () { vieja.remove(); });
     capa.animate([{ opacity: 0 }, { opacity: 1 }], { duration: d, easing: 'linear' });
   }
 
@@ -49,19 +55,22 @@
       var d = dur('media');
       if (!d) return;  // sin movimiento: el comportamiento nativo
       e.preventDefault();
-      if (det.__anim) det.__anim.cancel();
+      if (det.__anim) { var previa = det.__anim; det.__anim = null; previa.cancel(); }
       cuerpo.style.overflow = 'hidden';
-      var fin = function () { cuerpo.style.overflow = ''; det.classList.remove('cerrando'); det.__anim = null; };
-      if (det.open) {
+      var cerrar = det.open, anim;
+      if (cerrar) {
         det.classList.add('cerrando');
-        det.__anim = cuerpo.animate([{ height: cuerpo.offsetHeight + 'px', opacity: 1 }, { height: '0px', opacity: 0 }], { duration: d, easing: EASE_MOV });
-        det.__anim.onfinish = function () { det.open = false; fin(); };
+        anim = cuerpo.animate([{ height: cuerpo.offsetHeight + 'px', opacity: 1 }, { height: '0px', opacity: 0 }], { duration: d, easing: EASE_MOV, fill: 'forwards' });
       } else {
         det.open = true;
-        det.__anim = cuerpo.animate([{ height: '0px', opacity: 0 }, { height: cuerpo.offsetHeight + 'px', opacity: 1 }], { duration: d, easing: EASE_MOV });
-        det.__anim.onfinish = fin;
+        anim = cuerpo.animate([{ height: '0px', opacity: 0 }, { height: cuerpo.offsetHeight + 'px', opacity: 1 }], { duration: d, easing: EASE_MOV });
       }
-      det.__anim.oncancel = fin;
+      det.__anim = anim;
+      alTerminar(anim, d, function () {
+        if (det.__anim !== anim) return;  // otra apertura o cierre ya tomó el control
+        if (cerrar) det.open = false;
+        anim.cancel(); cuerpo.style.overflow = ''; det.classList.remove('cerrando'); det.__anim = null;
+      });
     });
   }
 
@@ -188,11 +197,11 @@
     var antes = visible();
     if (!r || !antes) { fn(); return; }
     var salida = antes.animate([{ opacity: 1 }, { opacity: 0 }], { duration: r, easing: 'linear', fill: 'forwards' });
-    salida.onfinish = function () {
+    alTerminar(salida, r, function () {
       fn(); salida.cancel();
       var nueva = visible();
       if (nueva) nueva.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: m, easing: EASE_SALIDA });
-    };
+    });
   }
 
   window.OjoMov = { reducido: reducido, dur: dur, cruce: cruce, plegable: plegable, resaltar: resaltar, irA: irA, pulso: pulso,
