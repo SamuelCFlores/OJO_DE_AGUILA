@@ -115,3 +115,28 @@ def efectos_placebo(cambio_controles: pd.DataFrame) -> pd.DataFrame:
     resto = (total - primero) / (n - 1).where(n >= 2)
     salida = pd.DataFrame({"id": elegido, "efecto": primero - resto})[n >= 2]
     return salida.reset_index()
+
+
+def comparar(tabla: pd.DataFrame, metricas: list[str], nuevo: str, previos: str, rng: np.random.Generator,
+             cfg: dict | None = None) -> pd.DataFrame:
+    """Criterio v2 para la diferencia nuevo − previos de métricas por partido (escala: DE entre partidos).
+
+    tabla: una fila por partido con match_id, grupo (nuevo o previos), torneo_corto y las métricas. La familia de
+    pruebas del FDR son las métricas de esta llamada.
+    """
+    cfg = cfg or params()["hallazgo"]
+    filas = []
+    for m in metricas:
+        datos = tabla[["match_id", "grupo", "torneo_corto", m]].dropna()
+        de_nuevo, de_previos = datos[datos["grupo"] == nuevo], datos[datos["grupo"] == previos]
+        if de_nuevo["match_id"].nunique() < 2 or de_previos["match_id"].nunique() < 2:
+            continue
+        medias = medias_bootstrap(de_nuevo, m, rng) - medias_bootstrap(de_previos, m, rng)
+        bajo, alto = intervalo(medias)
+        diferencia = de_nuevo[m].mean() - de_previos[m].mean()
+        misma = direcciones(de_nuevo.groupby("torneo_corto")[m].mean() - de_previos[m].mean(), diferencia)
+        filas.append({"metrica": m, "nuevo": de_nuevo[m].mean(), "previos": de_previos[m].mean(), "diferencia": diferencia,
+                      "ic_bajo": bajo, "ic_alto": alto, "torneos_misma_direccion": misma,
+                      "muestra_chica": min(de_nuevo["match_id"].nunique(), de_previos["match_id"].nunique()) < cfg["partidos_aviso"],
+                      "p": p_bootstrap(medias), **evaluar(diferencia, bajo, alto, datos[m].std(), misma, cfg)})
+    return con_fdr(pd.DataFrame(filas), cfg)

@@ -35,6 +35,8 @@ Toda métrica, visualización y modelo del proyecto se deriva de estas definicio
 | Pase completo | Evento Pass sin `outcome` | StatsBomb |
 | Pase progresivo | Pase completo en juego abierto que acerca el balón al centro de la portería (120, 40) al menos `pase_progresivo.avance_min_yd`, o que entra al área | Propia |
 | Balón parado | `play_pattern` From Corner, From Free Kick, From Throw In; fase con `set_piece_phase` (1 o 2). Lateral en zona de peligro: x ≥ 80 | StatsBomb + propia |
+| Envío a balón parado (18 oct) | Posesión cuyo primer evento tiene patrón de balón parado. El lateral cuenta solo si se saca con x ≥ `balon_parado.lateral_peligro_min_x`. Sus tiros dan xG, goles y zona de remate en la orientación de quien tira: área chica (x ≥ `campo.area_chica_min_x` y y en `campo.area_chica_y`), área al centro (dentro del área y en la franja del área chica), área a los costados, fuera del área. Código: `ojo.lentes.balon_parado` | Propia |
+| Uso de jugadores (18 oct) | Sustituciones (`Substitution`): cuántas, minuto del primer cambio táctico, tácticos antes de `jugadores.cambio_temprano_min`, por lesión (102) o tácticos (103) y línea de quien sale (posición: 1 portero, 2–8 defensa, 9–16 medio, 17–25 ataque). Rotación por torneo: jugadores distintos con eventos. Código: `ojo.lentes.jugadores` | Propia |
 | Espacio al recibir | Métricas 360: `ball_receipt_in_space`, `ball_receipt_exceeds_distance`, `distance_to_nearest_defender` | StatsBomb |
 | Pase que rompe líneas | `line_breaking_pass` (360) | StatsBomb |
 | Control territorial | Fracción del espacio alcanzado que controla el equipo del actor según Voronoi de los jugadores visibles; cada celda se recorta a cancha ∩ `visible_area` ∩ un círculo de radio `voronoi.alcance_max_yd` alrededor del jugador (las zonas vacías lejanas no cuentan). Se excluyen jugadores a menos de `voronoi.min_dist_borde` del borde visible, salvo el actor | Propia |
@@ -242,12 +244,13 @@ validacion:
   plan_b: {season_id_prueba: 317, torneo_prueba: "Clausura"}
 relevos: {min_partidos: 5, ventana_partidos: 10}
 
-campo: {largo: 120, ancho: 80, porteria: [120, 40]}
+campo: {largo: 120, ancho: 80, porteria: [120, 40], area_min_x: 102, area_y: [18, 62], area_chica_min_x: 114, area_chica_y: [30, 50]}
 tercios: {defensivo_max_x: 40, final_min_x: 80}
 presion: {campo_rival_min_x: 60, ultimo_tercio_min_x: 80, ppda_zona_max_x: 72}   # 72 = 60 % de la cancha desde la portería del rival
 transicion: {fuente: "is_transition", plan_b_segundos: 10}
 pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
+jugadores: {cambio_temprano_min: 60}
 tramos_min: 15            # 5 para lectura fina del flujo
 red_pases: {min_pases_arista: 3, min_pases_ventana: 15}
 voronoi: {min_dist_borde: 2.0, alcance_max_yd: 20, min_borde_arista_yd: 0.5, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
