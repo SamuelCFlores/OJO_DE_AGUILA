@@ -174,20 +174,35 @@
       '<p class="nota">Goles esperados: ' + m.goles_favor.toFixed(2) + ' – ' + m.goles_contra.toFixed(2) + '. Marcadores más frecuentes: ' + marcadores + '.</p></article>';
   }
   function graficaTorneos(contenedor, filas) {
-    var W = 560, H = 270, M = { i: 36, d: 10, a: 22, b: 46 }, svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Índice medio por torneo' });
+    var antes = filas.filter(function (f) { return !f.nuevo; }).map(function (f) { return f.entrenador; })
+      .filter(function (n, k, a) { return a.indexOf(n) === k; }).join(' y ');
+    var etiqueta = 'Índice medio por torneo (0 reactivo, 100 proactivo). ' + filas.map(function (f) {
+      return f.torneo + ' con ' + f.entrenador + ': ' + D.equipo + ' ' + Math.round(f.propio) + ', rivales ' + Math.round(f.rival); }).join('; ') + '.';
+    var W = 560, H = 286, M = { i: 36, d: 10, a: 44, b: 46 }, svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': etiqueta });
     contenedor.innerHTML = ''; contenedor.appendChild(svg);
     el('rect', { x: 0, y: 0, width: W, height: H, rx: 8, style: 'fill:var(--c-azul)' }, svg);
     var ancho = (W - M.i - M.d) / filas.length;
     function y(v) { return M.a + (H - M.a - M.b) * (1 - v / 100); }
-    [0, 50, 100].forEach(function (v) {
-      el('line', { x1: M.i, x2: W - M.d, y1: y(v), y2: y(v), style: 'stroke:rgba(255,255,255,' + (v === 50 ? .35 : .12) + ');stroke-dasharray:' + (v === 50 ? '3 3' : 'none') }, svg);
+    el('rect', { x: M.i, y: y(BANDAS[1]), width: W - M.i - M.d, height: y(BANDAS[0]) - y(BANDAS[1]), style: 'fill:rgba(255,255,255,.07)' }, svg);  // banda "equilibrado"
+    [0, BANDAS[0], BANDAS[1], 100].forEach(function (v) {
+      var banda = v === BANDAS[0] || v === BANDAS[1];
+      el('line', { x1: M.i, x2: W - M.d, y1: y(v), y2: y(v), style: 'stroke:rgba(255,255,255,' + (banda ? .3 : .12) + ');stroke-dasharray:' + (banda ? '3 3' : 'none') }, svg);
       el('text', { x: M.i - 6, y: y(v) + 4, 'text-anchor': 'end', style: 'fill:rgba(255,255,255,.7);' + fuente(600, 12) }, svg).textContent = v;
+    });
+    // Leyenda: quién es cada barra y qué es el punto (V-A6)
+    var lx = M.i;
+    [['rect', 'fill:var(--c-acento)', D.nuevo], ['rect', 'fill:rgba(255,255,255,.45)', 'Antes (' + antes + ')'], ['circle', 'fill:#fff;stroke:var(--c-azul);stroke-width:2', 'Rivales']].forEach(function (c) {
+      if (c[0] === 'rect') el('rect', { x: lx, y: 12, width: 12, height: 12, rx: 2, style: c[1] }, svg);
+      else el('circle', { cx: lx + 6, cy: 18, r: 5, style: c[1] }, svg);
+      var t = el('text', { x: lx + 18, y: 23, style: 'fill:#fff;' + fuente(600, 12) }, svg); t.textContent = c[2];
+      lx += 18 + (t.getComputedTextLength() || c[2].length * 7) + 18;
     });
     filas.forEach(function (f, k) {
       var x = M.i + ancho * k + ancho * .2, w = ancho * .6;
       el('rect', { x: x, y: y(f.propio), width: w, height: y(0) - y(f.propio), rx: 2, style: f.nuevo ? 'fill:var(--c-acento)' : 'fill:rgba(255,255,255,.45)' }, svg);
       el('text', { x: x + w / 2, y: y(f.propio) - 5, 'text-anchor': 'middle', style: 'fill:#fff;' + fuente(800, 12) }, svg).textContent = Math.round(f.propio);
-      el('circle', { cx: x + w / 2, cy: y(f.rival), r: 5, style: 'fill:#fff;stroke:var(--c-azul);stroke-width:1.5' }, svg);
+      el('circle', { cx: x + w / 2, cy: y(f.rival), r: 5, style: 'fill:#fff;stroke:var(--c-azul);stroke-width:2' }, svg);
+      el('text', { x: x + w + 2, y: y(f.rival) + 4, style: 'fill:rgba(255,255,255,.85);' + fuente(600, 12) }, svg).textContent = Math.round(f.rival);
       el('text', { x: x + w / 2, y: H - 26, 'text-anchor': 'middle', style: 'fill:rgba(255,255,255,.85);' + fuente(700, 12) }, svg).textContent = f.torneo;
       el('text', { x: x + w / 2, y: H - 10, 'text-anchor': 'middle', style: 'fill:rgba(255,255,255,.7);' + fuente(600, 12) }, svg).textContent = f.entrenador;
     });
