@@ -266,6 +266,7 @@
   #reloj { font-weight: 800; font-variant-numeric: tabular-nums; min-width: 92px; text-align: right; }
   .accion { margin: 6px 4px 2px; color: rgba(255,255,255,.85); font-size: 13px; min-height: 1.4em; }
   #linea { display: block; width: 100%; height: auto; cursor: pointer; }
+  .linea-pie { margin: 6px 6px 2px; min-height: 1.4em; color: #fff; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .momento .indicador { display: grid; gap: 4px; }
   .momento .pista { position: relative; height: 14px; border-radius: 999px; background: linear-gradient(90deg, rgba(15,29,65,.12), rgba(15,29,65,.04) 50%, rgba(15,29,65,.12)); }
   .momento .pista span { position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%; transform: translate(-50%, -50%); transition: left var(--dur-media) var(--ease-mov); }
@@ -346,6 +347,14 @@
   .sin-datos code { background: var(--oda-gris-fondo); padding: 2px 6px; border-radius: 4px; }
 
   /* Animación del Voronoi (jugadas); el fundido entre minutos lo hace OjoMov.cruce (movimiento.js) */
+  .cancha-js { position: relative; }
+  .cancha-svg .borde-foto { fill: none; stroke: var(--c-acento); stroke-width: .8; opacity: 0; transition: opacity var(--dur-rapida) ease; }
+  .cancha-svg.foto-real .borde-foto { opacity: 1; }
+  .cancha-svg.foto-estimada .borde-foto { opacity: .35; stroke-width: .4; }
+  .insignia-foto { position: absolute; top: 18px; left: 18px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 6px; pointer-events: none; }
+  .insignia-foto[data-estado="real"] { background: var(--c-acento); color: var(--c-azul); }
+  .insignia-foto[data-estado="estimado"] { background: var(--c-azul); color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.6); }
   .nombre-actor { font: 700 2.4px var(--oda-fuente); fill: #fff; paint-order: stroke; stroke: var(--c-azul); stroke-width: .6px; }
   .modos { flex-wrap: wrap; }
 

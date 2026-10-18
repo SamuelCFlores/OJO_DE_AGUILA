@@ -39,6 +39,7 @@
     '<rect x="0" y="0" width="120" height="80" style="fill:url(#fuera)"/><g class="capa"></g>' +
     '<g class="lineas"><rect x="0" y="0" width="120" height="80"/><line x1="60" y1="0" x2="60" y2="80"/><circle cx="60" cy="40" r="10"/>' +
     '<rect x="0" y="18" width="18" height="44"/><rect x="102" y="18" width="18" height="44"/><rect x="0" y="30" width="6" height="20"/><rect x="114" y="30" width="6" height="20"/></g>' +
+    '<rect class="borde-foto" x="-2" y="-2" width="124" height="84" rx="2"/>' +
     '<text class="sin-foto" x="60" y="42" text-anchor="middle">Sin foto 360 en este minuto</text></svg>';
 
   function crearCancha(contenedor) { contenedor.innerHTML = CANCHA; return contenedor.querySelector('svg'); }
@@ -343,8 +344,22 @@
     var repro = document.getElementById('repro'), tiempo = document.getElementById('tiempo');
     var reloj = document.getElementById('reloj'), accion = document.getElementById('accion'), play = document.getElementById('play');
     var A = R.animacion || { escala: 1.5, duracion: [0.35, 2.5], alcance: 20, cuartos_circulo: 8 };
-    var modo = 'partido', jugada = null, i = 0, p = 0, timer = null, raf = null, previo = null;
+    var modo = 'partido', jugada = null, i = 0, p = 0, timer = null, raf = null, previo = null, pausa = 0, fotoMostrada = -1;
     var PASO_MINUTO = 650;  // ms por minuto en el modo partido (solo presentación)
+    var PAUSA_FOTO = 1000 * (A.pausa_foto == null ? .6 : A.pausa_foto);  // en cada foto real de una jugada (A1)
+    var insignia = document.getElementById('insignia-foto');
+    // A1 · cada cuadro dice si es dato (foto 360) o relleno (posición estimada entre fotos): insignia y borde
+    function marcarFoto(estado) {
+      svg.classList.toggle('foto-real', estado === 'real'); svg.classList.toggle('foto-estimada', estado === 'estimado');
+      insignia.hidden = !estado;
+      if (!estado || insignia.dataset.estado === estado) return;
+      insignia.dataset.estado = estado;
+      insignia.textContent = estado === 'real' ? '● Foto real' : '◌ Estimado';
+    }
+    function pulsoActor(f) {  // anillo en quien ejecuta la acción al llegar a una foto real
+      var a = f.jugadores.filter(function (j) { return j[3]; })[0];
+      if (a && MOV) MOV.pulso(svg, a[0], a[1], { r0: 2.6, r1: 9, grosor: .6 });
+    }
 
     // Botones de modo: partido completo y una por jugada animada
     var modos = document.querySelector('.modos');
@@ -353,10 +368,18 @@
 
     function etiquetaIndice(v) { return v >= BANDAS[1] ? 'proactivo' : (v <= BANDAS[0] ? 'reactivo' : 'equilibrado'); }
     function formato(c, v) { if (v == null) return '—'; if (c.formato === 'pct') return pct(v); if (c.formato === 'yd') return v.toFixed(1) + ' yd'; return v.toFixed(2); }
+    // A3 · radar: la parte fija se dibuja una vez y los dos polígonos se transforman de un minuto al siguiente
+    var cx = 160, cy = 114, Rr = 72, nR = R.componentes.length, polyA = null, polyR = null;
+    function punto(k, z) { var a = -Math.PI / 2 + 2 * Math.PI * k / nR, r = Rr * (Math.max(-2.5, Math.min(2.5, z == null ? 0 : z)) + 2.5) / 5; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
     function radar(m) {
-      var s = document.getElementById('radar'); while (s.firstChild) s.removeChild(s.firstChild);
-      var cx = 160, cy = 114, Rr = 72, n = R.componentes.length;
-      function punto(k, z) { var a = -Math.PI / 2 + 2 * Math.PI * k / n, r = Rr * (Math.max(-2.5, Math.min(2.5, z == null ? 0 : z)) + 2.5) / 5; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+      if (!polyA) construirRadar();
+      var pa = [], pr = [];
+      for (var k = 0; k < nR; k++) { pa.push(punto(k, m.za[k])); pr.push(punto(k, m.zr[k])); }
+      if (MOV) { MOV.poligono(polyR, pr); MOV.poligono(polyA, pa); }
+      else { polyR.setAttribute('points', pr.join(' ')); polyA.setAttribute('points', pa.join(' ')); }
+    }
+    function construirRadar() {
+      var s = document.getElementById('radar'), n = nR;
       el('rect', { x: 0, y: 0, width: 320, height: 230, rx: 8, style: 'fill:var(--c-azul)' }, s);
       [-2.5, 0, 2.5].forEach(function (z) {
         var ps = []; for (var k = 0; k < n; k++) ps.push(punto(k, z).join(','));
@@ -369,10 +392,8 @@
                      style: 'fill:rgba(255,255,255,.9);' + fuente(600, 12) }, s).textContent = c.radar;
       });
       // El rival solo con contorno discontinuo: se distingue del América sin depender del color (V-A1)
-      [['zr', 'fill:none;stroke:#fff;stroke-width:1.6;stroke-dasharray:5 4'], ['za', 'fill:var(--c-acento);fill-opacity:.35;stroke:var(--c-acento);stroke-width:2.4']].forEach(function (par) {
-        var ps = []; for (var k = 0; k < n; k++) ps.push(punto(k, m[par[0]][k]).join(','));
-        el('polygon', { points: ps.join(' '), style: par[1] }, s);
-      });
+      polyR = el('polygon', { style: 'fill:none;stroke:#fff;stroke-width:1.6;stroke-dasharray:5 4' }, s);
+      polyA = el('polygon', { style: 'fill:var(--c-acento);fill-opacity:.35;stroke:var(--c-acento);stroke-width:2.4' }, s);
     }
     function panelMinuto(m) {
       document.getElementById('m-a').style.left = (m.ia == null ? 50 : m.ia) + '%';
@@ -413,17 +434,22 @@
       return Math.max(A.duracion[0], Math.min(A.duracion[1], (fotos[k + 1].t - fotos[k].t) * A.escala));
     }
     function mostrarJugada() {
-      var e = instante(jugada.fotos, i, p);
+      var prog = reducido() ? 0 : p;  // con movimiento reducido, solo fotos reales: nada se interpola
+      var e = instante(jugada.fotos, i, prog);
       dibujarEstado(svg, e);
+      marcarFoto(prog === 0 ? 'real' : 'estimado');
       reloj.textContent = e.reloj;
       accion.textContent = e.reloj + ' · ' + e.texto + ' · control del ' + D.equipo + ': ' + (e.control == null ? '—' : pct(e.control)) +
-        ' · posiciones entre fotos estimadas';
+        (prog === 0 ? ' · foto 360' : ' · posiciones estimadas entre fotos');
     }
     function mostrarMinuto() {
       var m = R.minutos[i], f = m.foto == null ? null : R.fotos[m.foto], capa = svg.querySelector('.capa');
-      capa.style.opacity = 0;  // fundido entre minutos: las fotos están a 60 s, no se inventa movimiento
-      dibujarFoto(svg, f);
-      requestAnimationFrame(function () { capa.style.opacity = 1; });
+      // A4 · fundido real entre minutos (la foto vieja se apaga mientras la nueva aparece): las fotos están a 60 s, no se inventa movimiento
+      if (m.foto !== fotoMostrada) {
+        if (MOV && fotoMostrada !== -1) MOV.cruce(capa, function () { dibujarFoto(svg, f); }); else dibujarFoto(svg, f);
+        fotoMostrada = m.foto;
+      }
+      marcarFoto(f ? 'real' : null);
       accion.textContent = f ? f.reloj + ' · ' + f.texto + ' · control del ' + D.equipo + ': ' + pct(f.control) : '';
       reloj.textContent = m.etq + ' · ' + m.marcador;
       panelMinuto(m); marcarLinea();
@@ -438,12 +464,17 @@
       if (timer) clearInterval(timer); if (raf) cancelAnimationFrame(raf);
       timer = raf = previo = null; play.textContent = '▶'; play.setAttribute('aria-label', 'Reproducir'); repro.classList.remove('reproduciendo');
     }
-    function cuadro(ahora) {  // animación continua de la jugada
+    // Animación continua de la jugada: lineal entre fotos (sin easing) y una pausa en cada foto real
+    function cuadro(ahora) {
       if (previo != null) {
-        p += (ahora - previo) / 1000 / duracion(jugada.fotos, i);
-        while (p >= 1 && i < jugada.fotos.length - 1) { p -= 1; i++; }
-        if (i >= jugada.fotos.length - 1) { p = 0; mostrarJugada(); tiempo.value = i; detener(); return; }
-        tiempo.value = i; mostrarJugada();
+        var dt = ahora - previo;
+        if (pausa > 0) pausa -= dt;
+        else {
+          p += dt / 1000 / duracion(jugada.fotos, i);
+          if (p >= 1) { i++; p = 0; pausa = PAUSA_FOTO; pulsoActor(jugada.fotos[i]); }
+          if (i >= jugada.fotos.length - 1) { p = 0; mostrarJugada(); tiempo.value = i; detener(); return; }
+          tiempo.value = i; mostrarJugada();
+        }
       }
       previo = ahora; raf = requestAnimationFrame(cuadro);
     }
@@ -451,7 +482,7 @@
       if (i >= lista().length - 1) { i = 0; p = 0; }
       play.textContent = '❚❚'; play.setAttribute('aria-label', 'Pausar'); repro.classList.add('reproduciendo');
       if (modo === 'partido') timer = setInterval(function () { if (i >= lista().length - 1) { detener(); return; } i++; actualizar(); }, PASO_MINUTO);
-      else raf = requestAnimationFrame(cuadro);
+      else { if (p === 0) { pausa = PAUSA_FOTO; pulsoActor(jugada.fotos[i]); } raf = requestAnimationFrame(cuadro); }
     }
     play.addEventListener('click', function () { if (timer || raf) detener(); else reproducir(); });
     tiempo.addEventListener('input', function () { detener(); i = +tiempo.value; p = 0; actualizar(); });
@@ -463,7 +494,7 @@
     });
     modos.addEventListener('click', function (ev) {
       var b = ev.target.closest('button'); if (!b) return;
-      detener(); modo = b.dataset.modo; jugada = modo === 'jugada' ? R.jugadas[+b.dataset.j] : null; i = 0; p = 0;
+      detener(); modo = b.dataset.modo; jugada = modo === 'jugada' ? R.jugadas[+b.dataset.j] : null; i = 0; p = 0; fotoMostrada = -1;
       modos.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
       document.querySelector('.linea-js').hidden = modo !== 'partido'; actualizar();
       if (modo === 'jugada' && !reducido()) reproducir();  // al elegir una jugada arranca la animación; con movimiento reducido espera al ▶ (V-M8)
@@ -498,11 +529,14 @@
       marca.texto = t;
     });
     // Rival discontinuo y etiquetas directas al final de cada serie: se distinguen en gris y con daltonismo (V-A1)
+    // A2 · lo ya jugado se ve opaco (recortado hasta el cursor) y lo que falta al 25 %
     var SERIES = [['ir', '#fff', 1.6, '5 4', D.rival], ['ia', 'var(--c-acento)', 2.4, 'none', D.equipo]];
-    var finales = [];
+    var finales = [], recorte = el('rect', { x: 0, y: 0, width: 0, height: H }, el('clipPath', { id: 'linea-jugado' }, el('defs', {}, linea)));
     SERIES.forEach(function (s) {
       var ps = [], ultimo = null; R.minutos.forEach(function (m, k) { if (m[s[0]] != null) { ps.push(xDe(k) + ',' + yDe(m[s[0]])); ultimo = yDe(m[s[0]]); } });
-      el('polyline', { points: ps.join(' '), style: 'fill:none;stroke:' + s[1] + ';stroke-width:' + s[2] + ';stroke-dasharray:' + s[3] }, linea);
+      var estilo = 'fill:none;stroke:' + s[1] + ';stroke-width:' + s[2] + ';stroke-dasharray:' + s[3];
+      el('polyline', { points: ps.join(' '), style: estilo + ';opacity:.25' }, linea);
+      el('polyline', { points: ps.join(' '), style: estilo, 'clip-path': 'url(#linea-jugado)' }, linea);
       if (ultimo != null) finales.push({ y: ultimo, color: s[1], txt: corto(s[4]) });
     });
     if (finales.length === 2 && Math.abs(finales[0].y - finales[1].y) < 14) {  // separa las etiquetas si las series terminan juntas
@@ -520,7 +554,23 @@
       var r = linea.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width;
       detener(); i = Math.round((x - M.i) / (W - M.i - M.d) * (R.minutos.length - 1)); actualizar();
     });
-    function marcarLinea() { if (cursor) { cursor.setAttribute('x1', xDe(i)); cursor.setAttribute('x2', xDe(i)); } }
+    // A2 · cursor, recorte de lo jugado y quiebres: al cruzar uno (avanzando de a poco) crece un anillo y la frase lo nombra
+    var fraseLinea = document.getElementById('frase-linea'), iLinea = null, VENTANA_FRASE = 8;  // minutos que la frase sigue nombrando el quiebre
+    function marcarLinea() {
+      if (!cursor) return;
+      var x = xDe(i), reciente = null;
+      cursor.setAttribute('x1', x); cursor.setAttribute('x2', x); recorte.setAttribute('width', x);
+      marcasQ.forEach(function (mq) {
+        var q = mq.q, hecho = q.k <= i;
+        if (mq.texto) mq.texto.style.opacity = hecho ? 1 : .35;
+        if (q.fuerte && hecho && i - q.k < VENTANA_FRASE) reciente = q;
+        if (q.fuerte && MOV && iLinea != null && i > iLinea && i - iLinea <= 3 && q.k > iLinea && q.k <= i) {
+          var m = R.minutos[q.k]; MOV.pulso(linea, xDe(q.k), yDe(m.ia == null ? 50 : m.ia));
+        }
+      });
+      fraseLinea.textContent = reciente ? R.minutos[reciente.k].etq + ' · ' + reciente.corto : 'Lo ya jugado, en firme; lo que falta, tenue.';
+      iLinea = i;
+    }
     i = R.inicio || 0;
     actualizar();
   }

@@ -128,6 +128,7 @@
           <div class="repro-izq">
             <div class="figura cancha-js">
               <div data-slot="cancha-repro"></div>
+              <span class="insignia-foto" id="insignia-foto" hidden></span>
               <div class="controles">
                 <button type="button" id="play" aria-label="Reproducir">▶</button>
                 <input type="range" id="tiempo" min="0" max="0" value="0" aria-label="Momento del partido">
@@ -135,7 +136,8 @@
               </div>
               <p id="accion" class="accion"></p>
             </div>
-            <div class="figura linea-js"><svg id="linea" viewBox="0 0 560 214" role="img" aria-label="Índice minuto a minuto de ambos equipos"></svg></div>
+            <div class="figura linea-js"><svg id="linea" viewBox="0 0 560 214" role="img" aria-label="Índice minuto a minuto de ambos equipos"></svg>
+              <p class="linea-pie" id="frase-linea"></p></div>
           </div>
           <aside class="panel momento" aria-live="polite">
             <header>El momento<i aria-hidden="true"></i></header>
@@ -143,11 +145,11 @@
               <div class="indicador"><div class="pista"><span id="m-a" class="marca-a"></span><span id="m-r" class="marca-r"></span></div>
                 <div class="extremos"><span>Reactivo</span><span>Proactivo</span></div></div>
               <p id="frase-momento" class="frase-momento"></p></section>
-            <section class="detalle"><span class="etq-p">Por qué (radar de componentes)</span>
+            <section class="radar-sec"><span class="etq-p">Por qué (radar de componentes)</span>
               <svg id="radar" viewBox="0 0 320 230" role="img" aria-label="Radar de componentes del índice"></svg>
-              <p class="nota">Hacia afuera = más proactivo. Cada eje en desviaciones frente a lo habitual (el anillo del medio es lo normal). Crema: <span data-slot="equipo"></span>; blanco: <span data-slot="rival"></span>.</p></section>
+              <p class="nota">Hacia afuera = más proactivo que su promedio; el anillo marcado es su partido normal. Crema: <span data-slot="equipo"></span>; discontinuo: <span data-slot="rival"></span>.</p></section>
             <section class="detalle"><span class="etq-p">A dos bandas (últimos 5 minutos)</span><table id="tabla-momento"></table></section>
-            <p class="pausa">Pausa para ver el detalle del momento.</p>
+            <p class="pausa">Pausa para ver la tabla a dos bandas.</p>
           </aside>
         </div>
       </section>
