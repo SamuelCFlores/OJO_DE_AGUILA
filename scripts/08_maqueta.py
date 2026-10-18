@@ -153,8 +153,9 @@ def datos_reproductor(tab: pd.DataFrame, ev: pd.DataFrame, fotos: dict, jugadas:
     anim = params()["animacion"]
     return {"equipo": equipo, "rival": rival, "componentes": [{"id": c, "nombre": indice.NOMBRES[c], "radar": indice.NOMBRES_RADAR[c], "formato": FORMATOS[c]} for c in comps],
             "minutos": minutos, "fotos": lista_fotos, "quiebres": marcas, "etiquetasX": etiquetas, "jugadas": jugadas,
-            "animacion": {"escala": anim["escala_tiempo"], "duracion": anim["duracion_s"],
+            "animacion": {"escala": anim["escala_tiempo"], "duracion": anim["duracion_s"], "pausa_foto": anim["pausa_foto_s"],
                           "alcance": params()["voronoi"]["alcance_max_yd"], "cuartos_circulo": voronoi.CUARTOS_CIRCULO},
+            "bandas": params()["indice"]["bandas"],
             "inicio": pos.get((int(q["periodo"]), int(q["minuto"])), 0)}
 
 
@@ -351,7 +352,7 @@ def generar(args: argparse.Namespace) -> int:
             "principio": datos_app.principio(del_caso),
             "caso": {"titulo": titulo, "chips": [[k_, v_] for k_, v_ in chips],
                      "quiebres": [[m_, x_, bool(e_)] for m_, x_, e_ in lista_quiebres]},
-            "montecarlo": montecarlo, "lectura": lectura, "metodo": metodo, "que_muestra": que_muestra,
+            "montecarlo": montecarlo, "simulaciones": p["simulacion"]["repeticiones"], "lectura": lectura, "metodo": metodo, "que_muestra": que_muestra,
             "pendientes": [{"titulo": a_, "texto": b_, "requisito": c_} for a_, b_, c_ in pendientes], "notas": notas,
         },
         "barra": barra, "reproductor": repro,

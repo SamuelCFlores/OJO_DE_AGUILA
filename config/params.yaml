@@ -57,4 +57,5 @@ animacion:   # Voronoi animado en las jugadas (seguimiento estimado entre fotos;
   escala_tiempo: 1.5         # la animación dura 1.5 veces el tiempo real entre fotos
   duracion_s: [0.35, 2.5]    # límites de cada paso de la animación
   max_fotos: 30              # fotos por jugada animada
+  pausa_foto_s: 0.6          # pausa en cada foto real de la jugada animada (la página marca "Foto real")
 hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10}   # criterio fijado el 12 oct (framework.md); partidos_aviso solo marca, no filtra

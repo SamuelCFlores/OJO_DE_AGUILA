@@ -3,7 +3,8 @@
    La placa del logotipo conserva --oda-azul y --oda-dorado (identidad original). */
 :root {
   --c-azul: var(--club-azul); --c-acento: var(--club-amarillo); --c-rojo: var(--club-rojo);
-  --c-azul-hover: var(--club-azul-hover); --c-lectura: var(--club-rojo);
+  --c-azul-hover: var(--club-azul-hover); --c-lectura: var(--club-azul);
+  /* Rojo solo en acentos puntuales (V-M2, V-M3): franja del título, sombra del botón principal, cursor y anillos de las gráficas, aviso de error */
 }
 
   :root { --alto-enc: 72px; --borde: rgba(15,29,65,.12); --sep: rgba(255,255,255,.14); --anillo: rgba(255,255,255,.4); }
@@ -56,7 +57,7 @@
   .titulo h1 .club { color: var(--c-acento); -webkit-text-stroke: 2px var(--c-azul); }
   .btn-explorar { border: 0; border-radius: 8px; padding: 14px 20px; font-size: 15px; font-weight: 800; letter-spacing: .04em;
     text-transform: uppercase; background: var(--c-azul); color: #fff; box-shadow: 6px 6px 0 var(--c-rojo); white-space: nowrap; }
-  .btn-explorar span { color: var(--c-rojo); margin-left: 8px; }
+  .btn-explorar span { color: var(--c-acento); margin-left: 8px; }
   .btn-explorar:hover { transform: translate(-1px, -1px); box-shadow: 7px 7px 0 var(--c-rojo); }
   .ejemplo { display: grid; grid-template-columns: 240px 1fr; }
   .ejemplo .col { background: var(--c-acento); padding: 24px; display: flex; flex-direction: column; gap: 10px; }
@@ -82,6 +83,8 @@
   .pilar:last-child .n { color: var(--c-acento); -webkit-text-stroke: 0; }
   .pilar h3 { margin: 0; font-size: 20px; font-weight: 900; text-transform: uppercase; }
   .pilar p { margin: 0; font-size: 14px; }
+  .en-construccion { justify-self: start; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c-acento);
+    border: 1.5px dashed var(--c-acento); border-radius: 6px; padding: 3px 8px; }
   .cierre-p { background: var(--c-azul); color: #fff; padding: 32px clamp(20px, 4vw, 56px); display: flex; flex-wrap: wrap;
     align-items: center; justify-content: space-between; gap: 18px; }
   .cierre-p strong { font-size: clamp(22px, 2.6vw, 32px); font-weight: 900; text-transform: uppercase; }
@@ -141,20 +144,18 @@
   .contenido h1 { margin: 2px 0 0; font-size: clamp(26px, 2.8vw, 38px); font-weight: 900; text-transform: uppercase; line-height: 1.05; }
   .ante.chico { font-size: 12px; }
   .filtros { display: flex; flex-wrap: wrap; gap: 6px; }
-  .filtro { border: 0; border-radius: 6px; padding: 6px 10px; background: var(--c-azul); color: #fff; font-size: 13px; font-weight: 600; }
-  .filtro span { color: var(--c-rojo); margin-left: 8px; font-weight: 800; }
-  .filtro:hover { background: var(--c-azul-hover); }
+  .filtro { border-radius: 6px; padding: 6px 10px; background: var(--c-azul); color: #fff; font-size: 13px; font-weight: 600; }
   .maqueta { margin: 0; font-size: 13px; color: var(--oda-gris-texto); border: 1.5px dashed rgba(15,29,65,.25); border-radius: 8px; padding: 8px 12px; }
   .principal { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
   .panel { background: #fff; border-radius: 12px; border: 1px solid var(--borde); overflow: hidden; }
   .panel header { background: var(--c-azul); color: var(--c-acento); padding: 12px 20px; display: flex; justify-content: space-between;
     align-items: center; font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-  .panel header i { width: 10px; height: 10px; border-radius: 50%; background: var(--c-rojo); }
+  .panel header i { width: 10px; height: 10px; border-radius: 50%; background: var(--c-acento); }
   .panel section { padding: 18px 20px; border-top: 1px solid var(--borde); display: grid; gap: 10px; }
   .panel section:first-of-type { border-top: 0; }
   .panel .etq-p { font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--oda-gris-texto); }
   .panel .etq-p.lectura { color: var(--c-lectura); }
-  .panel .etq-p.lectura::before { content: "●"; color: var(--c-rojo); margin-right: 6px; }
+  .panel .etq-p.lectura::before { content: "●"; color: var(--c-azul); margin-right: 6px; }
   .panel p { margin: 0; font-size: 14px; }
   .espacio { box-shadow: inset 0 0 0 1.5px rgba(15,29,65,.25); border-radius: 8px; padding: 12px 14px; font-size: 14px; }
 
@@ -264,10 +265,12 @@
   .sin-foto { fill: rgba(255,255,255,.6); font: 600 3px var(--oda-fuente); display: none; }
   .cancha-svg.vacia .sin-foto { display: block; }
   .controles { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 10px 4px 2px; color: #fff; }
-  #play { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--c-acento); color: var(--c-azul); font-size: 16px; font-weight: 900; }
+  #play { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--c-acento); color: var(--c-azul); font-size: 16px; font-weight: 900; }
   #tiempo { width: 100%; accent-color: var(--c-acento); }
   #reloj { font-weight: 800; font-variant-numeric: tabular-nums; min-width: 92px; text-align: right; }
   .accion { margin: 6px 4px 2px; color: rgba(255,255,255,.85); font-size: 13px; min-height: 1.4em; }
+  .teclas { margin: 2px 4px 4px; color: rgba(255,255,255,.6); font-size: 12px; }
+  @media (max-width: 900px) { .teclas { display: none; } }
   #linea { display: block; width: 100%; height: auto; cursor: pointer; }
   .linea-pie { margin: 6px 6px 2px; min-height: 1.4em; color: #fff; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .momento .indicador { display: grid; gap: 4px; }
@@ -399,3 +402,12 @@
     body[data-barra-variante="chips"].barra-oculta .tira-filtros { display: flex; }
   }
   .cancha-svg .capa-saliente { pointer-events: none; }
+
+  /* Objetivos táctiles de al menos 44 px en el teléfono y con puntero grueso (V-M10) */
+  @media (max-width: 900px), (pointer: coarse) {
+    nav.vistas button, .modos button, .btn-tira, .chip-t, .seg, .rival-btn, .partido-btn, .ver-todos, .enlace, .btn-borde,
+    details.seccion > summary, .btn-explorar { min-height: 44px; }
+    .btn-ocultar { min-width: 44px; min-height: 44px; }
+    .enlace, .ver-todos { display: inline-flex; align-items: center; }
+    #tiempo { min-height: 44px; }
+  }

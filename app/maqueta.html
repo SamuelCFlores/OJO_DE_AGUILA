@@ -47,7 +47,7 @@
   <nav class="vistas" aria-label="Vistas">
     <button type="button" data-vista="portada" aria-current="page">Portada</button>
     <button type="button" data-vista="explorar">Explorar</button>
-    <button type="button" class="solo-movil" data-cajon>Filtros · <span data-cuenta-filtros>0</span></button>
+    <button type="button" class="solo-movil" data-cajon aria-expanded="false">Filtros · <span data-cuenta-filtros>0</span></button>
   </nav>
 </header>
 
@@ -91,7 +91,7 @@
   <section class="pilares">
     <div class="pilar"><span class="n">1</span><h3>Identidad</h3><p>Índice Proactivo–Reactivo y Voronoi: cómo juega, minuto a minuto, frente a cada rival.</p></div>
     <div class="pilar"><span class="n">2</span><h3>Evidencia</h3><p>Cada principio con su número, su intervalo y un partido que lo ilustra; se pondrá a prueba en el Clausura 2026.</p></div>
-    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Qué hacer en cada situación: matriz, ficha de 10 segundos y riesgo en el momento.</p></div>
+    <div class="pilar"><span class="n">3</span><span class="en-construccion">En construcción</span><h3>Decisión</h3><p>Qué hacer en cada situación: matriz, ficha de 10 segundos y riesgo en el momento.</p></div>
   </section>
   <section class="cierre-p"><strong>Elige un rival y mira el mismo análisis</strong>
     <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button></section>
@@ -135,16 +135,17 @@
                 <span id="reloj">0'</span>
               </div>
               <p id="accion" class="accion"></p>
+              <p class="teclas">Teclado: espacio reproduce o pausa · ← → paso · Inicio y Fin · RePág y AvPág, quiebre anterior y siguiente</p>
             </div>
             <div class="figura linea-js"><svg id="linea" viewBox="0 0 560 214" role="img" aria-label="Índice minuto a minuto de ambos equipos"></svg>
               <p class="linea-pie" id="frase-linea"></p></div>
           </div>
-          <aside class="panel momento" aria-live="polite">
+          <aside class="panel momento">
             <header>El momento<i aria-hidden="true"></i></header>
             <section><span class="etq-p">Índice Proactivo–Reactivo</span>
               <div class="indicador"><div class="pista"><span id="m-a" class="marca-a"></span><span id="m-r" class="marca-r"></span></div>
                 <div class="extremos"><span>Reactivo</span><span>Proactivo</span></div></div>
-              <p id="frase-momento" class="frase-momento"></p></section>
+              <p id="frase-momento" class="frase-momento" aria-live="polite"></p></section>
             <section class="radar-sec"><span class="etq-p">Por qué (radar de componentes)</span>
               <svg id="radar" viewBox="0 0 320 230" role="img" aria-label="Radar de componentes del índice"></svg>
               <p class="nota">Hacia afuera = más proactivo que su promedio; el anillo marcado es su partido normal. Crema: <span data-slot="equipo"></span>; discontinuo: <span data-slot="rival"></span>.</p></section>
@@ -156,7 +157,7 @@
 
       <section class="bloque"><span class="ante chico">4 · ¿Qué tan merecido? (Monte Carlo explicativo)</span>
         <h2>Lo que valían los tiros de cada equipo</h2><div class="mcs" data-slot="montecarlo"></div>
-        <p class="nota">Cada tiro se repite 10,000 veces como un intento que entra con probabilidad igual a su xG. Explica el resultado; no predice partidos.</p></section>
+        <p class="nota">Cada tiro se repite <span data-slot="simulaciones">miles de</span> veces como un intento que entra con probabilidad igual a su xG. Explica el resultado; no predice partidos.</p></section>
 
       <section class="bloque"><span class="ante chico">5 · Cómo leerla</span>
         <div class="panel lectura-panel"><header>Cómo leerla<i aria-hidden="true"></i></header>

@@ -6,7 +6,7 @@
   'use strict';
   var D = window.OJO_DATOS;
   var NS = 'http://www.w3.org/2000/svg';
-  var BANDAS = [40, 60];  // igual que indice.bandas en config/params.yaml: bajo 40 reactivo, sobre 60 proactivo
+  var BANDAS = (D && D.reproductor && D.reproductor.bandas) || [40, 60];  // indice.bandas de config/params.yaml (vía datos.js): bajo 40 reactivo, sobre 60 proactivo
   var cuerpo = document.body;
   var MOV = window.OjoMov || null;  // biblioteca de movimiento (movimiento.js); sin ella todo funciona sin animar
   function reducido() { return MOV ? MOV.reducido() : window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
@@ -326,17 +326,17 @@
     var X = D.explorar;
     texto('antetitulo', X.antetitulo);
     texto('titulo-explorar', D.equipo.toUpperCase() + ' VS ' + D.rival.toUpperCase());
-    html('filtros', X.filtros.map(function (f) { return '<button type="button" class="filtro">' + esc(f) + '<span aria-hidden="true">×</span></button>'; }).join(''));
+    html('filtros', X.filtros.map(function (f) { return '<span class="filtro">' + esc(f) + '</span>'; }).join(''));
     html('principio', tarjeta(X.principio, true));
     texto('caso-titulo', X.caso.titulo);
     html('caso-chips', X.caso.chips.map(function (c) { return '<div class="dato"><span>' + esc(c[0]) + '</span><strong>' + esc(c[1]) + '</strong></div>'; }).join(''));
     html('caso-quiebres', X.caso.quiebres.map(function (q) { return '<li class="' + (q[2] ? 'caso' : '') + '"><span class="min">' + esc(q[0]) + '</span>' + esc(q[1]) + '</li>'; }).join(''));
     html('montecarlo', X.montecarlo.map(montecarlo).join(''));
+    if (X.simulaciones) texto('simulaciones', X.simulaciones.toLocaleString('es-MX'));
     if (MOV) document.querySelectorAll('.mc-barra').forEach(function (b) { MOV.alVer(b, function () { MOV.crecer(b.children, { escalon: 80 }); }); });  // A6, una vez
     texto('lectura', X.lectura); texto('metodo', X.metodo);
     html('pendientes', X.pendientes.map(function (p) { return '<article class="pendiente"><span class="estado">En construcción · ' + esc(p.requisito) + '</span><h3>' + esc(p.titulo) + '</h3><p>' + esc(p.texto) + '</p></article>'; }).join(''));
     html('notas', X.notas.map(function (n) { return '<p class="nota">' + esc(n) + '</p>'; }).join(''));
-    document.querySelectorAll('.filtro').forEach(function (b) { b.addEventListener('click', function () { b.remove(); }); });
   }
 
   // ---------- reproductor: minuto a minuto (fundido) y jugadas animadas (Voronoi en movimiento) ----------
@@ -440,6 +440,7 @@
       dibujarEstado(svg, e);
       marcarFoto(prog === 0 ? 'real' : 'estimado');
       reloj.textContent = e.reloj;
+      tiempo.setAttribute('aria-valuetext', 'Foto ' + (i + 1) + ' de ' + jugada.fotos.length + ', ' + e.reloj);
       accion.textContent = e.reloj + ' · ' + e.texto + ' · control del ' + D.equipo + ': ' + (e.control == null ? '—' : pct(e.control)) +
         (prog === 0 ? ' · foto 360' : ' · posiciones estimadas entre fotos');
     }
@@ -453,6 +454,7 @@
       marcarFoto(f ? 'real' : null);
       accion.textContent = f ? f.reloj + ' · ' + f.texto + ' · control del ' + D.equipo + ': ' + pct(f.control) : '';
       reloj.textContent = m.etq + ' · ' + m.marcador;
+      tiempo.setAttribute('aria-valuetext', 'Minuto ' + m.etq + ', marcador ' + m.marcador);
       panelMinuto(m); marcarLinea();
     }
     function lista() { return modo === 'partido' ? R.minutos : jugada.fotos; }
@@ -487,11 +489,21 @@
     }
     play.addEventListener('click', function () { if (timer || raf) detener(); else reproducir(); });
     tiempo.addEventListener('input', function () { detener(); i = +tiempo.value; p = 0; actualizar(); });
+    function irAQuiebre(dir) {  // minuto del quiebre anterior (-1) o siguiente (+1) en el modo partido
+      var ks = R.quiebres.map(function (q) { return q.k; }).filter(function (k) { return dir > 0 ? k > i : k < i; });
+      if (!ks.length) return;
+      detener(); i = dir > 0 ? Math.min.apply(null, ks) : Math.max.apply(null, ks); p = 0; actualizar();
+    }
     repro.addEventListener('keydown', function (e) {
-      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'PageDown' || e.key === 'PageUp') {
+        if (modo !== 'partido') return;
+        e.preventDefault(); irAQuiebre(e.key === 'PageDown' ? 1 : -1); return;
+      }
+      if (e.target.tagName === 'INPUT') return;  // el deslizador ya maneja flechas, Inicio y Fin
       if (e.key === ' ') { e.preventDefault(); if (timer || raf) detener(); else reproducir(); }
       if (e.key === 'ArrowRight') { detener(); i++; p = 0; actualizar(); }
       if (e.key === 'ArrowLeft') { detener(); i--; p = 0; actualizar(); }
+      if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); detener(); i = e.key === 'Home' ? 0 : lista().length - 1; p = 0; actualizar(); }
     });
     modos.addEventListener('click', function (ev) {
       var b = ev.target.closest('button'); if (!b) return;
@@ -585,7 +597,25 @@
     if (location.hash !== '#' + vista) history.replaceState(null, '', '#' + vista);
     cerrarCajon(); window.scrollTo(0, 0);
   }
-  function cerrarCajon() { cuerpo.classList.remove('cajon'); }
+  var abridorCajon = null;
+  function cajonInerte() {  // en el teléfono, la barra cerrada no recibe foco y, abierta, el contenido de atrás tampoco (el botón Filtros la cierra)
+    if (!D) return;
+    var abierto = cuerpo.classList.contains('cajon'), tel = movil();
+    document.querySelector('aside.barra').inert = tel && !abierto;
+    document.querySelector('.contenido').inert = tel && abierto;
+    document.querySelectorAll('nav [data-cajon]').forEach(function (b) { b.setAttribute('aria-expanded', String(abierto)); });
+  }
+  function abrirCajon(boton) {
+    abridorCajon = boton || null;
+    cuerpo.classList.add('cajon'); cajonInerte();
+    var primero = document.querySelector('aside.barra .barra-contenido button:not([disabled])');
+    if (primero) primero.focus();
+  }
+  function cerrarCajon() {
+    var estaba = cuerpo.classList.contains('cajon');
+    cuerpo.classList.remove('cajon'); cajonInerte();
+    if (estaba && abridorCajon) { abridorCajon.focus(); abridorCajon = null; }
+  }
   // A8 · Portada → Explorar: la vista que se va se apaga y la nueva aparece (OjoMov.vista)
   function cambiarVista(vista, despues) {
     var hacer = function () { mostrar(vista); if (despues) despues(); };
@@ -608,7 +638,14 @@
     contados = true;
     document.querySelectorAll('.kpi strong').forEach(MOV.contar);
   }
-  document.querySelectorAll('[data-cajon]').forEach(function (b) { b.addEventListener('click', function () { cuerpo.classList.toggle('cajon'); }); });
+  document.querySelectorAll('[data-cajon]').forEach(function (b) {
+    b.addEventListener('click', function () { if (cuerpo.classList.contains('cajon')) cerrarCajon(); else abrirCajon(b.tagName === 'BUTTON' ? b : null); });
+  });
+  window.matchMedia('(max-width: 900px)').addEventListener('change', function () {  // al cambiar de tamaño, el estado correcto de cada lado
+    if (!movil()) cuerpo.classList.remove('cajon');
+    cajonInerte();
+    if (D) ocultarBarra(cuerpo.classList.contains('barra-oculta'));
+  });
   window.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarCajon(); });
 
   if (!D) {
