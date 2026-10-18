@@ -17,6 +17,8 @@ PATRONES_BALON_PARADO = frozenset({"From Corner", "From Free Kick", "From Throw 
 INTERCEPCION_GANADA = frozenset({"Won", "Success", "Success In Play"})
 # Acciones defensivas del PPDA según la definición de StatsBomb (Team Match Stats): entrada, intercepción, falta
 DUELO_ENTRADA = "Tackle"
+# Pases que reanudan el juego (Pass.type): no cuentan como pases "permitidos" en el PPDA por tramo (framework.md, "PPDA")
+PASES_REANUDACION = frozenset({"Throw-in", "Goal Kick", "Corner", "Free Kick", "Kick Off"})
 
 
 def es_juego_abierto(eventos: pd.DataFrame) -> pd.Series:
