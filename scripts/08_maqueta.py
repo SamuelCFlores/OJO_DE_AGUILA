@@ -1,7 +1,7 @@
 """Datos de la maqueta 3 (app/maqueta.html): la narrativa de Jardine (principio → caso → reproductor).
 
 Arma: el índice Proactivo–Reactivo de todos los partidos (escala con los torneos de entrenamiento), los
-principios candidatos (outputs/hallazgos, notebooks 02 y 03), el caso confirmador (un partido y un
+principios (criterio v2; outputs/hallazgos, notebooks 02 y 03), el caso confirmador (un partido y un
 quiebre), el reproductor minuto a minuto con su Voronoi y el Monte Carlo explicativo de los tiros.
 Escribe solo datos: outputs/app/datos.js (fuera de git: lleva posiciones y nombres reales). El diseño vive en
 app/ (maqueta.html, app.css y app.js) y se edita directo, sin Python.
@@ -36,37 +36,37 @@ FORMATOS = {"control": "pct", "posesion": "pct", "field_tilt": "pct", "control_c
             "altura_sin_balon": "yd", "presion_alta": "num", "directness": "num", "largo_pase": "yd"}
 CLAVES_CORTAS = {"gol_favor": "Gol", "gol_contra": "Gol rival", "expulsion_favor": "Roja rival",
                  "expulsion_contra": "Roja", "cambio_sistema_propio": "Sistema", "cambio_sistema_rival": "Sistema rival"}
-# Principios candidatos: de dónde sale cada número y cómo se lee (notebooks 02 y 03, criterio v1).
+# Principios: de dónde sale cada número y cómo se lee (notebooks 02 y 03, criterio v2 del 18 oct).
 PRINCIPIOS = [
     {"archivo": "estilo", "filtro": {"metrica": "largo_pase"}, "escala": 1, "unidad": " yd", "dec": 1, "cambio": False,
      "titulo": "Sale jugando corto",
      "frase": "Con Jardine, los pases del América miden {jardine} en promedio; con Solari y Ortiz, {previos}.",
      "significa": "Cambia el pelotazo por circulación corta, también desde su propio campo.",
      "uso": "Si el rival presiona alto, el plan del América es tocar para salir, no rifar el balón: la presión rival pone a prueba este principio."},
-    {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "expulsion_favor", "lado": "propio", "metrica": "field_tilt"},
-     "escala": 100, "unidad": " pts", "dec": 0, "cambio": True, "tipo_caso": "expulsion_favor",
-     "titulo": "Con uno más, se instala arriba",
-     "frase": "Tras una expulsión del rival, el field tilt del América cambia {jardine} con Jardine; con Solari y Ortiz, {previos}.",
-     "significa": "Con superioridad numérica no administra: se muda a campo rival y empuja al rival hacia su área.",
-     "uso": "Con un jugador más, esperar un América volcado arriba; lo que hay que vigilar es la transición en contra."},
-    {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "gol_favor", "lado": "propio", "metrica": "tiros_transicion_contra"},
-     "escala": 10, "unidad": " por 10 min", "dec": 2, "cambio": True, "tipo_caso": "gol_favor",
-     "titulo": "Ganando, cierra la transición",
-     "frase": "Tras anotar, los tiros en transición que concede cambian {jardine} con Jardine; con Solari y Ortiz, {previos}.",
-     "significa": "Después de un gol a favor no se parte: protege la pérdida y le quita al rival el contragolpe.",
-     "uso": "Cuando el América gana, el rival tiene que atacar en estático: la ficha debe decir cómo le va a ese rival sin transiciones."},
-    {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "gol_contra", "lado": "propio", "metrica": "obv"},
-     "escala": 10, "unidad": " por 10 min", "dec": 3, "cambio": True, "tipo_caso": "gol_contra",
-     "titulo": "Reacciona al gol en contra",
-     "frase": "Tras recibir gol, el valor de sus acciones (OBV) cambia {jardine} con Jardine; con Solari y Ortiz, {previos}.",
-     "significa": "Recibir gol no lo desordena: aumenta lo que produce con el balón.",
-     "uso": "Si el América recibe gol, esperar más volumen con balón y no un repliegue; el rival que se adelanta debe prepararse para defender cerca de su área."},
-    {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "sustitucion_tactica_propia", "lado": "propio", "metrica": "control_campo_rival"},
-     "escala": 100, "unidad": " pts", "dec": 1, "cambio": True, "tipo_caso": "sustitucion_tactica_propia",
-     "titulo": "Sus cambios ganan espacio arriba",
-     "frase": "Tras sus sustituciones tácticas, el espacio que controla en campo rival cambia {jardine} con Jardine; con Solari y Ortiz, {previos}.",
-     "significa": "Sus cambios empujan al equipo hacia adelante, no lo repliegan.",
-     "uso": "Los cambios de Jardine son para ganar territorio: el rival puede buscar la espalda justo después de ellos."},
+    {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "expulsion_favor", "lado": "rival", "metrica": "altura_sin_balon"},
+     "escala": 1, "unidad": " yd", "dec": 1, "cambio": True, "tipo_caso": "expulsion_favor",
+     "titulo": "Con uno más, hunde al rival",
+     "frase": "Tras una expulsión del rival, la altura del bloque rival cambia {jardine} contra Jardine; contra Solari y Ortiz, {previos}.",
+     "significa": "Con superioridad numérica no administra: se instala en campo rival, mete al rival en su área y además concede menos transiciones.",
+     "uso": "Con un jugador más, esperar al América volcado arriba; el rival que se queda con diez tiene que preparar la salida desde su área."},
+    {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "sustitucion_lesion_propia", "lado": "propio", "metrica": "presiones"},
+     "escala": 10, "unidad": " por 10 min", "dec": 1, "cambio": True, "tipo_caso": "sustitucion_lesion_propia",
+     "titulo": "Una lesión no lo frena",
+     "frase": "Tras una sustitución por lesión, sus presiones cambian {jardine} con Jardine; con Solari y Ortiz, {previos}.",
+     "significa": "Un cambio obligado no lo hace recular: sale a presionar más.",
+     "uso": "Tras una lesión del América no esperar un repliegue: el rival tiene que preparar la salida ante más presión."},
+    {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "gol_contra", "lado": "rival", "metrica": "contrapresiones"},
+     "escala": 10, "unidad": " por 10 min", "dec": 1, "cambio": True, "tipo_caso": "gol_contra",
+     "titulo": "Tras recibir gol, el rival no lo aprieta",
+     "frase": "Después de que el América recibe gol, las contrapresiones del rival cambian {jardine} contra Jardine; contra Solari y Ortiz, {previos}.",
+     "significa": "El rival que se adelanta en el marcador se repliega en lugar de seguir presionando la salida.",
+     "uso": "El rival que anota tiene que decidir si se mete atrás: contra Jardine suele hacerlo y le cede el balón."},
+    {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "cambio_sistema_propio", "lado": "propio", "metrica": "xg"},
+     "escala": 10, "unidad": " xG por 10 min", "dec": 2, "cambio": True, "tipo_caso": "cambio_sistema_propio",
+     "titulo": "Alerta: cambiar el sistema le cuesta",
+     "frase": "Tras sus cambios de sistema, el xG del América cambia {jardine} con Jardine; con Solari y Ortiz, {previos}.",
+     "significa": "Los 10 minutos que siguen a un cambio de sistema produce menos. Puede ser porque el cambio responde a algo que ya iba mal: es una pista, no una causa.",
+     "uso": "Para el cuerpo técnico: cuidar el paso al nuevo sistema. Para el rival: es una ventana para atacar."},
 ]
 
 
@@ -86,14 +86,14 @@ def principios(caso_tipo: str, caso_texto: str) -> tuple[list[datos_app.Principi
         nuevo, previo = (f["efecto_nuevo"], f["efecto_previos"]) if d["cambio"] else (f["nuevo"], f["previos"])
         fmt = (lambda v: f"{v * d['escala']:+.{d['dec']}f}{d['unidad']}") if d["cambio"] else (lambda v: f"{v * d['escala']:.{d['dec']}f}{d['unidad']}")
         dif = lambda v: f"{v * d['escala']:+.{d['dec']}f}{d['unidad']}"  # noqa: E731
-        estado = "Candidato · pasa el criterio v1" if f["pasa"] else "No pasa el criterio v1"
+        estado = f"Pasa el criterio v2 · q = {f['q']:.2f}".replace(".", ",", 1) if f["pasa"] else "No pasa el criterio v2"
         if f.get("muestra_chica", False):
             estado += " · muestra chica"
         p = datos_app.Principio(
             titulo=d["titulo"], frase=d["frase"].format(jardine=fmt(nuevo), previos=fmt(previo)), significa=d["significa"],
             uso=d["uso"], jardine=fmt(nuevo), previos=fmt(previo), diferencia=dif(f["diferencia"]),
             intervalo=f"IC 95 %: {dif(f['ic_bajo'])} a {dif(f['ic_alto'])}", torneos=f"{int(f['torneos_misma_direccion'])} de 5",
-            estado=estado + " · falta v2 y placebo")
+            estado=estado)
         if d.get("tipo_caso") == caso_tipo:
             p.caso = caso_texto
             del_caso = p
@@ -328,7 +328,7 @@ def generar(args: argparse.Namespace) -> int:
         ("Uso de jugadores", "Qué cambia con las sustituciones de Jardine y cómo reparte los roles por posición.", "componente del reto"),
     ]
     notas = ["Índice provisional: definición del 14 oct en contexto/framework.md, pendiente de confirmar (pesos iguales, falta la verificación con PCA).",
-             "Principios: candidatos con el criterio v1; la auditoría del 14 oct pide la versión 2 (escala de las ventanas de control, FDR) y la prueba placebo.",
+             "Principios: pasan el criterio v2 (18 oct): intervalo sin cero, tamaño frente al cambio en las ventanas de control, 4 de 5 torneos y FDR de Benjamini-Hochberg. En la prueba placebo, 0 de 280 quiebres falsos lo pasan.",
              "Página con datos reales de StatsBomb: solo para la competencia; no se sube a git ni se publica."]
     datos = {
         "meta": {"generado": date.today().isoformat(), "partido": int(args.partido), "tipo": args.tipo,

@@ -24,7 +24,7 @@ CLAVES = ("meta", "titulo", "equipo", "rival", "portada", "explorar", "barra", "
 
 @dataclass
 class Principio:
-    """Tarjeta de un principio candidato, con números ya formateados para leer."""
+    """Tarjeta de un principio (criterio v2), con números ya formateados para leer."""
 
     titulo: str
     frase: str
