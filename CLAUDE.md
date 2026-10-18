@@ -71,7 +71,7 @@ Entregables (22 de octubre de 2026): **un solo archivo HTML autocontenido** (la 
 - [x] Framework base en código (`ojo.framework`: partidos válidos, torneo, del equipo, relevos, tramos, marcador, orientación, juego abierto, recuperaciones).
 - [x] Lente Voronoi + grafo de vecindad (`ojo.lentes.voronoi`, `scripts/04_voronoi.py`) y figuras con la identidad (`ojo.salidas`).
 - [x] Lectura por puntos de quiebre (12 oct): `ojo.framework.quiebres` (quiebres, ventanas, controles), panel por minuto a dos bandas con forma del bloque y red por posición (`ojo.lentes.minuto`, `forma`, `redes`; `scripts/05_panel.py`), criterio de hallazgo (`ojo.lentes.hallazgo`), notebooks 02 (quiebres) y 03 (estilo y tabla final) y el Voronoi paso a paso (`ojo.salidas.paso_a_paso`, `scripts/06_paso_a_paso.py`). Voronoi sigue como lente estructural por la regla fijada.
-- [x] Maqueta 3 (14 oct): narrativa principio → caso confirmador (final AP23, roja a Fulgencio), índice Proactivo–Reactivo por minuto (`ojo.lentes.indice`, confirmado con PCA el 18 oct), reproductor minuto a minuto con Voronoi (`ojo.salidas.reproductor`) y Monte Carlo explicativo (`ojo.lentes.simulacion`). La página es la plantilla `app/maqueta.html` (+ `app.css`, `app.js`); `scripts/08_maqueta.py` solo escribe `outputs/app/datos.js`. Barra lateral v3: compacta, plegable y ocultable. Voronoi en movimiento en las jugadas (seguimiento estimado, `ojo.lentes.seguimiento`; Voronoi recalculado en el navegador). Auditoría del 14 oct en `auditoria/`. Auditoría visual del 16 oct implementada el 17 oct: `app/movimiento.js` (`OjoMov`), barra en tres variantes (por defecto `sobre`) y opciones `?sin-intro`, `?barra=` y `?movimiento=reducido` (`app/README.md`).
+- [x] Maqueta 3 (14 oct): narrativa principio → caso confirmador (final AP23, roja a Fulgencio), índice Proactivo–Reactivo por minuto (`ojo.lentes.indice`, confirmado con PCA el 18 oct), reproductor minuto a minuto con Voronoi (`ojo.salidas.reproductor`) y Monte Carlo explicativo (`ojo.lentes.simulacion`). La página es la plantilla `app/maqueta.html` (+ `app.css`, `app.js`); `scripts/08_maqueta.py` solo escribe `outputs/app/datos.js`. Barra lateral v3: compacta, plegable y ocultable. Voronoi en movimiento en las jugadas (seguimiento estimado, `ojo.lentes.seguimiento`; Voronoi recalculado en el navegador). Auditoría del 14 oct en `auditoria/`. Auditoría visual del 16 oct implementada el 17 oct: `app/movimiento.js` (`OjoMov`), barra en tres variantes (por defecto `riel` desde el 18 oct: el contenido se ajusta; la barra v4 deja solo Rival, Torneo, Condición y Partidos) y opciones `?sin-intro`, `?barra=` y `?movimiento=reducido` (`app/README.md`).
 - [x] Cierre (18 oct, con la rúbrica oficial; plan en `contexto/plan_cierre.md`):
   - **Criterio v2** (`ojo.lentes.hallazgo`): escala de los controles, FDR y placebo. El placebo pasa de 11 a 0 de 280 y la tabla final de 69 a 30 de 636.
   - **Índice confirmado con PCA** (r = 0.94 con los pesos iguales).
@@ -88,7 +88,6 @@ Entregables (22 de octubre de 2026): **un solo archivo HTML autocontenido** (la 
   - grabar el video;
   - prueba de 90 segundos con alguien externo;
   - V-M14 (descargar Poppins);
-  - variante de la barra;
   - promoción a `main`;
   - correo de entrega.
 
@@ -101,6 +100,7 @@ Preguntas abiertas (la rúbrica oficial y el HTML único ya están confirmados):
 - `CAMBIOS/` (rama `tests`): bitácora diaria; lee el último archivo para saber qué se hizo y qué quedó pendiente.
 - `contexto/plan_cierre.md`: plan del cierre (18 oct): validación en el CL26, casos de decisión, vista Método, guion y verificación, con riesgos y criterios de calidad.
 - `contexto/guion_video.md`: guion del video de 5 minutos y la prueba de 90 segundos.
+- `contexto/terminologia.md`: cada término de la página, qué significa y cómo traducirlo para el jurado (decisiones de chamuel).
 - `contexto/resumenes.md`: contrato de `resumenes.json`, el único archivo de datos del explorador (barra lateral rival · torneo · situación). Solo agregados; validador en `ojo.salidas.resumenes`.
 
 - `contexto/propuesta_base.md`: objetivo, objetivos específicos, lectura a dos bandas, comparaciones, entregables, calendario y riesgos.

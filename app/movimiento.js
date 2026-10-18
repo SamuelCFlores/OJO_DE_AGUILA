@@ -174,7 +174,7 @@
   function barra(oculta, variante) {
     var c = document.body;
     if (variante) c.setAttribute('data-barra-variante', variante);
-    variante = c.getAttribute('data-barra-variante') || 'sobre';
+    variante = c.getAttribute('data-barra-variante') || 'riel';
     clearTimeout(c.__barraT);
     var rapida = dur('rapida'), media = dur('media');
     if (variante === 'riel' && rapida) {

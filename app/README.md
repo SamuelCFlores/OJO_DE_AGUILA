@@ -31,7 +31,7 @@ Opciones en la dirección (para revisar y grabar):
 | Opción | Qué hace |
 | --- | --- |
 | `?sin-intro` | No muestra la entrada animada (sin la opción, se ve una vez por sesión del navegador) |
-| `?barra=sobre`, `riel` o `chips` | Variante de la barra lateral (por defecto `sobre`; también `data-barra-variante` en el `<body>`) |
+| `?barra=riel`, `sobre` o `chips` | Variante de la barra lateral (por defecto `riel`: el contenido se ajusta y no queda debajo; también `data-barra-variante` en el `<body>`) |
 | `?movimiento=reducido` | Simula `prefers-reduced-motion`: nada se anima y todo queda en su estado final |
 
 ## La entrega: un solo HTML
@@ -48,7 +48,7 @@ Lo valida `ojo.salidas.datos_app.validar` (claves obligatorias y JSON válido). 
 | `titulo`, `equipo`, `rival`, `nuevo` | Textos generales (`nuevo` = entrenador del caso: Jardine) |
 | `portada` | `kpis` [{etq, valor, detalle}], `torneos` [{torneo, entrenador, propio, rival, nuevo}], `principios` [tarjetas], `ejemplo` {texto, foto, que_muestra} |
 | `explorar` | `antetitulo`, `filtros`, `principio` (tarjeta grande), `caso` {titulo, chips, quiebres}, `montecarlo` [...], `simulaciones` (repeticiones del Monte Carlo), `lectura`, `metodo`, `que_muestra`, `pendientes`, `notas` |
-| `barra` | Barra compacta (ver `contexto/barra_lateral.md`, versión 3): `rival`, `rivales`, `torneos`, `momento`, `condicion`, `partidos`, `mas`, `muestra` |
+| `barra` | Barra compacta (ver `contexto/barra_lateral.md`, versión 4): `rival`, `rivales`, `torneos`, `momento`, `condicion`, `partidos`, `mas`, `muestra`. Desde la versión 4 la app no dibuja `momento` ni `mas` |
 | `decidir` (vista Decidir) | `casos` [{id, titulo, regla, marcaba, paso[], lectura}] (notebook 07), `validacion` [{principio, veredicto, texto, entrenamiento, prueba, bajo, alto, partidos}] (notebook 06), `matriz` [{situacion, hace, funciona, recomendacion, evidencia, nivel, muestra_chica}], `base` {indice, ppda, xg_dif_90}, `fichas` [{rival, progresa, defiende, concede, balon_parado, balon_parado_rasgos, jardine, parecidos, jardine_parecidos, partidos}], `balon_parado` {resumen, zonas}, `jugadores` {resumen} |
 | `metodo` (vista Método) | `datos` {liga, nuevo, previos, prueba, torneos_*}, `pca` {varianza, correlacion, mismo_signo, minutos}, `criterio` {placebo_pruebas, placebo_v1, placebo_v2, pruebas, pasan_v1, pasan_v2} |
 | `reproductor` | `componentes`, `minutos` (índice, z, valores y marcador por minuto), `fotos` (Voronoi por minuto), `quiebres`, `etiquetasX`, `jugadas` [{titulo, fotos, minuto}], `animacion` {escala, duracion, pausa_foto, alcance, cuartos_circulo}, `bandas` (40/60 del índice), `inicio` |

@@ -212,18 +212,13 @@
     });
   }
 
-  // ---------- barra lateral v3: compacta, plegable y ocultable ----------
+  // ---------- barra lateral v4: rival, torneo, condición y partidos; compacta, plegable y ocultable ----------
   function chip(etq, activo, clase, titulo) {
     return '<button type="button" class="chip-t ' + (clase || '') + '" data-toggle aria-pressed="' + !!activo + '"' + (titulo ? ' title="' + esc(titulo) + '"' : '') + '>' + esc(etq) + '</button>';
   }
   function seccion(id, titulo, contenido, abierta, clase) {
     return '<details class="seccion ' + (clase || '') + '" data-seccion="' + id + '"' + (abierta ? ' open' : '') + '><summary>' + esc(titulo) +
       '<span class="resumen-sec"></span></summary><div class="cuerpo-sec">' + contenido + '</div></details>';
-  }
-  function grupos(lista) {
-    return lista.map(function (g) {
-      return '<p class="sub">' + esc(g.grupo) + '</p><div class="chips-s">' + g.opciones.map(function (o) { return chip(o.etq, o.activo, 'redondo'); }).join('') + '</div>';
-    }).join('');
   }
   function tamanoNombre(nombre) { return Math.min(30, Math.floor(228 / (0.8 * nombre.length))); }  // igual que app.tamano_nombre
   function renderBarra(b) {
@@ -244,11 +239,10 @@
       '<div class="barra-cab"><span class="titulo-barra">Filtros</span><div class="acciones-cab"><button type="button" class="enlace" data-volver>Restablecer</button>' +
       '<button type="button" class="btn-ocultar" data-ocultar aria-label="Ocultar filtros" aria-expanded="true">‹</button></div></div>' +
       seccion('rival', 'Rival', rival, true) + seccion('torneo', 'Torneo', torneos, true) +
-      seccion('momento', 'Momento', grupos(b.momento), true) + seccion('condicion', 'Condición', condicion, true) +
+      seccion('condicion', 'Condición', condicion, true) +
       seccion('partidos', 'Partidos', partidos, false) +
-      seccion('mas', 'Más filtros', grupos(b.mas), false, 'secundaria') +
       '<div class="pie-barra"><p class="muestra">' + esc(b.muestra) + '</p>' +
-      '<button type="button" class="btn-borde" disabled title="Llega con resumenes.json">Ficha de 10 segundos · pronto</button></div>');
+      '<button type="button" class="btn-borde" data-ir-ficha>Ver su ficha de 10 segundos →</button></div>');
   }
   function montarBarra() {  // también "Restablecer": vuelve al estado inicial sin recargar
     renderBarra(D.barra);
@@ -263,7 +257,7 @@
       if (id === 'rival') txt = document.getElementById('rival-nombre').textContent;
       else if (id === 'condicion') { txt = activos('.seg[aria-checked="true"]', d)[0] || 'Todos'; n = txt === 'Todos' ? 0 : 1; }
       else if (id === 'partidos') { var p = d.querySelector('.partido-btn[aria-pressed="true"] span:nth-child(2)'); txt = p ? p.textContent : d.querySelectorAll('.partido-btn').length + ''; }
-      else { var a = activos('[data-toggle][aria-pressed="true"]', d); n = a.length; txt = a.length ? a.join(', ') : (id === 'mas' ? 'entrenador, fase, balón parado' : 'Todos'); }
+      else { var a = activos('[data-toggle][aria-pressed="true"]', d); n = a.length; txt = a.length ? a.join(', ') : 'Todos'; }
       total += n;
       d.querySelector('.resumen-sec').textContent = txt;
       if (id === 'rival' || n) chips.push(txt);
@@ -283,6 +277,7 @@
       else if (b.classList.contains('ver-todos')) { var l = aside.querySelector('.lista-rivales'); l.classList.toggle('todos'); b.textContent = l.classList.contains('todos') ? 'Ver menos' : 'Ver todos (' + l.children.length + ')'; }
       else if (b.hasAttribute('data-ocultar')) ocultarBarra(!cuerpo.classList.contains('barra-oculta'), true);
       else if (b.hasAttribute('data-volver')) { montarBarra(); var v = aside.querySelector('[data-volver]'); if (v) v.focus(); return; }
+      else if (b.hasAttribute('data-ir-ficha')) { irAFicha(document.getElementById('rival-nombre').textContent); return; }
       actualizarResumenes();
     });
   }
@@ -297,7 +292,7 @@
   }
   // Mostrar u ocultar la barra en escritorio (variantes en movimiento.js). Lo oculto queda inerte y el foco pasa al botón visible.
   function ocultarBarra(oculta, porUsuario) {
-    var variante = cuerpo.getAttribute('data-barra-variante') || 'sobre';
+    var variante = cuerpo.getAttribute('data-barra-variante') || 'riel';
     if (MOV && porUsuario) MOV.barra(oculta, variante); else cuerpo.classList.toggle('barra-oculta', oculta);  // al cargar, sin animar
     var contenido = document.querySelector('aside.barra .barra-contenido'), riel = document.querySelector('aside.barra .riel');
     contenido.inert = oculta && !movil();
@@ -360,6 +355,17 @@
       '<div class="campo"><span>Balón parado</span>' + (f.balon_parado_rasgos.length ? chips(f.balon_parado_rasgos) : '') + '<p>' + esc(f.balon_parado) + '</p></div>' +
       '<div class="campo"><span>' + esc(D.nuevo) + ' contra él</span><p>' + esc(f.jardine) + '</p></div>' +
       '<div class="campo"><span>Contra rivales parecidos</span><p>' + esc(f.parecidos.join(', ')) + '</p><p>' + esc(f.jardine_parecidos) + '</p></div>');
+  }
+  // De la barra a la ficha de 10 segundos del rival elegido (vista Decidir)
+  function irAFicha(nombre) {
+    var fichas = (D.decidir && D.decidir.fichas) || [], k = fichas.map(function (f) { return f.rival; }).indexOf(nombre);
+    cerrarCajon();
+    cambiarVista('decidir', function () {
+      var sel = document.getElementById('rival-ficha');
+      if (k >= 0) { sel.value = String(k); sel.dispatchEvent(new Event('change')); }
+      var destino = document.getElementById('ficha');
+      if (MOV) MOV.irA(destino); else destino.scrollIntoView();
+    });
   }
   function renderDecidir(X) {
     if (X.base) texto('base-decidir', 'Su partido normal: índice ' + X.base.indice + ', PPDA ' + num(X.base.ppda, 1) + ' y xG neto ' +
@@ -735,6 +741,12 @@
     if (D) ocultarBarra(cuerpo.classList.contains('barra-oculta'));
   });
   window.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarCajon(); });
+  // El encabezado crece en el teléfono: al desplazarse a una sección se usa su alto real (--alto-enc-real)
+  var enc = document.querySelector('header.enc');
+  function altoEnc() { if (enc) document.documentElement.style.setProperty('--alto-enc-real', enc.offsetHeight + 'px'); }
+  altoEnc();
+  window.addEventListener('resize', altoEnc);
+  if (enc && window.ResizeObserver) new ResizeObserver(altoEnc).observe(enc);
 
   if (!D) {
     document.getElementById('sin-datos').hidden = false;

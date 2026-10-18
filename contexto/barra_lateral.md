@@ -80,3 +80,12 @@ Decisión del 14 oct: la barra queda **compacta** (lo esencial a la vista) y **p
 | Más filtros | No | Entrenador, Fase (salida, presión alta, transiciones) y Balón parado | Útiles pero secundarios: la fase ya la resume el índice y el balón parado tendrá su sección |
 
 **Sale de la barra:** el resumen rápido (ya está en el contenido), "Volver al caso" (duplicaba "Restablecer") y la leyenda (vive en "Cómo leerla"). Al pie quedan la muestra y el botón de la ficha de 10 segundos.
+
+## Versión 4 (18 oct): solo lo que filtra al rival, y el contenido se ajusta
+
+Decisión de chamuel del 18 oct, al revisar la maqueta antes del video:
+
+- **Salen "Momento" y "Más filtros".** Los momentos que cambiaron el juego ya están dentro del contenido: el caso de Explorar (la expulsión y lo que vino después), la línea del índice con sus quiebres, el reproductor y, en Decidir, la matriz de situaciones (marcador, uno más, uno menos) y el balón parado. En la barra eran filtros que no filtraban (no hay recálculo en el navegador) y confundían.
+- **Quedan:** Rival, Torneo, Condición y Partidos. Al pie, la muestra y el botón **"Ver su ficha de 10 segundos →"**, que lleva a Decidir con la ficha de ese rival ya elegida (`irAFicha` en `app/app.js`).
+- **La barra ya no se sobrepone al contenido:** la variante por defecto pasa de `sobre` a `riel`. Abierta, el contenido empieza a su derecha; oculta, queda el riel de 56 px y el contenido se ensancha. `?barra=sobre` y `?barra=chips` siguen disponibles.
+- `outputs/app/datos.js` conserva `barra.momento` y `barra.mas` (el contrato no cambia), pero la app ya no los dibuja.

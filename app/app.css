@@ -54,7 +54,7 @@
     grid-template-columns: 1fr auto; align-items: end; gap: 24px; }
   .ante { font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--oda-gris-texto); }
   .titulo h1 { margin: 8px 0 0; font-weight: 900; font-size: clamp(26px, 2.6vw, 40px); line-height: 1; letter-spacing: -.01em;
-    text-transform: uppercase; max-width: 34ch; text-wrap: balance; }  /* la tesis es el h1 (V-A4) */
+    text-transform: uppercase; max-width: none; text-wrap: balance; }  /* la tesis es el h1 (V-A4), a lo ancho */
   .titulo h1 .club { color: var(--c-acento); -webkit-text-stroke: 2px var(--c-azul); }
   .btn-explorar { border: 0; border-radius: 8px; padding: 14px 20px; font-size: 15px; font-weight: 800; letter-spacing: .04em;
     text-transform: uppercase; background: var(--c-azul); color: #fff; box-shadow: 6px 6px 0 var(--c-rojo); white-space: nowrap; }
@@ -118,10 +118,6 @@
   .chip-t[aria-pressed="true"] { background: var(--c-acento); color: var(--c-azul); box-shadow: none; }
   .chip-t.prueba { box-shadow: none; outline: 1.5px dashed var(--anillo); outline-offset: -1.5px; }
   .chip-t.prueba[aria-pressed="true"] { outline-color: var(--c-azul); }
-  .chip-t.redondo { border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 700; }
-  .chip-t.redondo[aria-pressed="true"] { background: #fff; color: var(--c-azul); }
-  .chips-s { display: flex; flex-wrap: wrap; gap: 6px; }
-  .sub { margin: 4px 0 0; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.6); }
   .aviso-prueba { margin: 0; font-size: 11.5px; color: rgba(255,255,255,.6); }
   .partido-btn { width: 100%; display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; text-align: left;
     background: none; border: 0; border-bottom: 1px solid var(--sep); padding: 8px 6px; font-size: 13px; color: #fff; border-radius: 6px; }
@@ -245,7 +241,7 @@
   .insignia { background: var(--c-acento); color: var(--c-azul); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 3px 8px; white-space: nowrap; }
   button.insignia { border: 0; box-shadow: inset 0 0 0 1.5px var(--c-azul); }
   button.insignia:hover { background: var(--c-azul); color: var(--c-acento); }
-  .bloque { scroll-margin-top: calc(var(--alto-enc) + 12px); }
+  .bloque { scroll-margin-top: calc(var(--alto-enc-real, var(--alto-enc)) + 12px); }  /* alto real: en el teléfono el encabezado crece */
   .estado { justify-self: start; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--oda-gris-texto); border: 1.5px dashed rgba(15,29,65,.3); border-radius: 6px; padding: 3px 8px; }
   .cifras { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; }
   .cifras div { background: var(--oda-gris-fondo); border-radius: 8px; padding: 6px 8px; }
@@ -338,7 +334,6 @@
   details.seccion:not([open]) > summary::after, details.seccion.cerrando > summary::after { transform: rotate(-90deg); }
   details.seccion > summary .resumen-sec { margin-left: auto; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: none; color: rgba(255,255,255,.75); }
   details.seccion > .cuerpo-sec { display: grid; gap: 10px; padding-bottom: 12px; }
-  details.seccion.secundaria > summary { color: rgba(255,255,255,.85); }
   .pie-barra { border-top: 1px solid var(--sep); padding-top: 14px; display: grid; gap: 10px; }
   .pie-barra .muestra { font-size: 13px; color: rgba(255,255,255,.85); margin: 0; }
   .lista-rivales li:nth-child(n+5) { display: none; }
@@ -406,7 +401,8 @@
 
   /* ===== Decidir: matriz de situaciones, ficha de 10 segundos, balón parado y uso de jugadores ===== */
   .decidir { padding: 8px clamp(20px, 4vw, 56px) 64px; display: grid; gap: 12px; max-width: 1480px; }
-  .decidir-tit h1 { max-width: 30ch; }
+  .decidir-tit h1 { max-width: none; }  /* a lo ancho, como la portada: sin hueco a la derecha */
+  .titulo .pie { max-width: 110ch; }
   .enlace-pilar { justify-self: start; background: none; border: 0; padding: 4px 0; color: var(--c-acento); font-weight: 800;
     text-decoration: underline; text-underline-offset: 3px; }
   .matriz { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
