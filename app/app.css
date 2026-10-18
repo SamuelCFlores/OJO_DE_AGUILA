@@ -18,6 +18,7 @@
   main :focus-visible { outline-color: var(--c-azul); }
   /* En las zonas azules el foco es crema (V-M1) */
   aside.barra :focus-visible, .figura :focus-visible, .cierre-p :focus-visible, .pilar:last-child :focus-visible { outline-color: var(--c-acento); }
+  nav.vistas :focus-visible { outline-color: var(--c-azul); }  /* la navegación va sobre una placa crema */
 
   #intro { position: fixed; inset: 0; z-index: 1000; background: var(--oda-azul); transition: opacity .6s ease; cursor: pointer; }
   #intro.oculto { display: none; }

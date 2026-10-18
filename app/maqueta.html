@@ -19,7 +19,7 @@
 <script>
   // La entrada se ve una vez por sesión del navegador y nunca con ?sin-intro (grabación, revisiones) ni con movimiento reducido
   (function () {
-    var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches || /[?&]movimiento=reducido(&|$)/.test(location.search);
     var sinIntro = /[?&]sin-intro(&|=|$)/.test(location.search), vista = false;
     try { vista = sessionStorage.getItem('ojo.intro') === '1'; } catch (e) { /* sin almacenamiento: se muestra */ }
     window.__ojoMostrarIntro = !reducir && !sinIntro && !vista;
