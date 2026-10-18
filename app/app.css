@@ -49,7 +49,7 @@
 
   /* Portada */
   .vista { display: none; }
-  body[data-vista="portada"] #portada, body[data-vista="explorar"] #explorar { display: block; }
+  body[data-vista="portada"] #portada, body[data-vista="explorar"] #explorar, body[data-vista="decidir"] #decidir { display: block; }
   .titulo { padding: 24px clamp(20px, 4vw, 56px) 24px; border-bottom: 6px solid var(--c-rojo); display: grid;
     grid-template-columns: 1fr auto; align-items: end; gap: 24px; }
   .ante { font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--oda-gris-texto); }
@@ -403,6 +403,47 @@
     body[data-barra-variante="chips"].barra-oculta .tira-filtros { display: flex; }
   }
   .cancha-svg .capa-saliente { pointer-events: none; }
+
+  /* ===== Decidir: matriz de situaciones, ficha de 10 segundos, balón parado y uso de jugadores ===== */
+  .decidir { padding: 8px clamp(20px, 4vw, 56px) 64px; display: grid; gap: 12px; max-width: 1480px; }
+  .decidir-tit h1 { max-width: 30ch; }
+  .enlace-pilar { justify-self: start; background: none; border: 0; padding: 4px 0; color: var(--c-acento); font-weight: 800;
+    text-decoration: underline; text-underline-offset: 3px; }
+  .matriz { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .situacion { background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--borde); padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+  .situacion header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .situacion h3 { margin: 0; font-size: 16px; font-weight: 900; text-transform: uppercase; }
+  .situacion p { margin: 0; font-size: 14px; }
+  .situacion .rec { background: var(--c-azul); color: #fff; border-radius: 8px; padding: 8px 10px; font-weight: 600; }
+  .situacion .rec b { color: var(--c-acento); display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+  .situacion .evid { font-size: 12.5px; color: var(--oda-gris-texto); font-variant-numeric: tabular-nums; }
+  .nivel { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; border-radius: 6px; padding: 3px 8px; white-space: nowrap; }
+  .nivel.domina { background: var(--c-acento); color: var(--c-azul); }
+  .nivel.parejo { background: var(--oda-gris-fondo); color: var(--c-azul); box-shadow: inset 0 0 0 1.5px var(--c-azul); }
+  .nivel.sufre { background: var(--c-azul); color: #fff; }
+  .ficha-cab { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+  .selector-rival { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .selector-rival select { font: inherit; text-transform: none; letter-spacing: 0; font-weight: 600; min-height: 40px; padding: 4px 10px;
+    border-radius: 8px; border: 0; box-shadow: inset 0 0 0 1.5px var(--c-azul); background: #fff; color: var(--c-azul); }
+  .ficha { background: var(--c-azul); color: #fff; border-radius: 12px; padding: 18px 20px; display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .ficha h3 { grid-column: 1 / -1; margin: 0; font-size: 26px; font-weight: 900; text-transform: uppercase; color: var(--c-acento); }
+  .ficha .campo { display: grid; gap: 6px; align-content: start; }
+  .ficha .campo > span { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+  .ficha .chips-f { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ficha .chips-f i { font-style: normal; background: #fff; color: var(--c-azul); border-radius: 6px; padding: 4px 9px; font-size: 13px; font-weight: 700; }
+  .ficha p { margin: 0; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .tabla-comp { max-width: none; }
+  .tabla-comp td.si { font-weight: 800; }
+  .zonas { display: grid; gap: 10px; }
+  .zona-fila { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 8px; align-items: center; font-size: 13px; }
+  .zona-fila .barras { display: grid; gap: 3px; }
+  .zona-fila .b { height: 10px; border-radius: 3px; min-width: 2px; }
+  .zona-fila .b.j { background: var(--c-acento); box-shadow: inset 0 0 0 1px rgba(15,29,65,.3); }
+  .zona-fila .b.p { background: var(--c-azul); }
+  .zonas h4 { margin: 4px 0 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--oda-gris-texto); }
+  .zonas .ley { font-size: 12px; color: var(--oda-gris-texto); display: flex; gap: 12px; }
+  .zonas .ley i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
 
   /* Objetivos táctiles de al menos 44 px en el teléfono y con puntero grueso (V-M10) */
   @media (max-width: 900px), (pointer: coarse) {

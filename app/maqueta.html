@@ -47,6 +47,7 @@
   <nav class="vistas" aria-label="Vistas">
     <button type="button" data-vista="portada" aria-current="page">Portada</button>
     <button type="button" data-vista="explorar">Explorar</button>
+    <button type="button" data-vista="decidir">Decidir</button>
     <button type="button" class="solo-movil" data-cajon aria-expanded="false">Filtros · <span data-cuenta-filtros>0</span></button>
   </nav>
 </header>
@@ -91,7 +92,8 @@
   <section class="pilares">
     <div class="pilar"><span class="n">1</span><h3>Identidad</h3><p>Índice Proactivo–Reactivo y Voronoi: cómo juega, minuto a minuto, frente a cada rival.</p></div>
     <div class="pilar"><span class="n">2</span><h3>Evidencia</h3><p>Cada principio con su número, su intervalo y un partido que lo ilustra; se pondrá a prueba en el Clausura 2026.</p></div>
-    <div class="pilar"><span class="n">3</span><span class="en-construccion">En construcción</span><h3>Decisión</h3><p>Qué hacer en cada situación: matriz de situaciones, ficha de 10 segundos por rival y casos de decisión.</p></div>
+    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Qué hacer en cada situación: matriz de situaciones y ficha de 10 segundos por rival. Los casos de decisión están en construcción.</p>
+      <button type="button" class="enlace-pilar" data-vista="decidir">Ir a Decidir →</button></div>
   </section>
   <section class="cierre-p"><strong>Elige un rival y mira el mismo análisis</strong>
     <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button></section>
@@ -169,6 +171,40 @@
       <section class="bloque"><span class="ante chico">6 · Lo que sigue</span><h2>En construcción</h2><div class="pendientes" data-slot="pendientes"></div></section>
       <section class="bloque" data-slot="notas"></section>
     </div>
+  </div>
+</div>
+
+<!-- ===================== DECIDIR ===================== -->
+<div class="vista" id="decidir">
+  <section class="titulo decidir-tit">
+    <div><span class="ante">Del dato a la decisión · para el cuerpo técnico</span>
+      <h1>Qué hace Jardine en cada situación y qué le funciona</h1>
+      <p class="pie" data-slot="base-decidir"></p></div>
+  </section>
+  <div class="decidir">
+    <section class="bloque"><span class="ante chico">1 · Matriz de situaciones</span>
+      <h2>Una tarjeta por situación: qué hace, si le funciona y qué conviene (hipótesis)</h2>
+      <p class="nota">▲ le funciona (el intervalo del xG neto queda arriba de 0) · ● parejo · ▼ sufre. Las recomendaciones salen de reglas fijas sobre estos números (framework.md) y son hipótesis, no órdenes.</p>
+      <div class="matriz" data-slot="matriz"></div></section>
+
+    <section class="bloque" id="ficha"><span class="ante chico">2 · Ficha de 10 segundos</span>
+      <div class="ficha-cab"><h2>Elige un rival</h2>
+        <label class="selector-rival">Rival <select id="rival-ficha" aria-label="Rival de la ficha"></select></label></div>
+      <article class="ficha" data-slot="ficha" aria-live="polite"></article>
+      <p class="nota">Estilo de cada rival frente a la liga en los torneos de Jardine (AP23–AP25), con Team Match Stats. Un rasgo aparece si se separa al menos media desviación estándar del promedio. "Quién participa poco" no está disponible: solo hay eventos de los partidos del América.</p></section>
+
+    <section class="bloque"><span class="ante chico">3 · Balón parado</span>
+      <h2>A favor y en contra, frente a Solari y Ortiz</h2>
+      <div class="dos-col"><div class="tabla-scroll"><table class="tabla-comp" data-slot="bp-resumen"></table></div>
+        <div><h3 class="sub-h">xG de balón parado por partido, por zona de remate</h3><div class="zonas" data-slot="bp-zonas"></div></div></div></section>
+
+    <section class="bloque"><span class="ante chico">4 · Uso de jugadores</span>
+      <h2>Cuántos cambios, cuándo y de qué línea</h2>
+      <div class="tabla-scroll"><table class="tabla-comp" data-slot="uso-resumen"></table></div></section>
+
+    <section class="bloque"><span class="ante chico">5 · Casos de decisión</span>
+      <h2>En construcción</h2>
+      <p class="pie">Tres partidos del Clausura 2026, que el análisis no vio: qué marcaba la herramienta antes del partido o en el descanso frente a lo que decidió el cuerpo técnico, sin decir que habría cambiado algo.</p></section>
   </div>
 </div>
 </main>

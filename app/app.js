@@ -337,6 +337,56 @@
     texto('lectura', X.lectura); texto('metodo', X.metodo);
     html('pendientes', X.pendientes.map(function (p) { return '<article class="pendiente"><span class="estado">En construcción · ' + esc(p.requisito) + '</span><h3>' + esc(p.titulo) + '</h3><p>' + esc(p.texto) + '</p></article>'; }).join(''));
     html('notas', X.notas.map(function (n) { return '<p class="nota">' + esc(n) + '</p>'; }).join(''));
+    if (D.decidir) renderDecidir(D.decidir);
+  }
+
+  // ---------- Decidir: matriz de situaciones, ficha de 10 segundos, balón parado y uso de jugadores ----------
+  var NIVELES = { domina: ['▲', 'Le funciona'], parejo: ['●', 'Parejo'], sufre: ['▼', 'Sufre'] };
+  function num(v, dec) { return v == null ? '—' : Number(v).toFixed(dec == null ? 2 : dec); }
+  function tablaComp(filas, primera) {
+    return '<thead><tr><th>' + esc(primera) + '</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>¿Distinto? (criterio v2)</th></tr></thead><tbody>' +
+      filas.map(function (f) {
+        return '<tr><th>' + esc(f.etq) + '</th><td>' + num(f.jardine) + '</td><td>' + num(f.previos) + '</td><td class="' + (f.pasa ? 'si' : '') + '">' +
+          (f.pasa ? 'Sí (q = ' + num(f.q, 3) + ')' : 'No') + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+  function renderFicha(f) {
+    function chips(lista) { return '<div class="chips-f">' + lista.map(function (c) { return '<i>' + esc(c) + '</i>'; }).join('') + '</div>'; }
+    html('ficha', '<h3>' + esc(f.rival) + '</h3>' +
+      '<div class="campo"><span>Cómo progresa</span>' + chips(f.progresa) + '</div>' +
+      '<div class="campo"><span>Cómo defiende</span>' + chips(f.defiende) + '</div>' +
+      '<div class="campo"><span>Dónde concede</span>' + chips(f.concede) + '</div>' +
+      '<div class="campo"><span>Balón parado</span>' + (f.balon_parado_rasgos.length ? chips(f.balon_parado_rasgos) : '') + '<p>' + esc(f.balon_parado) + '</p></div>' +
+      '<div class="campo"><span>' + esc(D.nuevo) + ' contra él</span><p>' + esc(f.jardine) + '</p></div>' +
+      '<div class="campo"><span>Contra rivales parecidos</span><p>' + esc(f.parecidos.join(', ')) + '</p><p>' + esc(f.jardine_parecidos) + '</p></div>');
+  }
+  function renderDecidir(X) {
+    if (X.base) texto('base-decidir', 'Su partido normal: índice ' + X.base.indice + ', PPDA ' + num(X.base.ppda, 1) + ' y xG neto ' +
+      (X.base.xg_dif_90 >= 0 ? '+' : '') + num(X.base.xg_dif_90) + ' por 90 minutos (AP23–AP25, sin el torneo de prueba).');
+    html('matriz', X.matriz.map(function (m) {
+      var n = NIVELES[m.nivel] || NIVELES.parejo;
+      return '<article class="situacion"><header><h3>' + esc(m.situacion) + '</h3><span class="nivel ' + m.nivel + '">' + n[0] + ' ' + n[1] + '</span></header>' +
+        '<p><strong>Qué hace.</strong> ' + esc(m.hace) + '</p><p><strong>Resultado.</strong> ' + esc(m.funciona) + '</p>' +
+        '<p class="rec"><b>Recomendación (hipótesis)</b>' + esc(m.recomendacion) + '</p><p class="evid">' + esc(m.evidencia) + '</p></article>';
+    }).join(''));
+    var sel = document.getElementById('rival-ficha');
+    sel.innerHTML = X.fichas.map(function (f, k) { return '<option value="' + k + '">' + esc(f.rival) + ' (' + f.partidos + ' partidos)</option>'; }).join('');
+    var inicial = X.fichas.map(function (f) { return f.rival; }).indexOf(D.rival);
+    sel.value = String(inicial >= 0 ? inicial : 0);
+    if (X.fichas.length) renderFicha(X.fichas[+sel.value]);
+    sel.addEventListener('change', function () { renderFicha(X.fichas[+sel.value]); });
+    if (X.balon_parado) {
+      html('bp-resumen', tablaComp(X.balon_parado.resumen, 'Por partido'));
+      var maximo = Math.max.apply(null, X.balon_parado.zonas.map(function (z) { return Math.max(z.jardine || 0, z.previos || 0); })) || 1;
+      html('bp-zonas', '<p class="ley"><span><i style="background:var(--c-acento)"></i>' + esc(D.nuevo) + '</span><span><i style="background:var(--c-azul)"></i>Solari y Ortiz</span></p>' +
+        ['favor', 'contra'].map(function (lado) {
+          return '<h4>' + (lado === 'favor' ? 'Remata el América' : 'Le rematan') + '</h4>' + X.balon_parado.zonas.filter(function (z) { return z.lado === lado; }).map(function (z) {
+            return '<div class="zona-fila"><span>' + esc(z.zona) + '</span><div class="barras" role="img" aria-label="' + esc(z.zona) + ': ' + esc(D.nuevo) + ' ' + num(z.jardine) + ', Solari y Ortiz ' + num(z.previos) + ' xG por partido">' +
+              '<span class="b j" style="width:' + (100 * (z.jardine || 0) / maximo).toFixed(1) + '%"></span><span class="b p" style="width:' + (100 * (z.previos || 0) / maximo).toFixed(1) + '%"></span></div></div>';
+          }).join('');
+        }).join(''));
+    }
+    if (X.jugadores) html('uso-resumen', tablaComp(X.jugadores.resumen, 'Por partido'));
   }
 
   // ---------- reproductor: minuto a minuto (fundido) y jugadas animadas (Voronoi en movimiento) ----------
@@ -659,7 +709,7 @@
     var oculta = false;
     try { oculta = localStorage.getItem('ojo.barraOculta') === '1'; } catch (e) { /* sin almacenamiento */ }
     ocultarBarra(oculta);
-    mostrar(location.hash === '#explorar' ? 'explorar' : 'portada');
+    mostrar(['#explorar', '#decidir'].indexOf(location.hash) >= 0 ? location.hash.slice(1) : 'portada');
   }
 
   if (window.OjoMarca) OjoMarca.loop(document.getElementById('loop-icono'), { estatico: reducido() });
