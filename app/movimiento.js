@@ -42,7 +42,8 @@
     dibujar();
     var a = vieja.animate([{ opacity: 1 }, { opacity: 0 }], { duration: d, easing: 'linear', fill: 'forwards' });
     alTerminar(a, d, function () { vieja.remove(); });
-    capa.animate([{ opacity: 0 }, { opacity: 1 }], { duration: d, easing: 'linear' });
+    var b = capa.animate([{ opacity: 0 }, { opacity: 1 }], { duration: d, easing: 'linear' });
+    alTerminar(b, d, function () { b.cancel(); });  // respaldo: la capa nueva nunca se queda transparente
   }
 
   // Secciones <details> que se abren y cierran con altura animada (barra lateral)
@@ -112,6 +113,7 @@
       requestAnimationFrame(paso);
     }
     requestAnimationFrame(paso);
+    setTimeout(function () { c.remove(); }, total + 60);  // respaldo: sin cuadros (pestaña oculta) el anillo no se queda
   }
 
   // A7 · conteo de un número exacto ("57", "-1.5 yd", "+32 pts"); un intervalo o un texto se queda tal cual
@@ -119,14 +121,16 @@
     var final = el.textContent, m = /^([+\-−]?)(\d+(?:[.,]\d+)?)(\s*\D*)$/.exec(final.trim()), d = dur('lenta');
     if (!m || !d) return;
     var valor = parseFloat(m[2].replace(',', '.')), dec = (m[2].split(/[.,]/)[1] || '').length, sep = m[2].indexOf(',') >= 0 ? ',' : '.';
-    var t0 = null;
+    var t0 = null, listo = false;
     function paso(t) {
+      if (listo) return;
       if (t0 == null) t0 = t;
       var p = Math.min(1, (t - t0) / d);
       el.textContent = p >= 1 ? final : m[1] + (valor * suave(p)).toFixed(dec).replace('.', sep) + m[3];
       if (p < 1) requestAnimationFrame(paso);
     }
     requestAnimationFrame(paso);
+    setTimeout(function () { listo = true; el.textContent = final; }, d + 60);  // respaldo: el valor exacto queda siempre
   }
 
   // A6 · elementos que crecen desde 0 hasta su ancho, en orden (escalón en ms entre cada uno)
@@ -135,7 +139,8 @@
     if (!d) return;
     Array.prototype.forEach.call(els, function (el, k) {
       var ancho = el.style.width || getComputedStyle(el).width;
-      el.animate([{ width: '0%' }, { width: ancho }], { duration: d, delay: k * escalon, easing: EASE_SALIDA, fill: 'backwards' });
+      var a = el.animate([{ width: '0%' }, { width: ancho }], { duration: d, delay: k * escalon, easing: EASE_SALIDA, fill: 'backwards' });
+      alTerminar(a, d + k * escalon, function () { a.cancel(); });  // respaldo: la barra nunca se queda vacía
     });
   }
 
@@ -155,6 +160,11 @@
       poly.__raf = p < 1 ? requestAnimationFrame(paso) : null;
     }
     poly.__raf = requestAnimationFrame(paso);
+    clearTimeout(poly.__respaldo);
+    poly.__respaldo = setTimeout(function () {  // respaldo: sin cuadros, el polígono llega igual a su destino
+      if (poly.__raf) cancelAnimationFrame(poly.__raf);
+      poly.__raf = null; poly.__actual = destino; poly.setAttribute('points', texto(destino));
+    }, d + 60);
   }
 
   // Barra lateral: tres variantes (Propuestas visuales 3a, 3b y 3c). Solo cambia clases; app.js cuida foco, inert y aria.
@@ -200,7 +210,9 @@
     alTerminar(salida, r, function () {
       fn(); salida.cancel();
       var nueva = visible();
-      if (nueva) nueva.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: m, easing: EASE_SALIDA });
+      if (!nueva) return;
+      var entrada = nueva.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: m, easing: EASE_SALIDA });
+      alTerminar(entrada, m, function () { entrada.cancel(); });
     });
   }
 
