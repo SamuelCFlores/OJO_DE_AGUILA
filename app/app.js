@@ -8,7 +8,9 @@
   var NS = 'http://www.w3.org/2000/svg';
   var BANDAS = [40, 60];  // igual que indice.bandas en config/params.yaml: bajo 40 reactivo, sobre 60 proactivo
   var cuerpo = document.body;
-  function reducido() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  var MOV = window.OjoMov || null;  // biblioteca de movimiento (movimiento.js); sin ella todo funciona sin animar
+  function reducido() { return MOV ? MOV.reducido() : window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  function movil() { return window.matchMedia('(max-width: 900px)').matches; }
 
   // ---------- utilidades ----------
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -247,10 +249,14 @@
       '<div class="pie-barra"><p class="muestra">' + esc(b.muestra) + '</p>' +
       '<button type="button" class="btn-borde" disabled title="Llega con resumenes.json">Ficha de 10 segundos · pronto</button></div>');
   }
-  function montarBarra() { renderBarra(D.barra); actualizarResumenes(); }  // también "Restablecer": vuelve al estado inicial sin recargar
+  function montarBarra() {  // también "Restablecer": vuelve al estado inicial sin recargar
+    renderBarra(D.barra);
+    if (MOV) document.querySelectorAll('details.seccion').forEach(MOV.plegable);
+    actualizarResumenes();
+  }
   function activos(sel, raiz) { return Array.prototype.map.call((raiz || document).querySelectorAll(sel), function (b) { return b.textContent; }); }
   function actualizarResumenes() {
-    var total = 0;
+    var total = 0, chips = [];
     document.querySelectorAll('details.seccion').forEach(function (d) {
       var id = d.dataset.seccion, txt = '', n = 0;
       if (id === 'rival') txt = document.getElementById('rival-nombre').textContent;
@@ -259,8 +265,11 @@
       else { var a = activos('[data-toggle][aria-pressed="true"]', d); n = a.length; txt = a.length ? a.join(', ') : (id === 'mas' ? 'entrenador, fase, balón parado' : 'Todos'); }
       total += n;
       d.querySelector('.resumen-sec').textContent = txt;
+      if (id === 'rival' || n) chips.push(txt);
     });
     document.querySelectorAll('[data-cuenta-filtros]').forEach(function (c) { c.textContent = total; });
+    // Variante chips (3c): con la barra oculta, los filtros activos quedan arriba del contenido
+    document.querySelector('.tira-filtros .chips-tira').innerHTML = chips.map(function (c) { return '<span class="chip-tira">' + esc(c) + '</span>'; }).join('');
   }
   function conectarBarra() {
     var aside = document.querySelector('aside.barra');
@@ -271,7 +280,7 @@
       else if (b.classList.contains('partido-btn')) document.querySelectorAll('.partido-btn').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
       else if (b.classList.contains('rival-btn')) cambiarRival(b);
       else if (b.classList.contains('ver-todos')) { var l = aside.querySelector('.lista-rivales'); l.classList.toggle('todos'); b.textContent = l.classList.contains('todos') ? 'Ver menos' : 'Ver todos (' + l.children.length + ')'; }
-      else if (b.hasAttribute('data-ocultar')) ocultarBarra(!cuerpo.classList.contains('barra-oculta'));
+      else if (b.hasAttribute('data-ocultar')) ocultarBarra(!cuerpo.classList.contains('barra-oculta'), true);
       else if (b.hasAttribute('data-volver')) { montarBarra(); var v = aside.querySelector('[data-volver]'); if (v) v.focus(); return; }
       actualizarResumenes();
     });
@@ -285,10 +294,21 @@
     b.firstElementChild.textContent = antes[0]; b.lastElementChild.textContent = antes[1];
     cerrarCajon();
   }
-  function ocultarBarra(oculta) {
-    cuerpo.classList.toggle('barra-oculta', oculta);
-    document.querySelectorAll('[data-ocultar][aria-expanded]').forEach(function (b) { b.setAttribute('aria-expanded', String(!oculta)); });
+  // Mostrar u ocultar la barra en escritorio (variantes en movimiento.js). Lo oculto queda inerte y el foco pasa al botón visible.
+  function ocultarBarra(oculta, porUsuario) {
+    var variante = cuerpo.getAttribute('data-barra-variante') || 'sobre';
+    if (MOV && porUsuario) MOV.barra(oculta, variante); else cuerpo.classList.toggle('barra-oculta', oculta);  // al cargar, sin animar
+    var contenido = document.querySelector('aside.barra .barra-contenido'), riel = document.querySelector('aside.barra .riel');
+    contenido.inert = oculta && !movil();
+    riel.inert = !oculta || variante === 'chips';
+    document.querySelectorAll('[data-ocultar]').forEach(function (b) { b.setAttribute('aria-expanded', String(!oculta)); });
     try { localStorage.setItem('ojo.barraOculta', oculta ? '1' : '0'); } catch (e) { /* sin almacenamiento: solo en esta visita */ }
+    if (!porUsuario) return;
+    var destino = !oculta ? contenido.querySelector('[data-ocultar]')
+      : (variante === 'chips' ? document.querySelector('.tira-filtros [data-ocultar]') : riel.querySelector('[data-ocultar]'));
+    // en la variante riel el botón del riel aparece cuando termina de apagarse el contenido
+    var espera = oculta && variante === 'riel' && MOV ? MOV.dur('rapida') + 20 : 0;
+    if (destino) setTimeout(function () { destino.focus({ preventScroll: true }); }, espera);
   }
 
   // ---------- render general ----------
@@ -523,7 +543,10 @@
     document.getElementById('sin-datos').hidden = false;
     document.querySelectorAll('.vista').forEach(function (v) { v.remove(); });
   } else {
+    var variante = (/[?&]barra=(sobre|riel|chips)(&|$)/.exec(location.search) || [])[1];  // para probar las variantes 3a–3c
+    if (variante) cuerpo.setAttribute('data-barra-variante', variante);
     render(); montarBarra(); conectarBarra(); reproductor();
+    document.querySelector('[data-slot="tira"]').addEventListener('click', function (e) { if (e.target.closest('[data-ocultar]')) ocultarBarra(false, true); });
     var oculta = false;
     try { oculta = localStorage.getItem('ojo.barraOculta') === '1'; } catch (e) { /* sin almacenamiento */ }
     ocultarBarra(oculta);

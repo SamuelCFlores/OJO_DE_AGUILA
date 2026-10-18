@@ -208,7 +208,7 @@
     .pilar:not(:last-child) { border-right: 0; border-bottom: 2px solid var(--c-azul); }
     .explorar { grid-template-columns: minmax(0, 1fr); }
     aside.barra { position: fixed; top: 0; left: 0; bottom: 0; height: 100vh; width: min(320px, 88vw); z-index: 30;
-      transform: translateX(-105%); transition: transform .25s ease; }
+      transform: translateX(-105%); transition: transform var(--dur-media) var(--ease-mov); }
     body.cajon aside.barra { transform: none; }
     body.cajon .velo { display: block; position: fixed; inset: 0; z-index: 25; background: rgba(15,29,65,.45); }
     .panel { grid-template-columns: minmax(0, 1fr); }
@@ -268,7 +268,7 @@
   #linea { display: block; width: 100%; height: auto; cursor: pointer; }
   .momento .indicador { display: grid; gap: 4px; }
   .momento .pista { position: relative; height: 14px; border-radius: 999px; background: linear-gradient(90deg, rgba(15,29,65,.12), rgba(15,29,65,.04) 50%, rgba(15,29,65,.12)); }
-  .momento .pista span { position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%; transform: translate(-50%, -50%); transition: left .25s ease; }
+  .momento .pista span { position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%; transform: translate(-50%, -50%); transition: left var(--dur-media) var(--ease-mov); }
   .marca-a { background: var(--c-acento); box-shadow: 0 0 0 3px var(--c-azul); z-index: 2; }
   .marca-r { background: #fff; box-shadow: 0 0 0 3px var(--c-azul); }
   .extremos { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--oda-gris-texto); }
@@ -301,8 +301,7 @@
   @media (max-width: 900px) { .cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); } .lectura-panel { grid-template-columns: minmax(0, 1fr); } }
 
   /* ===== Barra lateral v3 (14 oct): compacta, con secciones plegables y ocultable ===== */
-  .explorar { transition: grid-template-columns .25s ease; }
-  body.barra-oculta .explorar { grid-template-columns: 56px minmax(0, 1fr); }
+  @media (min-width: 901px) { body.barra-oculta .explorar { grid-template-columns: 56px minmax(0, 1fr); } }
   .barra-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
   .barra-cab .titulo-barra { font-size: 13px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; color: var(--c-acento); }
   .barra-cab .acciones-cab { display: flex; align-items: center; gap: 10px; }
@@ -310,9 +309,11 @@
     box-shadow: inset 0 0 0 1.5px var(--anillo); font-size: 16px; font-weight: 900; line-height: 1; }
   .btn-ocultar:hover { box-shadow: inset 0 0 0 1.5px var(--c-acento); color: var(--c-acento); }
   .riel { display: none; }
-  body.barra-oculta aside.barra { padding: 14px 8px; overflow: hidden; }
-  body.barra-oculta aside.barra .barra-contenido { display: none; }
-  body.barra-oculta aside.barra .riel { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  @media (min-width: 901px) {
+    body.barra-oculta aside.barra { padding: 14px 8px; overflow: hidden; }
+    body.barra-oculta aside.barra .barra-contenido { display: none; }
+    body.barra-oculta aside.barra .riel { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  }
   .riel .vertical { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 12px; font-weight: 800; letter-spacing: .14em;
     text-transform: uppercase; color: var(--c-acento); }
   .riel .cuenta { min-width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center; background: var(--c-acento);
@@ -322,8 +323,8 @@
   details.seccion > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
     gap: 8px; padding: 10px 0; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--c-acento); }
   details.seccion > summary::-webkit-details-marker { display: none; }
-  details.seccion > summary::after { content: "▾"; font-size: 12px; color: rgba(255,255,255,.7); transition: transform .2s ease; }
-  details.seccion:not([open]) > summary::after { transform: rotate(-90deg); }
+  details.seccion > summary::after { content: "▾"; font-size: 12px; color: rgba(255,255,255,.7); transition: transform var(--dur-media) var(--ease-mov); }
+  details.seccion:not([open]) > summary::after, details.seccion.cerrando > summary::after { transform: rotate(-90deg); }
   details.seccion > summary .resumen-sec { margin-left: auto; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: none; color: rgba(255,255,255,.75); }
   details.seccion > .cuerpo-sec { display: grid; gap: 10px; padding-bottom: 12px; }
   details.seccion.secundaria > summary { color: rgba(255,255,255,.85); }
@@ -336,7 +337,7 @@
     body.barra-oculta .explorar { grid-template-columns: minmax(0, 1fr); }
     .btn-ocultar { display: none; }
   }
-  @media (prefers-reduced-motion: reduce) { .explorar, details.seccion > summary::after { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { details.seccion > summary::after { transition: none; } }
 
   /* Aviso cuando falta outputs/app/datos.js */
   .sin-datos { max-width: 720px; margin: 48px auto; padding: 24px; border-radius: 12px; background: #fff;
@@ -344,8 +345,42 @@
   .sin-datos h2 { margin: 0; }
   .sin-datos code { background: var(--oda-gris-fondo); padding: 2px 6px; border-radius: 4px; }
 
-  /* Animación del Voronoi (jugadas) y fundido entre minutos */
-  .cancha-svg .capa { transition: opacity .35s ease; }
+  /* Animación del Voronoi (jugadas); el fundido entre minutos lo hace OjoMov.cruce (movimiento.js) */
   .nombre-actor { font: 700 2.4px var(--oda-fuente); fill: #fff; paint-order: stroke; stroke: var(--c-azul); stroke-width: .6px; }
   .modos { flex-wrap: wrap; }
-  @media (prefers-reduced-motion: reduce) { .cancha-svg .capa { transition: none; } }
+
+  /* ===== Movimiento (auditoría visual del 16 oct; Propuestas visuales 1g y 3a–3c). Lo usa app/movimiento.js ===== */
+  :root { --dur-rapida: 150ms; --dur-media: 280ms; --dur-lenta: 600ms;   /* insignias y foco · radar, quiebre, minuto · KPI, Monte Carlo */
+    --ease-salida: cubic-bezier(.2,.7,.2,1); --ease-mov: cubic-bezier(.45,0,.2,1); --ease-lineal: linear; }  /* lineal: solo entre fotos 360 */
+  @media (prefers-reduced-motion: reduce) { :root { --dur-rapida: 0ms; --dur-media: 0ms; --dur-lenta: 0ms; } }
+  html[data-movimiento="reducido"] { --dur-rapida: 0ms; --dur-media: 0ms; --dur-lenta: 0ms; }  /* ?movimiento=reducido */
+
+  /* Barra lateral: variante en body[data-barra-variante] (sobre, riel o chips). En el teléfono, las tres son el cajón. */
+  .tira-filtros { display: none; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tira-filtros .chips-tira { display: contents; }
+  .tira-filtros .btn-tira { border: 0; border-radius: 6px; min-height: 32px; padding: 0 12px; background: var(--c-azul); color: var(--c-acento);
+    font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .tira-filtros .chip-tira { background: var(--c-azul); color: #fff; border-radius: 6px; padding: 5px 10px; font-size: 12.5px; font-weight: 600; }
+  @media (min-width: 901px) {
+    /* 3a · riel: el contenido se apaga (rápida) y después la columna encoge (media); al abrir, al revés */
+    body[data-barra-variante="riel"] .explorar { transition: grid-template-columns var(--dur-media) var(--ease-mov); }
+    body[data-barra-variante="riel"] aside.barra .barra-contenido { transition: opacity var(--dur-rapida) ease; }
+    body.barra-apagando aside.barra .barra-contenido { opacity: 0; }
+    /* 3b · sobre (recomendada): la barra se desliza encima; el contenido nunca cambia de ancho */
+    body[data-barra-variante="sobre"] .explorar { grid-template-columns: 56px minmax(0, 1fr); }
+    body[data-barra-variante="sobre"] aside.barra { width: 300px; z-index: 20; box-shadow: 10px 0 28px rgba(15,29,65,.3);
+      transition: transform var(--dur-media) var(--ease-mov), box-shadow var(--dur-media) ease; }
+    body[data-barra-variante="sobre"] aside.barra .barra-contenido { transition: opacity var(--dur-rapida) ease; }
+    body[data-barra-variante="sobre"].barra-oculta aside.barra { transform: translateX(calc(-100% + 56px)); box-shadow: none; padding: 20px 18px 32px; }
+    body[data-barra-variante="sobre"].barra-oculta aside.barra .barra-contenido { display: block; opacity: 0; visibility: hidden;
+      transition: opacity var(--dur-rapida) ease, visibility 0s linear var(--dur-rapida); }
+    body[data-barra-variante="sobre"].barra-oculta aside.barra .riel { position: absolute; top: 14px; right: 0; width: 56px; }
+    /* 3c · chips: la barra se va por completo y los filtros activos quedan como chips arriba del contenido */
+    body[data-barra-variante="chips"] .explorar { transition: grid-template-columns var(--dur-media) var(--ease-mov); }
+    body[data-barra-variante="chips"] aside.barra .barra-contenido { transition: opacity var(--dur-rapida) ease; }
+    body[data-barra-variante="chips"].barra-oculta .explorar { grid-template-columns: 0px minmax(0, 1fr); }
+    body[data-barra-variante="chips"].barra-oculta aside.barra { padding-inline: 0; border-top-width: 0; }
+    body[data-barra-variante="chips"].barra-oculta aside.barra .riel { display: none; }
+    body[data-barra-variante="chips"].barra-oculta .tira-filtros { display: flex; }
+  }
+  .cancha-svg .capa-saliente { pointer-events: none; }

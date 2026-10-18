@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
-<body data-vista="portada">
+<body data-vista="portada" data-barra-variante="sobre"><!-- variante de la barra: sobre (3b), riel (3a) o chips (3c); también ?barra=riel -->
 <div id="intro" role="img" aria-label="Animación de entrada de Ojo de Águila"><div id="intro-lienzo"></div>
   <button id="intro-saltar" type="button">Saltar ›</button></div>
 <script>
@@ -101,7 +101,7 @@
 <div class="vista" id="explorar">
   <div class="explorar">
     <aside class="barra" aria-label="Filtros">
-      <div class="riel"><button type="button" class="btn-ocultar" data-ocultar aria-label="Mostrar filtros">›</button>
+      <div class="riel"><button type="button" class="btn-ocultar" data-ocultar aria-label="Mostrar filtros" aria-expanded="false">›</button>
         <span class="cuenta" data-cuenta-filtros>0</span><span class="vertical">Filtros</span></div>
       <div class="barra-contenido" data-slot="barra"></div>
     </aside>
@@ -110,6 +110,8 @@
     <div class="contenido">
       <span class="ante chico" data-slot="antetitulo"></span>
       <h1 data-slot="titulo-explorar"></h1>
+      <div class="tira-filtros" data-slot="tira" role="group" aria-label="Filtros activos">
+        <button type="button" class="btn-tira" data-ocultar aria-expanded="true">Filtros · <span data-cuenta-filtros>0</span></button><span class="chips-tira"></span></div>
       <div class="filtros" data-slot="filtros"></div>
       <p class="maqueta">Maqueta con datos reales: los filtros todavía no recalculan; el índice es provisional y los principios son candidatos (criterio v1, falta la versión 2 y la prueba placebo).</p>
 
@@ -172,6 +174,7 @@
 <script src="../branding/dist/vendor/react-dom.production.min.js"></script>
 <script src="../branding/dist/marca.js"></script>
 <script src="../outputs/app/datos.js"></script>
+<script src="movimiento.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
