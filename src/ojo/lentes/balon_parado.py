@@ -18,9 +18,9 @@ from ojo.framework import contexto, juego
 TIPOS = {"From Corner": "Córner", "From Free Kick": "Tiro libre", "From Throw In": "Lateral"}
 ZONAS = ["Área chica", "Área: centro", "Área: costados", "Fuera del área"]
 GOL = "Goal"
-NOMBRES = {"envios_favor": "Envíos a favor", "xg_favor": "xG a favor", "xg_por_envio_favor": "xG por envío a favor",
+NOMBRES = {"envios_favor": "Envíos a favor", "xg_favor": "xG a favor", "xg_por_envio_favor": "Peligro por envío a favor (xG)",
            "goles_favor": "Goles a favor", "envios_contra": "Envíos en contra", "xg_contra": "xG en contra",
-           "xg_por_envio_contra": "xG por envío en contra", "goles_contra": "Goles en contra"}
+           "xg_por_envio_contra": "Peligro por envío en contra (xG)", "goles_contra": "Goles en contra"}
 
 
 def envios(eventos: pd.DataFrame) -> pd.DataFrame:

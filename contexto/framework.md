@@ -245,7 +245,7 @@ validacion:
   min_partidos_prueba: 3
 relevos: {min_partidos: 5, ventana_partidos: 10}
 
-campo: {largo: 120, ancho: 80, porteria: [120, 40], area_min_x: 102, area_y: [18, 62], area_chica_min_x: 114, area_chica_y: [30, 50]}
+campo: {largo: 120, ancho: 80, porteria: [120, 40], area_min_x: 102, area_y: [18, 62], area_chica_min_x: 114, area_chica_y: [30, 50], yarda_m: 0.9144}
 tercios: {defensivo_max_x: 40, final_min_x: 80}
 presion: {campo_rival_min_x: 60, ultimo_tercio_min_x: 80, ppda_zona_max_x: 72}   # 72 = 60 % de la cancha desde la portería del rival
 transicion: {fuente: "is_transition", plan_b_segundos: 10}

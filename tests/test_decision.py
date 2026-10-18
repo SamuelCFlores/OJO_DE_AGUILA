@@ -25,7 +25,7 @@ def test_replegado_y_parejo_pide_no_regalar_la_iniciativa() -> None:
 
 def test_domina_con_presion_y_muestra_chica() -> None:
     f = decision.fila_matriz(_fila(indice=65, ppda=13.0, xg_dif_bajo=.7, xg_dif_alto=2.5, xg_dif_90=1.5, minutos=76), BASE, cfg=CFG)
-    assert f["nivel"] == decision.DOMINA and "presiona más" in f["hace"] and "más proactivo" in f["hace"]
+    assert f["nivel"] == decision.DOMINA and "presiona más" in f["hace"] and "más iniciativa" in f["hace"]
     assert f["recomendacion"].startswith("Sostener el plan") and f["muestra_chica"]
 
 
@@ -33,7 +33,8 @@ def test_registro_de_resultados() -> None:
     t = pd.DataFrame({"goles_favor": [2, 1, 0], "goles_contra": [0, 1, 1], "xg_neto": [1.0, 0.2, -0.3]})
     r = decision.registro(t)
     assert (r["g"], r["e"], r["p"]) == (1, 1, 1) and abs(r["puntos"] - 4 / 3) < 1e-9
-    assert decision.texto_registro(r).startswith("3 partidos: 1G 1E 1P")
+    assert decision.texto_registro(r).startswith("3 partidos: 1 ganado, 1 empate, 1 perdido")
+    assert decision.texto_riesgo(.004) == "menos de 1 %" and decision.texto_riesgo(.064) == "6 %"
 
 
 def test_con_uno_menos_replegarse_es_lo_esperado() -> None:

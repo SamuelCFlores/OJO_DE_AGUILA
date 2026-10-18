@@ -27,15 +27,16 @@ from ojo.framework import contexto
 from ojo.lentes import minuto
 
 EN_BALON = frozenset({"Pass", "Carry", "Shot"})  # acciones con balón de Phases of Play
+# Nombres para el jurado (contexto/terminologia.md, 18 oct): lenguaje de cancha, sin siglas.
 NOMBRES = {
-    "control": "Juego asentado", "posesion": "Posesión", "field_tilt": "Field tilt",
-    "control_campo_rival": "Espacio en campo rival", "altura_sin_balon": "Altura del bloque",
+    "control": "Ataque elaborado", "posesion": "Posesión", "field_tilt": "Dominio del último tercio",
+    "control_campo_rival": "Espacio en campo rival", "altura_sin_balon": "Altura sin balón",
     "presion_alta": "Presión alta", "directness": "Juego directo", "largo_pase": "Pase largo",
 }
-# Para el radar: todos los ejes se leen "hacia afuera = más proactivo" (los reactivos ya llevan signo −).
+# Para el radar: todos los ejes se leen "hacia afuera = más iniciativa" (los que restan ya llevan signo −).
 NOMBRES_RADAR = {
-    "control": "Asentado", "posesion": "Posesión", "field_tilt": "Field tilt", "control_campo_rival": "Espacio arriba",
-    "altura_sin_balon": "Bloque alto", "presion_alta": "Presión alta", "directness": "Elabora", "largo_pase": "Pase corto",
+    "control": "Elaborado", "posesion": "Posesión", "field_tilt": "Último tercio", "control_campo_rival": "Campo rival",
+    "altura_sin_balon": "Altura", "presion_alta": "Presión alta", "directness": "Circula", "largo_pase": "Pase corto",
 }
 CLAVES = ["match_id", "periodo", "minuto", "equipo_id"]
 

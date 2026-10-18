@@ -17,8 +17,8 @@ from ojo.config import params
 # clave: (columna de Team Match Stats, etiqueta si es alto, etiqueta si es bajo, grupo de la ficha)
 RASGOS = {
     "posesion": ("team_match_possession", "Tiene el balón", "Cede el balón", "progresa"),
-    "directness": ("team_match_avg_team_possession_directness", "Va directo al arco", "Elabora", "progresa"),
-    "transicion": ("team_match_transition_possession_rate", "Vive de la transición", "Ataca en posicional", "progresa"),
+    "directness": ("team_match_avg_team_possession_directness", "Va directo al arco", "Elabora sus ataques", "progresa"),
+    "transicion": ("team_match_transition_possession_rate", "Vive del contragolpe", "Ataca en posicional", "progresa"),
     "centros": ("team_match_box_cross_ratio", "Llega con centros", "Llega por dentro", "progresa"),
     "ppda": ("team_match_ppda", "Presiona poco", "Presiona alto", "defiende"),
     "distancia_def": ("team_match_defensive_distance", "Defiende arriba", "Defiende cerca de su área", "defiende"),

@@ -1,6 +1,7 @@
 /* Ojo de Águila · lógica de la app (app/maqueta.html). Se edita directo: Python no genera este archivo.
-   Lee window.OJO_DATOS (../outputs/app/datos.js, escrito por scripts/08_maqueta.py) y dibuja la portada,
-   la barra lateral (compacta, plegable y ocultable), el contenido de Explorar y el reproductor.
+   Lee window.OJO_DATOS (../outputs/app/datos.js, escrito por scripts/08_maqueta.py) y dibuja las cuatro vistas:
+   Resumen (portada), El partido (explorar, con la barra lateral y el reproductor), Plan de juego (decidir) y Método.
+   Los nombres para el jurado siguen contexto/terminologia.md; los ids internos (portada, explorar, decidir) no cambian.
    NOTA1: maqueta. Los controles de la barra cambian de estado pero todavía no recalculan la vista. */
 (function () {
   'use strict';
@@ -35,12 +36,12 @@
     '<path d="M4 52A50.3 50.3 0 0 1 24.1 29.2L95.4 50.6A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z" style="fill:var(--c-azul);stroke:var(--c-acento);stroke-width:6"/>' +
     '<g clip-path="url(#clip-almendra)"><circle cx="54" cy="54" r="24" style="fill:var(--c-acento)"/>' +
     '<path d="M49.3 47.5L58.7 47.5L61.6 56.5L54 62L46.4 56.5Z" style="fill:var(--c-azul);stroke:var(--c-azul);stroke-width:3"/></g></svg>';
-  var CANCHA = '<svg class="cancha-svg" viewBox="-3 -3 126 86" role="img" aria-label="Foto 360 con el Voronoi del momento">' +
+  var CANCHA = '<svg class="cancha-svg" viewBox="-3 -3 126 86" role="img" aria-label="Foto de posiciones (360) con el mapa de control del espacio">' +
     '<rect x="0" y="0" width="120" height="80" style="fill:url(#fuera)"/><g class="capa"></g>' +
     '<g class="lineas"><rect x="0" y="0" width="120" height="80"/><line x1="60" y1="0" x2="60" y2="80"/><circle cx="60" cy="40" r="10"/>' +
     '<rect x="0" y="18" width="18" height="44"/><rect x="102" y="18" width="18" height="44"/><rect x="0" y="30" width="6" height="20"/><rect x="114" y="30" width="6" height="20"/></g>' +
     '<rect class="borde-foto" x="-2" y="-2" width="124" height="84" rx="2"/>' +
-    '<text class="sin-foto" x="60" y="42" text-anchor="middle">Sin foto 360 en este minuto</text></svg>';
+    '<text class="sin-foto" x="60" y="42" text-anchor="middle">Sin foto de posiciones en este minuto</text></svg>';
 
   function crearCancha(contenedor) { contenedor.innerHTML = CANCHA; return contenedor.querySelector('svg'); }
   function ojo(x, y, padre) {
@@ -163,7 +164,7 @@
       '<div><dt>Solari y Ortiz</dt><dd>' + esc(p.previos) + '</dd></div>' +
       '<div><dt>Diferencia</dt><dd>' + esc(p.diferencia) + '<small>' + esc(p.intervalo) + '</small></dd></div>' +
       '<div><dt>Torneos en la misma dirección</dt><dd>' + esc(p.torneos) + '</dd></div></dl>';
-    var extra = grande ? '<p><strong>Qué significa.</strong> ' + esc(p.significa) + '</p><p><strong>Lectura para el cuerpo técnico (hipótesis).</strong> ' + esc(p.uso) + '</p>' : '';
+    var extra = grande ? '<p><strong>Qué significa.</strong> ' + esc(p.significa) + '</p><p><strong>Para el cuerpo técnico (hipótesis).</strong> ' + esc(p.uso) + '</p>' : '';
     return '<article class="tarjeta' + (grande ? ' grande' : '') + '"><header><h3>' + esc(p.titulo) + '</h3>' + caso + '</header>' +
       '<p class="frase">' + esc(p.frase) + '</p>' + cifras + extra + '<span class="estado">' + esc(p.estado) + '</span></article>';
   }
@@ -180,7 +181,7 @@
   function graficaTorneos(contenedor, filas) {
     var antes = filas.filter(function (f) { return !f.nuevo; }).map(function (f) { return f.entrenador; })
       .filter(function (n, k, a) { return a.indexOf(n) === k; }).join(' y ');
-    var etiqueta = 'Índice medio por torneo (0 reactivo, 100 proactivo). ' + filas.map(function (f) {
+    var etiqueta = 'Índice de iniciativa medio por torneo (0 espera, 100 propone). ' + filas.map(function (f) {
       return f.torneo + ' con ' + f.entrenador + ': ' + D.equipo + ' ' + Math.round(f.propio) + ', rivales ' + Math.round(f.rival); }).join('; ') + '.';
     var W = 560, H = 286, M = { i: 36, d: 10, a: 44, b: 46 }, svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': etiqueta });
     contenedor.innerHTML = ''; contenedor.appendChild(svg);
@@ -195,7 +196,7 @@
     });
     // Leyenda: quién es cada barra y qué es el punto (V-A6)
     var lx = M.i;
-    [['rect', 'fill:var(--c-acento)', D.nuevo], ['rect', 'fill:rgba(255,255,255,.45)', 'Antes (' + antes + ')'], ['circle', 'fill:#fff;stroke:var(--c-azul);stroke-width:2', 'Rivales']].forEach(function (c) {
+    [['rect', 'fill:var(--c-acento)', D.nuevo], ['rect', 'fill:rgba(255,255,255,.45)', 'Antes de ' + D.nuevo + ' (' + antes + ')'], ['circle', 'fill:#fff;stroke:var(--c-azul);stroke-width:2', 'Rivales']].forEach(function (c) {
       if (c[0] === 'rect') el('rect', { x: lx, y: 12, width: 12, height: 12, rx: 2, style: c[1] }, svg);
       else el('circle', { cx: lx + 6, cy: 18, r: 5, style: c[1] }, svg);
       var t = el('text', { x: lx + 18, y: 23, style: 'fill:#fff;' + fuente(600, 12) }, svg); t.textContent = c[2];
@@ -228,8 +229,8 @@
     var rival = '<div class="placa-rival"><span class="sel">Seleccionado</span><strong id="rival-nombre" style="font-size:' + tamanoNombre(b.rival.nombre) + 'px">' + esc(b.rival.nombre) + '</strong>' +
       '<span class="cinta-n" id="rival-n">' + b.rival.partidos + ' partidos</span></div><ul class="lista-rivales">' + rivales + '</ul>' +
       (b.rivales.length > 4 ? '<button type="button" class="ver-todos">Ver todos (' + b.rivales.length + ')</button>' : '');
-    var torneos = '<div class="rejilla-3">' + b.torneos.map(function (t) { return chip(t.id, t.activo, t.prueba ? 'prueba' : '', t.prueba ? 'Torneo de prueba: el modelo no lo vio' : ''); }).join('') + '</div>' +
-      '<p class="aviso-prueba">Línea punteada: torneo de prueba (CL26).</p>';
+    var torneos = '<div class="rejilla-3">' + b.torneos.map(function (t) { return chip(t.id, t.activo, t.prueba ? 'prueba' : '', t.prueba ? 'Torneo reservado: el análisis no lo vio' : ''); }).join('') + '</div>' +
+      '<p class="aviso-prueba">Línea punteada: torneo reservado para comprobar (CL26).</p>';
     var condicion = '<div class="segmentado" role="radiogroup" aria-label="Condición">' + ['Todos', 'Local', 'Visita'].map(function (c) {
       return '<button type="button" role="radio" aria-checked="' + (c === b.condicion) + '" class="seg">' + c + '</button>'; }).join('') + '</div>';
     var partidos = '<ul class="lista-partidos">' + b.partidos.map(function (p) {
@@ -330,7 +331,10 @@
     if (X.simulaciones) texto('simulaciones', X.simulaciones.toLocaleString('es-MX'));
     if (MOV) document.querySelectorAll('.mc-barra').forEach(function (b) { MOV.alVer(b, function () { MOV.crecer(b.children, { escalon: 80 }); }); });  // A6, una vez
     texto('lectura', X.lectura); texto('metodo', X.metodo);
-    html('pendientes', X.pendientes.map(function (p) { return '<article class="pendiente"><span class="estado">En construcción · ' + esc(p.requisito) + '</span><h3>' + esc(p.titulo) + '</h3><p>' + esc(p.texto) + '</p></article>'; }).join(''));
+    html('siguiente', (X.siguiente || []).map(function (s) {  // bloque 6: del caso a la matriz, a la ficha del rival y a la evidencia
+      return '<article class="paso-sig"><h3>' + esc(s.titulo) + '</h3><p>' + esc(s.texto) + '</p><button type="button" class="btn-ir" data-ir="' + esc(s.vista + '#' + s.ancla) + '"' +
+        (s.rival ? ' data-rival="' + esc(s.rival) + '"' : '') + (s.situacion ? ' data-situacion="' + esc(s.situacion) + '"' : '') + '>' + esc(s.boton) + ' →</button></article>';
+    }).join(''));
     html('notas', X.notas.map(function (n) { return '<p class="nota">' + esc(n) + '</p>'; }).join(''));
     if (D.decidir) renderDecidir(D.decidir);
     if (D.metodo) renderMetodo(D.metodo);
@@ -339,11 +343,12 @@
   // ---------- Decidir: matriz de situaciones, ficha de 10 segundos, balón parado y uso de jugadores ----------
   var NIVELES = { domina: ['▲', 'Le funciona'], parejo: ['●', 'Parejo'], sufre: ['▼', 'Sufre'] };
   function num(v, dec) { return v == null ? '—' : Number(v).toFixed(dec == null ? 2 : dec); }
+  function riesgo(q) { return q < .01 ? 'menos de 1 %' : Math.round(q * 100) + ' %'; }  // igual que decision.texto_riesgo
   function tablaComp(filas, primera) {
-    return '<thead><tr><th>' + esc(primera) + '</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>¿Distinto? (criterio v2)</th></tr></thead><tbody>' +
+    return '<thead><tr><th>' + esc(primera) + '</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>¿Distinto? (4 filtros)</th></tr></thead><tbody>' +
       filas.map(function (f) {
         return '<tr><th>' + esc(f.etq) + '</th><td>' + num(f.jardine) + '</td><td>' + num(f.previos) + '</td><td class="' + (f.pasa ? 'si' : '') + '">' +
-          (f.pasa ? 'Sí (q = ' + num(f.q, 3) + ')' : 'No') + '</td></tr>';
+          (f.pasa ? 'Sí (riesgo de falso hallazgo: ' + riesgo(f.q) + ')' : 'No') + '</td></tr>';
       }).join('') + '</tbody>';
   }
   function renderFicha(f) {
@@ -368,8 +373,8 @@
     });
   }
   function renderDecidir(X) {
-    if (X.base) texto('base-decidir', 'Su partido normal: índice ' + X.base.indice + ', PPDA ' + num(X.base.ppda, 1) + ' y xG neto ' +
-      (X.base.xg_dif_90 >= 0 ? '+' : '') + num(X.base.xg_dif_90) + ' por 90 minutos (AP23–AP25, sin el torneo de prueba).');
+    if (X.base) texto('base-decidir', 'Su partido normal (AP23–AP25, sin el torneo reservado): índice de iniciativa ' + X.base.indice + ', PPDA ' + num(X.base.ppda, 1) +
+      ' y balance de ocasiones ' + (X.base.xg_dif_90 >= 0 ? '+' : '') + num(X.base.xg_dif_90) + ' xG cada 90 minutos.');
     html('matriz', X.matriz.map(function (m) {
       var n = NIVELES[m.nivel] || NIVELES.parejo;
       return '<article class="situacion"><header><h3>' + esc(m.situacion) + '</h3><span class="nivel ' + m.nivel + '">' + n[0] + ' ' + n[1] + '</span></header>' +
@@ -404,32 +409,34 @@
   }
 
   // ---------- Método: el reporte (datos, criterio, principios con evidencia y validación) ----------
+  var SIMBOLOS = { se_sostiene: '✓', misma_direccion: '≈', no_se_sostiene: '✗', sin_muestra: '—' };
+  function veredicto(v) { return (SIMBOLOS[v.veredicto] ? SIMBOLOS[v.veredicto] + ' ' : '') + v.texto; }
   function renderMetodo(M) {
     var d = M.datos;
-    html('met-datos', '<li><strong>StatsBomb, Liga MX:</strong> ' + d.liga.toLocaleString('es-MX') + ' partidos de AP21 a CL26, con Events, 360, Team Match Stats y Lineups.</li>' +
+    html('met-datos', '<li><strong>StatsBomb, Liga MX:</strong> ' + d.liga.toLocaleString('es-MX') + ' partidos de AP21 a CL26, con eventos, fotos de posiciones (360), estadísticas de equipo y alineaciones.</li>' +
       '<li><strong>' + esc(D.nuevo) + ':</strong> ' + d.nuevo + ' partidos (' + esc(d.torneos_nuevo) + ').</li>' +
       '<li><strong>Solari y Ortiz:</strong> ' + d.previos + ' partidos (' + esc(d.torneos_previos) + ').</li>' +
-      '<li><strong>Torneo de prueba:</strong> ' + d.prueba + ' partidos (' + esc(d.torneos_prueba) + '), apartados hasta la evaluación final.</li>');
+      '<li><strong>Torneo reservado:</strong> ' + d.prueba + ' partidos (' + esc(d.torneos_prueba) + '), apartados hasta la evaluación final.</li>');
     var p = M.pca;
-    texto('met-pca', 'Ocho componentes por minuto (juego asentado, posesión, field tilt, espacio en campo rival, altura del bloque, presión alta, juego directo y largo de pase), con el mismo peso y de 0 (reactivo) a 100 (proactivo). Confirmado con PCA: ' +
-      (p.mismo_signo ? 'los 8 cargan con su signo' : 'no todos cargan con su signo') + ' en el primer componente (' + Math.round(p.varianza * 100) + ' % de la varianza) y el promedio correlaciona ' + num(p.correlacion) + ' con él.');
+    texto('met-pca', 'Ocho señales por minuto (ataque elaborado, posesión, dominio del último tercio, espacio en campo rival, altura sin balón y presión alta suman; juego directo y pase largo restan), con el mismo peso, de 0 (espera) a 100 (propone). Comprobación de los pesos con los datos (PCA): ' +
+      (p.mismo_signo ? 'las 8 empujan en la dirección esperada' : 'no todas empujan en la dirección esperada') + ', resumen el ' + Math.round(p.varianza * 100) + ' % de la variación y el promedio con pesos iguales coincide en ' + num(p.correlacion) + ' (correlación) con la combinación que sale de los datos.');
     if (M.criterio) {
       var c = M.criterio;
-      texto('met-criterio', 'Prueba placebo: en ' + c.placebo_pruebas + ' pruebas sobre quiebres falsos (tramos donde no pasó nada), la versión 1 del criterio aprobaba ' + c.placebo_v1 +
-        ' y la versión 2 aprueba ' + c.placebo_v2 + '. En la tabla final de ' + c.pruebas + ' pruebas pasan ' + c.pasan_v2 + ' (con la versión 1, ' + c.pasan_v1 + ').');
+      texto('met-criterio', 'Prueba en falso (placebo): en ' + c.placebo_pruebas + ' momentos clave inventados (tramos donde no pasó nada), la primera versión de los filtros, sin el filtro 4, aprobaba ' + c.placebo_v1 +
+        '; con los 4 filtros, ' + c.placebo_v2 + '. De las ' + c.pruebas + ' pruebas del análisis pasan ' + c.pasan_v2 + ' (con la primera versión pasaban ' + c.pasan_v1 + ').');
     }
     var val = {};
     ((D.decidir && D.decidir.validacion) || []).forEach(function (v) { val[v.principio] = v; });
-    html('met-principios', '<thead><tr><th>Principio</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>Diferencia</th><th>Torneos</th><th>Criterio v2</th><th>CL26</th></tr></thead><tbody>' +
+    html('met-principios', '<thead><tr><th>Principio</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>Diferencia</th><th>Torneos</th><th>4 filtros</th><th>En el CL26</th></tr></thead><tbody>' +
       D.portada.principios.map(function (pr) {
         var v = val[pr.titulo];
         return '<tr><th>' + esc(pr.titulo) + '</th><td>' + esc(pr.jardine) + '</td><td>' + esc(pr.previos) + '</td><td>' + esc(pr.diferencia) + '<br><small>' + esc(pr.intervalo) + '</small></td><td>' +
-          esc(pr.torneos) + '</td><td>' + esc(pr.estado) + '</td><td class="ver-' + (v ? v.veredicto : '') + '">' + esc(v ? v.texto : '—') + '</td></tr>';
+          esc(pr.torneos) + '</td><td>' + esc(pr.estado) + '</td><td class="ver-' + (v ? v.veredicto : '') + '">' + esc(v ? veredicto(v) : '—') + '</td></tr>';
       }).join('') + '</tbody>');
-    html('met-validacion', '<thead><tr><th>Principio</th><th>Diferencia en entrenamiento</th><th>Diferencia en el CL26 (IC 95 %)</th><th>Partidos</th><th>Veredicto</th></tr></thead><tbody>' +
+    html('met-validacion', '<thead><tr><th>Principio</th><th>Diferencia en los torneos analizados (AP23–AP25)</th><th>Diferencia en el torneo reservado (CL26)</th><th>Partidos</th><th>Veredicto</th></tr></thead><tbody>' +
       ((D.decidir && D.decidir.validacion) || []).map(function (v) {
-        return '<tr><th>' + esc(v.principio) + '</th><td>' + esc(v.entrenamiento || '—') + '</td><td>' + (v.prueba == null ? '—' : esc(v.prueba) + '<br><small>IC ' + esc(v.bajo) + ' a ' + esc(v.alto) + '</small>') +
-          '</td><td>' + v.partidos + '</td><td class="ver-' + v.veredicto + '">' + esc(v.texto) + '</td></tr>';
+        return '<tr><th>' + esc(v.principio) + '</th><td>' + esc(v.entrenamiento || '—') + '</td><td>' + (v.prueba == null ? '—' : esc(v.prueba) + '<br><small>rango probable: ' + esc(v.bajo) + ' a ' + esc(v.alto) + '</small>') +
+          '</td><td>' + v.partidos + '</td><td class="ver-' + v.veredicto + '">' + esc(veredicto(v)) + '</td></tr>';
       }).join('') + '</tbody>');
   }
 
@@ -461,8 +468,8 @@
     modos.innerHTML = '<button type="button" data-modo="partido" aria-pressed="true">Partido completo</button>' +
       (R.jugadas || []).map(function (j, k) { return '<button type="button" data-modo="jugada" data-j="' + k + '" aria-pressed="false">▶ ' + esc(j.titulo) + '</button>'; }).join('');
 
-    function etiquetaIndice(v) { return v >= BANDAS[1] ? 'proactivo' : (v <= BANDAS[0] ? 'reactivo' : 'equilibrado'); }
-    function formato(c, v) { if (v == null) return '—'; if (c.formato === 'pct') return pct(v); if (c.formato === 'yd') return v.toFixed(1) + ' yd'; return v.toFixed(2); }
+    function etiquetaIndice(v) { return v >= BANDAS[1] ? 'propone' : (v <= BANDAS[0] ? 'espera' : 'equilibrado'); }  // igual que decision.banda_indice
+    function formato(c, v) { if (v == null) return '—'; if (c.formato === 'pct') return pct(v); if (c.formato === 'm') return v.toFixed(1) + ' m'; return v.toFixed(2); }
     // A3 · radar: la parte fija se dibuja una vez y los dos polígonos se transforman de un minuto al siguiente
     var cx = 160, cy = 114, Rr = 72, nR = R.componentes.length, polyA = null, polyR = null;
     function punto(k, z) { var a = -Math.PI / 2 + 2 * Math.PI * k / nR, r = Rr * (Math.max(-2.5, Math.min(2.5, z == null ? 0 : z)) + 2.5) / 5; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
@@ -536,7 +543,7 @@
       reloj.textContent = e.reloj;
       tiempo.setAttribute('aria-valuetext', 'Foto ' + (i + 1) + ' de ' + jugada.fotos.length + ', ' + e.reloj);
       accion.textContent = e.reloj + ' · ' + e.texto + ' · control del ' + D.equipo + ': ' + (e.control == null ? '—' : pct(e.control)) +
-        (prog === 0 ? ' · foto 360' : ' · posiciones estimadas entre fotos');
+        (prog === 0 ? ' · foto de posiciones (360)' : ' · posiciones estimadas entre fotos');
     }
     function mostrarMinuto() {
       var m = R.minutos[i], f = m.foto == null ? null : R.fotos[m.foto], capa = svg.querySelector('.capa');
@@ -675,7 +682,7 @@
           var m = R.minutos[q.k]; MOV.pulso(linea, xDe(q.k), yDe(m.ia == null ? 50 : m.ia));
         }
       });
-      fraseLinea.textContent = reciente ? R.minutos[reciente.k].etq + ' · ' + reciente.corto : 'Lo ya jugado, en firme; lo que falta, tenue.';
+      fraseLinea.textContent = reciente ? R.minutos[reciente.k].etq + ' · ' + reciente.corto : 'Lo ya jugado, en firme; lo que falta, tenue. 1T y 2T: tiempos; PR: prórroga.';
       iLinea = i;
     }
     i = R.inicio || 0;
@@ -717,6 +724,24 @@
     if (MOV) MOV.vista(hacer); else hacer();
   }
   document.querySelectorAll('button[data-vista]').forEach(function (b) { b.addEventListener('click', function () { cambiarVista(b.dataset.vista); }); });
+  // Enlaces entre vistas: data-ir="vista#ancla"; con data-rival abre esa ficha y con data-situacion resalta esa tarjeta de la matriz
+  function irAVista(vista, ancla, op) {
+    if (op.rival) { irAFicha(op.rival); return; }
+    cambiarVista(vista, function () {
+      var destino = ancla ? document.getElementById(ancla) : null;
+      if (op.situacion) {
+        var t = Array.prototype.filter.call(document.querySelectorAll('.situacion'), function (a) { return a.querySelector('h3').textContent === op.situacion; })[0];
+        if (t) destino = t;
+      }
+      if (!destino) return;
+      if (MOV) MOV.irA(destino, { bloque: op.situacion ? 'center' : 'start' }); else destino.scrollIntoView();
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ir]'); if (!b) return;
+    var partes = b.getAttribute('data-ir').split('#');
+    irAVista(partes[0], partes[1], { rival: b.getAttribute('data-rival'), situacion: b.getAttribute('data-situacion') });
+  });
   // A5 · de la tarjeta del principio al partido que lo ilustra: desplazamiento y resaltado
   document.addEventListener('click', function (e) {
     if (!e.target.closest('.ir-caso')) return;

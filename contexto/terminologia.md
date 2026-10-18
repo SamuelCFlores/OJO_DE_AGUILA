@@ -1,102 +1,118 @@
-# Terminología de la página: qué significa cada término y cómo traducirlo
+# Terminología de la página: qué significa cada término y cómo se muestra
 
-> Lista del 18 oct, sacada del texto que de verdad aparece en `app/maqueta.html` y en `outputs/app/datos.js`. El jurado no es técnico: cada término debe entenderse sin el glosario, o llevar al lado lo que significa.
+> **Aplicada el 18 oct**, por decisión de chamuel ("aplica todas las propuestas").
 >
-> Columna **Decisión**: la llena chamuel. Lo que se decida se aplica en `app/maqueta.html`, `app/app.js`, `scripts/08_maqueta.py` (textos de los datos) y `ojo.salidas.decision` (la matriz), y el guion del video se ajusta igual.
+> La lista sale del texto que de verdad aparece en `app/maqueta.html` y en `outputs/app/datos.js`. El jurado no es técnico: cada término debe entenderse sin el glosario o llevar al lado lo que significa.
+>
+> **Dónde vive cada texto:**
+> - `app/maqueta.html` y `app/app.js`: textos fijos de la página.
+> - `scripts/08_maqueta.py`: principios, lectura del caso y bloque 6.
+> - `ojo.salidas.decision`: matriz y ficha.
+> - `ojo.lentes.indice`: nombres de las ocho señales.
+> - `ojo.lentes.rivales`: rasgos de la ficha.
+> - `notebooks/07_casos_cl26.ipynb`: casos del CL26.
+>
+> El análisis interno (código, `framework.md`, notebooks) conserva los nombres técnicos; el glosario de Método los pone entre paréntesis.
 
 ## 1. Nombres de las vistas
 
-| Hoy | Qué es | Propuesta | Decisión |
-| --- | --- | --- | --- |
-| Portada | El resumen: tesis, índice por torneo y los seis principios | **Resumen** (o "Jardine en 90 s") | |
-| Explorar | Un principio visto en un partido real: el caso, el reproductor con Voronoi y la simulación | **El partido** (o "Un partido a fondo") | |
-| Decidir | Herramientas para el cuerpo técnico: matriz de situaciones, ficha por rival, balón parado, cambios y los casos del CL26 | **Para decidir** | |
-| Método | El reporte: datos, criterio, evidencia, validación, límites y glosario | **Cómo lo medimos** | |
+Cada pestaña lleva debajo una descripción corta (en pantallas de 1180 px o más).
 
-En el teléfono la barra de vistas mide 375 px: los nombres largos se recortan a una palabra ("Resumen · Partido · Decidir · Método").
+| Antes | Ahora | Descripción | Por qué |
+| --- | --- | --- | --- |
+| Portada | **Resumen** | en 90 segundos | Es la tesis, el índice por torneo y los seis principios: un resumen. |
+| Explorar | **El partido** | minuto a minuto | La vista es un partido concreto (su título es "América vs Tigres UANL"). El artículo "el" lo hace específico. |
+| Decidir | **Plan de juego** | para el cuerpo técnico | Ver la nota sobre "Lectura". |
+| Método | **Método** | cómo lo medimos | Ver la nota sobre "Métricas". |
+
+**¿"Lectura" en lugar de Decidir? No.**
+
+- "Lectura" ya se usa dentro de la página con otro sentido: la lectura del partido, la lectura de cada caso y "Lectura frente a Tigres".
+- Esta vista es donde el jurado busca qué hacer: los tres escenarios del coach drill ("vamos 1-0 al 60'", "mañana jugamos contra Pumas"). Un nombre de acción la encuentra más rápido.
+- Su contenido es lo que trae un plan de juego: qué conviene por situación, la ficha del rival, el balón parado y los cambios.
+
+**¿"Métricas" en lugar de Método? No.**
+
+- La vista no es una lista de métricas. Su centro es cómo se decidió que algo es un hallazgo (los 4 filtros y la prueba en falso), la validación en el CL26 y los límites.
+- "Método" es la palabra del criterio de la rúbrica ("metodología y visualización"): quien califica ese criterio va directo ahí.
+
+En el teléfono las pestañas van sin descripción; "Plan de juego" ocupa dos líneas.
+
+Los ids internos (`portada`, `explorar`, `decidir`, `metodo`) y las direcciones (`#explorar`…) no cambian.
 
 ## 2. Goles esperados y resultados
 
-| Término | Dónde | Qué significa | Propuesta | Decisión |
-| --- | --- | --- | --- | --- |
-| xG | Principios, matriz, balón parado, ficha | Goles esperados: la probabilidad de que un tiro sea gol por dónde y cómo se tiró. Sumado, cuántos goles "merecía" un equipo | "goles esperados (xG)" la primera vez en cada vista; después, xG | |
-| xG neto | Matriz, ficha | xG a favor menos xG en contra. "+0.66 por 90" = en un partido completo genera 0.66 goles esperados más de los que concede | **Balance de ocasiones** (xG a favor − en contra) | |
-| xG por envío | Balón parado | Peligro medio de cada balón parado | **Peligro por envío** | |
-| por 90 / por 10 min | Matriz, principios, validación | La cifra llevada a un partido completo o a cada 10 minutos, para comparar tramos de distinto largo | "por partido (90 min)" / "cada 10 minutos" | |
-| OBV | Glosario | On-Ball Value de StatsBomb: cuánto sube o baja la probabilidad de gol con cada acción con balón | **Valor de cada acción (OBV)** | |
-| ¿Qué tan merecido? (Monte Carlo explicativo) | Explorar, sección 4 | Se juega el partido 10 000 veces con los tiros que hubo y se cuenta quién gana | "¿Qué tan merecido? (simulación con los tiros del partido)"; quitar "Monte Carlo" del título | |
-| 4G 2E 1P · puntos por partido | Ficha | Ganados, empatados y perdidos | "4 ganados, 2 empates, 1 perdido" | |
+| Término técnico | En la página | Nota |
+| --- | --- | --- |
+| xG | "goles esperados (xG)" la primera vez; después, xG | |
+| xG neto | **balance de ocasiones** (xG a favor − en contra) | |
+| xG por envío | **peligro por envío (xG)**, a favor y en contra | |
+| por 90 / por 10 min | **cada 90 min / cada 10 min** | |
+| OBV | **valor de cada acción (OBV)** | Solo en el glosario. |
+| Monte Carlo explicativo | **¿Qué tan merecido? (simulación con los tiros del partido)** | |
+| 4G 2E 1P | **4 ganados, 2 empates, 1 perdido** | Con singular y plural. |
 
 ## 3. Presión, posesión y fases
 
-| Término | Dónde | Qué significa | Propuesta | Decisión |
-| --- | --- | --- | --- | --- |
-| PPDA | Matriz, ficha, Método | Pases que el rival da en su salida por cada acción defensiva propia (entrada, intercepción, falta) en esa zona. **Menos = presiona más** | **Presión (PPDA; menos = más intensa)** | |
-| Field tilt | Línea del índice | De los pases completos en el último tercio, qué parte es del equipo | **Dominio del último tercio** | |
-| Posesión | Línea del índice | Tiempo con el balón entre el de ambos | Igual | |
-| Asentado / Juego asentado / Elabora | Línea del índice, ficha | Posesión en control, fuera de transición (Phases of Play de StatsBomb) | **Ataque elaborado** | |
-| Juego directo / Pase largo | Línea del índice, ficha | Qué tan rápido va hacia la portería rival / largo medio del pase | "Va directo" / "pase largo" (igual) | |
-| Transición | Método, datos | Los segundos después de recuperar o perder el balón | **Contragolpe / repliegue** según el lado | |
-| Presión alta | Línea del índice | Presiones en campo rival por minuto | Igual | |
-| Contrapresión ("el rival no lo aprieta") | Principio | Presionar en los segundos siguientes a perder el balón | **Presión tras pérdida** | |
-| Bloque alto / Altura del bloque | Línea del índice, principio | Qué tan adelante están, en promedio, los jugadores de campo sin balón | **Altura del equipo sin balón** (en metros) | |
+| Término técnico | En la página | Nota |
+| --- | --- | --- |
+| PPDA | PPDA, explicado una vez por vista: "pases que el rival da antes de que le recuperen el balón; menos = más presión" | |
+| Field tilt | **dominio del último tercio** | En el radar, "Último tercio". |
+| Juego asentado / Asentado | **ataque elaborado** | En el radar, "Elaborado". |
+| Elabora (radar, inverso de juego directo) | **Circula** | Para no repetir "Elaborado". |
+| Elabora (ficha) | **Elabora sus ataques** | |
+| Juego directo / Pase largo | Igual | |
+| Transición | **contragolpe** | "Concede menos contragolpes", "vigilar el contragolpe rival", "Vive del contragolpe". |
+| Contrapresión | **presión tras perder el balón** | |
+| Altura del bloque / Bloque alto | **altura sin balón**, en metros | En el radar, "Altura". |
 
 ## 4. Índice y espacio
 
-| Término | Dónde | Qué significa | Propuesta | Decisión |
-| --- | --- | --- | --- | --- |
-| Índice Proactivo–Reactivo | Portada, Explorar, matriz | 0 a 100 por minuto, de 8 señales con el mismo peso: posesión, ataque elaborado, dominio del último tercio, espacio en campo rival, altura, presión alta (suman) y juego directo y pase largo (restan). 50 = neutro | **Índice de iniciativa** (0 = espera, 100 = propone) | |
-| Voronoi | Explorar, Método | Divide la cancha: cada punto es del jugador que llega primero (el más cercano). Así se mide quién controla cada metro | **Mapa de control del espacio** (Voronoi entre paréntesis) | |
-| Espacio arriba / Espacio en campo rival | Línea del índice | Parte del campo rival que controla el equipo según el Voronoi | **Espacio en campo rival** (uno solo de los dos nombres) | |
-| Foto 360 / "Sin foto 360 en este minuto" | Reproductor | StatsBomb 360: dónde estaban los jugadores visibles en cada evento | **Foto de posiciones (360)** | |
-| Foto real / estimado | Reproductor | Entre dos fotos, el movimiento se estima; la página marca cuál es cuál | Igual, con la leyenda al lado | |
-| Huella de pases y redes | Método | Qué tipos de pase usa (60 grupos de StatsBomb) y quién se pasa con quién, por posición | **Forma de pasar** | |
+| Término técnico | En la página | Nota |
+| --- | --- | --- |
+| Índice Proactivo–Reactivo | **índice de iniciativa** (0 = espera, 100 = propone) | Las bandas se leen "propone · equilibrado · espera". |
+| Voronoi | **mapa de control del espacio** (Voronoi entre paréntesis) | |
+| Espacio arriba / Espacio en campo rival | **espacio en campo rival** | En el radar, "Campo rival". |
+| Foto 360 | **foto de posiciones (360)** | |
+| Foto real / estimado | Igual | |
+| Huella de pases y redes | **forma de pasar** | |
+| Lentes propias | **Nuestras mediciones** | |
 
 ## 5. Cómo se lee el partido
 
-| Término | Dónde | Qué significa | Propuesta | Decisión |
-| --- | --- | --- | --- | --- |
-| Dos bandas | Método | El América y el rival en el mismo minuto, uno frente al otro | **Frente a frente** (América vs rival, minuto a minuto) | |
-| Punto de quiebre / quiebre | Explorar, principios, Método | Momento que cambia el partido: gol, expulsión, cambio de sistema, sustitución | **Momento clave** | |
-| Ventanas de control | Método | Tramos parecidos sin quiebre, para saber cuánto cambia el partido "solo" | **Tramos de comparación** | |
-| Diferencia en diferencias | Método | Lo que cambió tras el quiebre menos lo que cambia en los tramos de comparación | **Cambio neto** | |
-| Tramo | Método | Ventana de 15 minutos | Igual | |
-| Predecesores / "Solari y Ortiz" / "Antes" | Portada, principios | Los dos entrenadores anteriores del América (AP21–CL23) | **"Antes de Jardine (Solari y Ortiz)"** siempre igual | |
+| Término técnico | En la página |
+| --- | --- |
+| Dos bandas | **frente a frente** |
+| Punto de quiebre | **momento clave** |
+| Ventanas de control | **tramos de comparación** |
+| Diferencia en diferencias | **cambio neto** (el término técnico, entre comillas en Método) |
+| Predecesores | **"Solari y Ortiz"** o "antes de Jardine (Solari y Ortiz)" |
 
 ## 6. Estadística
 
-| Término | Dónde | Qué significa | Propuesta | Decisión |
-| --- | --- | --- | --- | --- |
-| IC 95 % | Principios, matriz, validación | Intervalo de confianza: el rango donde está el valor real con 95 % de confianza. Si no cruza el 0, la diferencia no es ruido | **Rango probable** ("entre −2.0 y −1.0 m") | |
-| Bootstrap | Método | Se re-muestrean partidos miles de veces para sacar ese rango | **Remuestreo de partidos** | |
-| q / FDR / Benjamini-Hochberg | Principios, Método | Con 636 pruebas, unas salen por suerte; q es el riesgo de que el hallazgo sea falso, ya corregido. Se acepta q ≤ 0.10 | **Riesgo de falso hallazgo** ("menos de 1 %" en lugar de "q < 0,01") | |
-| Criterio v2 | Portada, Método, balón parado | Las 4 condiciones para llamar hallazgo a algo (rango sin 0, tamaño mínimo, 4 de 5 torneos, riesgo de falso hallazgo) | **Los 4 filtros** (quitar "v2": al jurado no le dice nada) | |
-| Placebo | Método | Se corre el método donde no pasó nada; si encuentra algo, el método está mal. Encontró 0 de 280 | **Prueba en falso** (placebo) | |
-| DE / media desviación estándar | Ficha, Método | Variación típica entre partidos; 0.5 DE = diferencia de tamaño medio | **Variación típica** | |
-| PCA / cargas / varianza / r | Método | Comprobación de que dar el mismo peso a las 8 señales del índice coincide con lo que dicen los datos (r = 0.94) | **Comprobación de los pesos** | |
-| Torneos en la misma dirección | Principios | En cuántos de los 5 torneos de Jardine la diferencia tuvo el mismo signo | Igual | |
-| Entrenamiento / torneo de prueba | Validación | AP23–AP25 se analizó; el CL26 se guardó sin ver para comprobar al final | **Torneos analizados / torneo reservado** ("entrenamiento" es jerga de modelos) | |
-| Veredicto: se sostiene / misma dirección, sin certeza / sin muestra | Validación | Qué pasó con cada principio en el CL26 | Igual, con ✓ / ≈ / — | |
-| Recomendación (hipótesis) | Matriz | Sugerencia que sale de los datos, no algo probado | Igual | |
+| Término técnico | En la página | Nota |
+| --- | --- | --- |
+| IC 95 % | **rango probable** | |
+| Bootstrap | **remuestreo de partidos** | Solo en Método. |
+| q / FDR / Benjamini-Hochberg | **riesgo de falso hallazgo**, en % | Por ejemplo, "menos de 1 %" o "6 %". |
+| Criterio v2 | **los 4 filtros** | |
+| Placebo | **prueba en falso (placebo)** | |
+| DE / desviación estándar | **variación típica** | |
+| PCA / cargas / varianza | **comprobación de los pesos** | El término técnico va entre paréntesis en Método. |
+| Entrenamiento / torneo de prueba | **torneos analizados / torneo reservado** | |
+| Veredictos | ✓ Se sostiene · ≈ Misma dirección, sin certeza · — Sin muestra suficiente | |
+| Recomendación (hipótesis) | Igual | |
+
+Con esto también se quitó la coma decimal de "q = 0,06": toda la página usa punto decimal.
 
 ## 7. Unidades y abreviaturas
 
-| Término | Dónde | Qué significa | Propuesta | Decisión |
-| --- | --- | --- | --- | --- |
-| yd | Principios, validación | Yardas: StatsBomb mide la cancha en yardas (120 × 80). 1 yd = 0.91 m | **Metros**: −1.5 yd ≈ −1.4 m; −19.5 yd ≈ −17.8 m | |
-| AP23, CL26… | Gráfica por torneo, barra | Apertura 2023, Clausura 2026 | Igual, con la leyenda "AP = Apertura, CL = Clausura" una vez | |
-| 1T, 2T, PR1, PR2 | Línea del reproductor | Primer y segundo tiempo; prórroga 1 y 2 (la final AP23 se fue a tiempo extra) | Igual, con "PR = prórroga" en la leyenda | |
-| ▲ Le funciona · ● Parejo · ▼ Sufre | Matriz | Si en esa situación genera más, lo mismo o menos de lo que concede | Igual | |
-| Filtros · 2 | Barra oculta | Cuántos filtros están activos | Igual | |
+| Término técnico | En la página | Nota |
+| --- | --- | --- |
+| yd | **metros** (`campo.yarda_m` en `params.yaml`) | −1.5 yd → −1.4 m; −19.5 yd → −17.8 m. |
+| AP / CL | Igual | Con "AP = Apertura, CL = Clausura" al pie de la gráfica por torneo. |
+| 1T, 2T, PR1, PR2 | Igual | Con "PR: prórroga" en la línea del índice. |
+| ▲ ● ▼ | Igual | |
+| Filtros · 2 | Igual | |
 
-## Lo que recomiendo cambiar primero
-
-Si no da tiempo para todo, estos cinco son los que más confunden a alguien que no es analista:
-
-1. Los nombres de las vistas.
-2. **yd → metros**.
-3. **"xG neto" → "balance de ocasiones"**.
-4. **"IC 95 %" → "rango probable"**.
-5. **"criterio v2" → "los 4 filtros"**.
-
-Las siglas de StatsBomb (xG, PPDA, OBV, 360) se quedan, pero siempre con su traducción al lado.
+Los números no cambian, solo su unidad o su nombre.

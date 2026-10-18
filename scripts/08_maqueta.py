@@ -33,39 +33,41 @@ from ojo.salidas import datos_app, decision, reproductor
 DIR_HALLAZGOS = DIR_SALIDAS / "hallazgos"
 COLUMNAS_INDICE = ["match_id", "periodo", "minuto", "equipo_id", "tipo", "duracion", "es_transicion", "directness",
                    "x", "y", "fin_x", "fin_y"]
+YARDA_M = params()["campo"]["yarda_m"]  # StatsBomb mide en yardas; la página muestra metros (contexto/terminologia.md)
 FORMATOS = {"control": "pct", "posesion": "pct", "field_tilt": "pct", "control_campo_rival": "pct",
-            "altura_sin_balon": "yd", "presion_alta": "num", "directness": "num", "largo_pase": "yd"}
+            "altura_sin_balon": "m", "presion_alta": "num", "directness": "num", "largo_pase": "m"}
+SITUACION_DEL_CASO = {"expulsion_favor": "uno_mas", "expulsion_contra": "uno_menos"}  # tipo de quiebre → fila de la matriz
 CLAVES_CORTAS = {"gol_favor": "Gol", "gol_contra": "Gol rival", "expulsion_favor": "Roja rival",
                  "expulsion_contra": "Roja", "cambio_sistema_propio": "Sistema", "cambio_sistema_rival": "Sistema rival"}
 # Principios: de dónde sale cada número y cómo se lee (notebooks 02 y 03, criterio v2 del 18 oct).
 PRINCIPIOS = [
-    {"archivo": "estilo", "filtro": {"metrica": "largo_pase"}, "escala": 1, "unidad": " yd", "dec": 1, "cambio": False,
+    {"archivo": "estilo", "filtro": {"metrica": "largo_pase"}, "escala": YARDA_M, "unidad": " m", "dec": 1, "cambio": False,
      "titulo": "Sale jugando corto",
      "frase": "Con Jardine, los pases del América miden {jardine} en promedio; con Solari y Ortiz, {previos}.",
      "significa": "Cambia el pelotazo por circulación corta, también desde su propio campo.",
      "uso": "Si el rival presiona alto, el plan del América es tocar para salir, no rifar el balón: la presión rival pone a prueba este principio."},
     {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "expulsion_favor", "lado": "rival", "metrica": "altura_sin_balon"},
-     "escala": 1, "unidad": " yd", "dec": 1, "cambio": True, "tipo_caso": "expulsion_favor",
+     "escala": YARDA_M, "unidad": " m", "dec": 1, "cambio": True, "tipo_caso": "expulsion_favor",
      "titulo": "Con uno más, hunde al rival",
-     "frase": "Tras una expulsión del rival, la altura del bloque rival cambia {jardine} contra Jardine; contra Solari y Ortiz, {previos}.",
-     "significa": "Con superioridad numérica no administra: se instala en campo rival, mete al rival en su área y además concede menos transiciones.",
+     "frase": "Tras una expulsión del rival, el rival se mete atrás: su altura sin balón cambia {jardine} contra Jardine; contra Solari y Ortiz, {previos}.",
+     "significa": "Con superioridad numérica no administra: se instala en campo rival, mete al rival en su área y además concede menos contragolpes.",
      "uso": "Con un jugador más, esperar al América volcado arriba; el rival que se queda con diez tiene que preparar la salida desde su área."},
     {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "sustitucion_lesion_propia", "lado": "propio", "metrica": "presiones"},
-     "escala": 10, "unidad": " por 10 min", "dec": 1, "cambio": True, "tipo_caso": "sustitucion_lesion_propia",
+     "escala": 10, "unidad": " cada 10 min", "dec": 1, "cambio": True, "tipo_caso": "sustitucion_lesion_propia",
      "titulo": "Una lesión no lo frena",
      "frase": "Tras una sustitución por lesión, sus presiones cambian {jardine} con Jardine; con Solari y Ortiz, {previos}.",
      "significa": "Un cambio obligado no lo hace recular: sale a presionar más.",
      "uso": "Tras una lesión del América no esperar un repliegue: el rival tiene que preparar la salida ante más presión."},
     {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "gol_contra", "lado": "rival", "metrica": "contrapresiones"},
-     "escala": 10, "unidad": " por 10 min", "dec": 1, "cambio": True, "tipo_caso": "gol_contra",
+     "escala": 10, "unidad": " cada 10 min", "dec": 1, "cambio": True, "tipo_caso": "gol_contra",
      "titulo": "Tras recibir gol, el rival no lo aprieta",
-     "frase": "Después de que el América recibe gol, las contrapresiones del rival cambian {jardine} contra Jardine; contra Solari y Ortiz, {previos}.",
+     "frase": "Después de que el América recibe gol, la presión del rival tras perder el balón cambia {jardine} contra Jardine; contra Solari y Ortiz, {previos}.",
      "significa": "El rival que se adelanta en el marcador se repliega en lugar de seguir presionando la salida.",
      "uso": "El rival que anota tiene que decidir si se mete atrás: contra Jardine suele hacerlo y le cede el balón."},
     {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "cambio_sistema_propio", "lado": "propio", "metrica": "xg"},
-     "escala": 10, "unidad": " xG por 10 min", "dec": 2, "cambio": True, "tipo_caso": "cambio_sistema_propio",
+     "escala": 10, "unidad": " xG cada 10 min", "dec": 2, "cambio": True, "tipo_caso": "cambio_sistema_propio",
      "titulo": "Alerta: cambiar el sistema le cuesta",
-     "frase": "Tras sus cambios de sistema, el xG del América cambia {jardine} con Jardine; con Solari y Ortiz, {previos}.",
+     "frase": "Tras sus cambios de sistema, los goles esperados (xG) del América cambian {jardine} con Jardine; con Solari y Ortiz, {previos}.",
      "significa": "Los 10 minutos que siguen a un cambio de sistema produce menos. Puede ser porque el cambio responde a algo que ya iba mal: es una pista, no una causa.",
      "uso": "Para el cuerpo técnico: cuidar el paso al nuevo sistema. Para el rival: es una ventana para atacar."},
     {"archivo": "jugadores_lineas_criterio", "filtro": {"metrica": "tacticos_defensa"}, "escala": 1, "unidad": " por partido",
@@ -92,15 +94,16 @@ def principios(caso_tipo: str, caso_texto: str) -> tuple[list[datos_app.Principi
         f = t.iloc[0]
         nuevo, previo = (f["efecto_nuevo"], f["efecto_previos"]) if d["cambio"] else (f["nuevo"], f["previos"])
         fmt = (lambda v: f"{v * d['escala']:+.{d['dec']}f}{d['unidad']}") if d["cambio"] else (lambda v: f"{v * d['escala']:.{d['dec']}f}{d['unidad']}")
-        dif = lambda v: f"{v * d['escala']:+.{d['dec']}f}{d['unidad']}"  # noqa: E731
-        q_txt = "q < 0,01" if f["q"] < .01 else f"q = {f['q']:.2f}".replace(".", ",")
-        estado = f"Pasa el criterio v2 · {q_txt}" if f["pasa"] else "No pasa el criterio v2"
+        sin_unidad = lambda v: f"{v * d['escala']:+.{d['dec']}f}"  # noqa: E731
+        dif = lambda v: sin_unidad(v) + d["unidad"]  # noqa: E731
+        estado = (f"Pasa los 4 filtros · riesgo de falso hallazgo: {decision.texto_riesgo(f['q'])}" if f["pasa"]
+                  else "No pasa los 4 filtros")
         if f.get("muestra_chica", False):
             estado += " · muestra chica"
         p = datos_app.Principio(
             titulo=d["titulo"], frase=d["frase"].format(jardine=fmt(nuevo), previos=fmt(previo)), significa=d["significa"],
             uso=d["uso"], jardine=fmt(nuevo), previos=fmt(previo), diferencia=dif(f["diferencia"]),
-            intervalo=f"IC 95 %: {dif(f['ic_bajo'])} a {dif(f['ic_alto'])}", torneos=f"{int(f['torneos_misma_direccion'])} de 5",
+            intervalo=f"Rango probable: {sin_unidad(f['ic_bajo'])} a {dif(f['ic_alto'])}", torneos=f"{int(f['torneos_misma_direccion'])} de 5",
             estado=estado)
         if d.get("tipo_caso") == caso_tipo:
             p.caso = caso_texto
@@ -122,6 +125,7 @@ def datos_reproductor(tab: pd.DataFrame, ev: pd.DataFrame, fotos: dict, jugadas:
                       equipo: str, rival: str, team: int, q: pd.Series) -> dict:
     """JSON del reproductor: un paso por minuto (índice, radar, componentes, marcador y foto) y la jugada."""
     comps = list(params()["indice"]["componentes"])
+    a_metros = [YARDA_M if FORMATOS[c] == "m" else 1 for c in comps]  # los valores en yardas se muestran en metros
     a = tab[tab["lado"] == minuto.PROPIO].set_index(["periodo", "minuto"])
     r = tab[tab["lado"] == minuto.RIVAL].set_index(["periodo", "minuto"])
     marcador = contexto.marcador(ev, team).join(ev[["periodo", "minuto"]]).groupby(["periodo", "minuto"]).last()
@@ -140,8 +144,8 @@ def datos_reproductor(tab: pd.DataFrame, ev: pd.DataFrame, fotos: dict, jugadas:
             "ia": None if fa is None else redondo(fa["indice"]), "ir": None if fr is None else redondo(fr["indice"]),
             "za": [None if fa is None else redondo(fa[f"z_{c}"]) for c in comps],
             "zr": [None if fr is None else redondo(fr[f"z_{c}"]) for c in comps],
-            "va": [None if fa is None else redondo(fa[c]) for c in comps],
-            "vr": [None if fr is None else redondo(fr[c]) for c in comps],
+            "va": [None if fa is None else redondo(fa[c] * k_) for c, k_ in zip(comps, a_metros)],
+            "vr": [None if fr is None else redondo(fr[c] * k_) for c, k_ in zip(comps, a_metros)],
             "marcador": "—" if g is None else f"{int(g['goles_favor'])}-{int(g['goles_contra'])}", "foto": foto_k,
         })
     pos = {c: k for k, c in enumerate(claves)}
@@ -285,17 +289,19 @@ def generar(args: argparse.Namespace) -> int:
     respuesta = (f" {rival} respondió con un {sc.etiqueta_quiebre(sistema.iloc[0], equipo, rival).split('(')[-1].rstrip(')')} "
                  f"al {sistema.iloc[0]['minuto']}'." if not sistema.empty else "")
     goles_txt = ", ".join(f"{g.minuto}'" for g in goles.itertuples())
-    lectura = (f"Al {q['minuto']}', con {gf}-{gc}, {sc.etiqueta_quiebre(q, equipo, rival).lower()} ({protagonista}). "
-               f"En los minutos siguientes el índice del {equipo} pasó de {ia0:.0f} a {ia1:.0f} y su field tilt de "
-               f"{ft0:.0%} a {ft1:.0%}.{respuesta}" + (f" Goles del {equipo} después: {goles_txt}." if goles_txt else "")
+    quiebre_txt = sc.etiqueta_quiebre(q, equipo, rival)
+    lectura = (f"Al {q['minuto']}', con {gf}-{gc}, {quiebre_txt[0].lower() + quiebre_txt[1:]} ({protagonista}). "
+               f"En los minutos siguientes, el índice de iniciativa del {equipo} pasó de {ia0:.0f} a {ia1:.0f} y su dominio "
+               f"del último tercio, de {ft0 * 100:.0f} % a {ft1 * 100:.0f} %.{respuesta}" + (f" Goles del {equipo} después: {goles_txt}." if goles_txt else "")
                + " Es lo que dice el principio: con uno más, se instala arriba.")
-    que_muestra = (f"Foto 360 del {principal['reloj']}, después de la expulsión: {principal['texto']}. Crema: zonas del {equipo}; "
+    que_muestra = (f"Foto de posiciones (360) del {principal['reloj']}, después de la expulsión: {principal['texto']}. Crema: zonas del {equipo}; "
                    f"blanco: de {rival}; la línea blanca marca dónde chocan los equipos. El {equipo} ataca hacia la derecha.")
     v = p["voronoi"]
-    metodo = (f"Índice Proactivo–Reactivo por minuto (ventana de {p['indice']['ventana_min']} minutos, 8 componentes con el "
-              f"mismo peso, percentil frente a los minutos de AP21–AP25; confirmado con PCA: correlación de {pca.correlacion:.2f} con su primer componente). Voronoi sobre el 360, recortado al "
-              f"área visible y a {v['alcance_max_yd']:g} yd por jugador. Una foto por minuto: la acción con más jugadores visibles. "
-              "Principios: diferencia en diferencias frente a ventanas de control (notebook 02) y estilo frente a la liga (notebook 03).")
+    metodo = (f"Índice de iniciativa por minuto: ocho señales de los últimos {p['indice']['ventana_min']} minutos, con el mismo peso, "
+              f"de 0 (espera) a 100 (propone), frente a los minutos de AP21–AP25. Comprobación de los pesos (PCA): correlación de "
+              f"{pca.correlacion:.2f}. Mapa de control del espacio (Voronoi) sobre cada foto de posiciones (360), recortado a lo que "
+              f"ve la cámara y a {v['alcance_max_yd'] * YARDA_M:.0f} m por jugador. Una foto por minuto: la acción con más jugadores "
+              "visibles. Principios: cambio neto frente a tramos de comparación (notebook 02) y estilo frente a la liga (notebook 03).")
 
     # Monte Carlo explicativo
     tiros = ev[(ev["tipo"] == "Shot") & (ev["periodo"] != contexto.PERIODO_PENALES)]
@@ -310,7 +316,7 @@ def generar(args: argparse.Namespace) -> int:
                              "Con los tiros de los dos equipos hasta ese momento, ¿qué marcador era el más probable?", sim_antes),
         datos_app.montecarlo("El partido completo", f"Con todos los tiros (incluida la prórroga), ¿qué tan merecido fue el "
                              f"{int(info['goles_favor'])}-{int(info['goles_contra'])}? Después de la roja, el {equipo} generó "
-                             f"{xg_desp.get(True, 0):.2f} de xG y {rival} {xg_desp.get(False, 0):.2f}.", sim_total),
+                             f"{xg_desp.get(True, 0):.2f} goles esperados (xG) y {rival}, {xg_desp.get(False, 0):.2f}.", sim_total),
     ]
 
     # Principios, barra y textos de la página
@@ -321,23 +327,21 @@ def generar(args: argparse.Namespace) -> int:
         print("✗ Faltan los resultados de los notebooks 02 y 03 (outputs/hallazgos) o el principio del caso.")
         return 1
     barra = sb.compacta(partidos, info, q["tipo"], q["estado_antes"],
-                        f"1 partido · {len(repro['fotos'])} minutos con foto 360")
+                        f"1 partido · {len(repro['fotos'])} minutos con foto de posiciones (360)")
     kpis = [
         (f"Índice con {nuevo}", f"{medias.loc[True, minuto.PROPIO]:.0f}", f"rivales {medias.loc[True, minuto.RIVAL]:.0f} · {n_nuevo} partidos"),
         ("Índice con Solari y Ortiz", f"{medias.loc[False, minuto.PROPIO]:.0f}", f"rivales {medias.loc[False, minuto.RIVAL]:.0f} · {n_previos} partidos"),
     ] + [(t.titulo, t.diferencia, "frente a Solari y Ortiz") for t in tarjetas[:2]]
     titulo = (f"La expulsión de {protagonista} y lo que vino después" if args.tipo.startswith("expulsion")
               else f"{sc.etiqueta_quiebre(q, equipo, rival)} y lo que vino después")
-    pendientes = [
-        ("Matriz de situaciones", "Qué hace Jardine y qué le funciona en cada situación, con la recomendación y su evidencia.",
-         "accionabilidad"),
-        ("Ficha de 10 segundos", "Por rival: cómo progresa, dónde concede, su balón parado y cómo le respondió Jardine.", "accionabilidad"),
-        ("Balón parado", "Córners y tiros libres a favor y en contra: xG, zonas de remate y de vulnerabilidad.", "componente del reto"),
-        ("Uso de jugadores", "Qué cambia con las sustituciones de Jardine y cómo reparte los roles por posición.", "componente del reto"),
-    ]
-    notas = [f"Índice confirmado con PCA: {'los 8 componentes cargan' if pca.mismo_signo else 'no todos los componentes cargan'} con su signo en el primer "
-             f"componente ({pca.varianza * 100:.0f} % de la varianza) y el promedio de pesos iguales correlaciona {pca.correlacion:.2f} con él.",
-             "Principios: pasan el criterio v2 (18 oct): intervalo sin cero, tamaño frente al cambio en las ventanas de control, 4 de 5 torneos y FDR de Benjamini-Hochberg. En la prueba placebo, 0 de 280 quiebres falsos lo pasan.",
+    decidir = datos_decidir(p, team)
+    siguiente = siguiente_paso(decidir, args.tipo, rival, del_caso)
+    notas = [f"Pesos del índice comprobados (PCA): {'las 8 señales empujan' if pca.mismo_signo else 'no todas las señales empujan'} en la "
+             f"dirección esperada ({pca.varianza * 100:.0f} % de la variación) y el promedio con pesos iguales coincide en "
+             f"{pca.correlacion:.2f} (correlación) con la combinación que sale de los datos.",
+             "Cada principio pasa los 4 filtros: rango probable sin cero, tamaño mayor que lo que cambia el partido solo, "
+             f"misma dirección en 4 de 5 torneos y riesgo de falso hallazgo de {p['hallazgo']['fdr_q'] * 100:.0f} % o menos. "
+             "En la prueba en falso (placebo), ninguno de los momentos clave inventados los pasa.",
              "Página con datos reales de StatsBomb: solo para la competencia; no se sube a git ni se publica."]
     datos = {
         "meta": {"generado": date.today().isoformat(), "partido": int(args.partido), "tipo": args.tipo,
@@ -359,15 +363,35 @@ def generar(args: argparse.Namespace) -> int:
             "caso": {"titulo": titulo, "chips": [[k_, v_] for k_, v_ in chips],
                      "quiebres": [[m_, x_, bool(e_)] for m_, x_, e_ in lista_quiebres]},
             "montecarlo": montecarlo, "simulaciones": p["simulacion"]["repeticiones"], "lectura": lectura, "metodo": metodo, "que_muestra": que_muestra,
-            "pendientes": [{"titulo": a_, "texto": b_, "requisito": c_} for a_, b_, c_ in pendientes], "notas": notas,
+            "siguiente": siguiente, "notas": notas,
         },
-        "barra": barra, "reproductor": repro, "decidir": datos_decidir(p, team),
+        "barra": barra, "reproductor": repro, "decidir": decidir,
         "metodo": datos_metodo(partidos, pca, nuevo),
     }
     ruta = datos_app.escribir(datos)
     print(f"Maqueta 3: {titulo}\nDatos: {ruta.relative_to(RAIZ)} ({ruta.stat().st_size // 1024} KB; reales: no se publican ni se suben a git)\n"
           "Página: app/maqueta.html")
     return 0
+
+
+def siguiente_paso(decidir: dict, tipo: str, rival: str, principio: datos_app.Principio) -> list[dict]:
+    """Bloque 6 de El partido: del caso a la decisión (la fila de la matriz, la ficha del rival y qué tan sólido es)."""
+    salida = []
+    fila = next((m for m in decidir["matriz"] if m.get("clave") == SITUACION_DEL_CASO.get(tipo)), None)
+    if fila:
+        salida.append({"titulo": f"{fila['situacion']}: qué conviene", "texto": fila["recomendacion"],
+                       "boton": "Ver la matriz de situaciones", "vista": "decidir", "ancla": "sec-matriz", "situacion": fila["situacion"]})
+    ficha = next((f for f in decidir["fichas"] if f["rival"] == rival), None)
+    if ficha:
+        rasgos = lambda lista: ", ".join(x[0].lower() + x[1:] for x in lista)  # noqa: E731  (a media frase, en minúscula)
+        salida.append({"titulo": f"Si el rival es {rival}", "texto": f"Progresa: {rasgos(ficha['progresa'])}. Defiende: "
+                       f"{rasgos(ficha['defiende'])}. Concede: {rasgos(ficha['concede'])}.",
+                       "boton": "Ver su ficha de 10 segundos", "vista": "decidir", "ancla": "ficha", "rival": rival})
+    val = next((v for v in decidir["validacion"] if v["principio"] == principio.titulo), None)
+    salida.append({"titulo": "¿Qué tan sólido es?", "texto": f"{principio.titulo}: {principio.estado[0].lower() + principio.estado[1:]}."
+                   + (f" En el Clausura 2026, que el análisis no vio: {val['texto'][0].lower() + val['texto'][1:]}." if val else ""),
+                   "boton": "Ver la evidencia", "vista": "metodo", "ancla": "met-evidencia"})
+    return salida
 
 
 def _num(v: float, dec: int = 2) -> float | None:

@@ -81,7 +81,7 @@ Entregables (22 de octubre de 2026): **un solo archivo HTML autocontenido** (la 
   - **Fichas de 10 segundos** (`ojo.lentes.rivales`, `ojo.salidas.decision`).
   - **Validación en el CL26** (notebook 06): ningún principio se invierte.
   - **3 casos de decisión** (notebook 07).
-  - **Vistas Decidir y Método** en la app.
+  - **Vistas Plan de juego y Método** en la app (desde el 18 oct las vistas se llaman Resumen, El partido, Plan de juego y Método; términos para el jurado en `contexto/terminologia.md`).
   - **HTML único** (`scripts/09_entrega.py`) y guion del video (`contexto/guion_video.md`).
   - Principios v2: sale jugando corto · con uno más, hunde al rival · una lesión no lo frena · tras recibir gol, el rival no lo aprieta · alerta: cambiar el sistema le cuesta · refresca las bandas.
 - [ ] Pendiente de chamuel:

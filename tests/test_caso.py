@@ -28,4 +28,4 @@ def test_textos_en_lenguaje_de_cancha() -> None:
     assert caso.describir(falta, {7: "Fidalgo"}, {1: "América"}) == "Fidalgo comete falta: roja directa"
     conduce = SimpleNamespace(tipo="Carry", jugador_id=9, equipo_id=2, pase_receptor_id=None, pase_resultado=None,
                               x=20.0, y=10.0, fin_x=37.0, fin_y=10.0, tarjeta=None, bajo_presion=True)
-    assert caso.describir(conduce, {}, {2: "Rival"}) == "Rival conduce 17 yd bajo presión"
+    assert caso.describir(conduce, {}, {2: "Rival"}) == "Rival conduce 16 m bajo presión"  # 17 yd

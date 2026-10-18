@@ -112,7 +112,7 @@ def describir(e, nombres_: dict[int, str], nombre_equipo: dict[int, str]) -> str
         if pd.notna(e.pase_resultado):
             texto += " (no llega)"
     if e.tipo == "Carry" and pd.notna(e.fin_x):
-        texto += f" {np.hypot(e.fin_x - e.x, e.fin_y - e.y):.0f} yd"
+        texto += f" {np.hypot(e.fin_x - e.x, e.fin_y - e.y) * params()['campo']['yarda_m']:.0f} m"  # se muestra en metros
     if e.tipo == "Foul Committed" and pd.notna(e.tarjeta):
         texto += f": {TARJETAS.get(e.tarjeta, e.tarjeta)}"
     if e.bajo_presion and e.tipo in {"Pass", "Carry", "Miscontrol", "Dispossessed"}:

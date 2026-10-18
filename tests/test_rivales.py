@@ -18,7 +18,7 @@ def test_perfil_z_y_rasgos_destacados() -> None:
     assert medias.loc[1, "posesion"] == .65
     assert z.loc[1, "posesion"] > 1 and z.loc[1, "directness"] < -1
     etiquetas = rivales.destacados(z.loc[1], "progresa", umbral=.5)
-    assert etiquetas == ["Tiene el balón", "Elabora"] or etiquetas == ["Elabora", "Tiene el balón"]
+    assert sorted(etiquetas) == ["Elabora sus ataques", "Tiene el balón"]
 
 
 def test_similares_por_estilo() -> None:

@@ -45,10 +45,10 @@
   <div class="placa"><div id="loop-icono" aria-hidden="true"></div>
     <span class="marca-texto"><span class="solo-lector">Ojo de Águila</span><span aria-hidden="true">Ojo de <span class="a-acento">A<span class="tilde"></span></span>guila</span></span></div>
   <nav class="vistas" aria-label="Vistas">
-    <button type="button" data-vista="portada" aria-current="page">Portada</button>
-    <button type="button" data-vista="explorar">Explorar</button>
-    <button type="button" data-vista="decidir">Decidir</button>
-    <button type="button" data-vista="metodo">Método</button>
+    <button type="button" data-vista="portada" aria-current="page">Resumen<small>en 90 segundos</small></button>
+    <button type="button" data-vista="explorar">El partido<small>minuto a minuto</small></button>
+    <button type="button" data-vista="decidir">Plan de juego<small>para el cuerpo técnico</small></button>
+    <button type="button" data-vista="metodo">Método<small>cómo lo medimos</small></button>
     <button type="button" class="solo-movil" data-cajon aria-expanded="false">Filtros · <span data-cuenta-filtros>0</span></button>
   </nav>
 </header>
@@ -61,22 +61,24 @@
   <p>Eso escribe <code>outputs/app/datos.js</code>; recarga esta página.</p>
 </div>
 
-<!-- ===================== PORTADA ===================== -->
+<!-- ===================== RESUMEN (portada) ===================== -->
 <div class="vista" id="portada">
   <section class="titulo">
     <div><span class="ante">André Jardine en el América · principios con evidencia</span>
       <h1>Propone, sale jugando corto y, cuando el partido se rompe, se instala arriba</h1></div>
-    <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button>
+    <button type="button" class="btn-explorar" data-vista="explorar">Ver un partido<span>→</span></button>
   </section>
 
   <section class="noventa">
     <div class="noventa-cab"><span class="ante">Jardine en 90 segundos · Hackathon ISAC 2026</span></div>
     <div class="kpis" data-slot="kpis"></div>
     <div class="dos-col">
-      <div><h3 class="sub-h">Índice Proactivo–Reactivo por torneo</h3>
+      <div class="col-indice"><h3 class="sub-h">Índice de iniciativa por torneo</h3>
         <div class="figura" data-slot="torneos"></div>
-        <p class="pie">0 = reactivo (directo, en transición) · 100 = proactivo (posesión asentada, arriba); la franja de 40 a 60 es "equilibrado". Ocho componentes con el mismo peso, confirmados con PCA.</p></div>
-      <div><h3 class="sub-h">Principios (criterio v2)</h3><div class="tarjetas" data-slot="principios"></div></div>
+        <p class="pie">0 = espera (va directo, vive del contragolpe) · 100 = propone (tiene el balón y juega en campo rival); de 40 a 60, equilibrado. Ocho señales con el mismo peso, comprobadas con los datos. AP = Apertura, CL = Clausura; el Clausura 2026 no aparece: se guardó para comprobar al final.</p></div>
+      <div><h3 class="sub-h">Principios que pasan los 4 filtros</h3>
+        <p class="pie">Cada tarjeta compara a Jardine con Solari y Ortiz. Pasa los 4 filtros si la diferencia no es casualidad (detalle en Método). xG = goles esperados.</p>
+        <div class="tarjetas" data-slot="principios"></div></div>
     </div>
   </section>
 
@@ -91,16 +93,18 @@
   </section>
 
   <section class="pilares">
-    <div class="pilar"><span class="n">1</span><h3>Identidad</h3><p>Índice Proactivo–Reactivo y Voronoi: cómo juega, minuto a minuto, frente a cada rival.</p></div>
-    <div class="pilar"><span class="n">2</span><h3>Evidencia</h3><p>Cada principio con su número, su intervalo y un partido que lo ilustra; se pondrá a prueba en el Clausura 2026.</p></div>
-    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Qué hacer en cada situación: matriz de situaciones y ficha de 10 segundos por rival. Los casos de decisión están en construcción.</p>
-      <button type="button" class="enlace-pilar" data-vista="decidir">Ir a Decidir →</button></div>
+    <div class="pilar"><span class="n">1</span><h3>Identidad</h3><p>Índice de iniciativa y mapa de control del espacio: cómo juega, minuto a minuto, frente a cada rival.</p>
+      <button type="button" class="enlace-pilar oscuro" data-vista="explorar">Ver un partido →</button></div>
+    <div class="pilar"><span class="n">2</span><h3>Evidencia</h3><p>Cada principio con su número, su rango probable y un partido que lo ilustra, comprobado en el Clausura 2026, un torneo que el análisis no vio: ninguno se invirtió.</p>
+      <button type="button" class="enlace-pilar oscuro" data-ir="metodo#met-evidencia">Ver la evidencia →</button></div>
+    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Qué conviene en cada situación, una ficha de 10 segundos por rival y tres partidos del Clausura 2026: qué marcaba la herramienta y qué pasó.</p>
+      <button type="button" class="enlace-pilar" data-vista="decidir">Ir al plan de juego →</button></div>
   </section>
-  <section class="cierre-p"><strong>Elige un rival y mira el mismo análisis</strong>
-    <button type="button" class="btn-explorar" data-vista="explorar">Explorar por rival<span>→</span></button></section>
+  <section class="cierre-p"><strong>¿Contra quién juegan? Su ficha de 10 segundos</strong>
+    <button type="button" class="btn-explorar" data-ir="decidir#ficha">Ver las fichas<span>→</span></button></section>
 </div>
 
-<!-- ===================== EXPLORAR ===================== -->
+<!-- ===================== EL PARTIDO (explorar) ===================== -->
 <div class="vista" id="explorar">
   <div class="explorar">
     <aside class="barra" aria-label="Filtros">
@@ -116,7 +120,7 @@
       <div class="tira-filtros" data-slot="tira" role="group" aria-label="Filtros activos">
         <button type="button" class="btn-tira" data-ocultar aria-expanded="true">Filtros · <span data-cuenta-filtros>0</span></button><span class="chips-tira"></span></div>
       <div class="filtros" data-slot="filtros"></div>
-      <p class="maqueta">Maqueta con datos reales: los filtros todavía no recalculan; el índice está confirmado con PCA y los principios pasan el criterio v2; se revisan al final en el torneo que el análisis no vio.</p>
+      <p class="maqueta">Datos reales de StatsBomb. El minuto a minuto está armado para este partido. En la barra, el rival elegido lleva a su ficha de 10 segundos; torneo, condición y partido todavía no cambian esta vista.</p>
 
       <section class="bloque"><span class="ante chico">1 · El principio</span><div data-slot="principio"></div></section>
 
@@ -138,29 +142,29 @@
                 <span id="reloj">0'</span>
               </div>
               <p id="accion" class="accion"></p>
-              <p class="teclas">Teclado: espacio reproduce o pausa · ← → paso · Inicio y Fin · RePág y AvPág, quiebre anterior y siguiente</p>
+              <p class="teclas">Teclado: espacio reproduce o pausa · ← → paso · Inicio y Fin · RePág y AvPág, momento clave anterior y siguiente</p>
             </div>
             <div class="figura linea-js"><svg id="linea" viewBox="0 0 560 214" role="img" aria-label="Índice minuto a minuto de ambos equipos"></svg>
               <p class="linea-pie" id="frase-linea"></p></div>
           </div>
           <aside class="panel momento">
             <header>El momento<i aria-hidden="true"></i></header>
-            <section><span class="etq-p">Índice Proactivo–Reactivo</span>
+            <section><span class="etq-p">Índice de iniciativa</span>
               <div class="indicador"><div class="pista"><span id="m-a" class="marca-a"></span><span id="m-r" class="marca-r"></span></div>
-                <div class="extremos"><span>Reactivo</span><span>Proactivo</span></div></div>
+                <div class="extremos"><span>Espera</span><span>Propone</span></div></div>
               <p id="frase-momento" class="frase-momento" aria-live="polite"></p></section>
-            <section class="radar-sec"><span class="etq-p">Por qué (radar de componentes)</span>
+            <section class="radar-sec"><span class="etq-p">Por qué (las 8 señales)</span>
               <svg id="radar" viewBox="0 0 320 230" role="img" aria-label="Radar de componentes del índice"></svg>
-              <p class="nota">Hacia afuera = más proactivo que su promedio; el anillo marcado es su partido normal. Crema: <span data-slot="equipo"></span>; discontinuo: <span data-slot="rival"></span>.</p></section>
-            <section class="detalle"><span class="etq-p">A dos bandas (últimos 5 minutos)</span><table id="tabla-momento"></table></section>
-            <p class="pausa">Pausa para ver la tabla a dos bandas.</p>
+              <p class="nota">Hacia afuera = más iniciativa que su promedio; el anillo marcado es su partido normal. Crema: <span data-slot="equipo"></span>; discontinuo: <span data-slot="rival"></span>.</p></section>
+            <section class="detalle"><span class="etq-p">Frente a frente (últimos 5 minutos)</span><table id="tabla-momento"></table></section>
+            <p class="pausa">Pausa para ver la tabla frente a frente.</p>
           </aside>
         </div>
       </section>
 
-      <section class="bloque"><span class="ante chico">4 · ¿Qué tan merecido? (Monte Carlo explicativo)</span>
+      <section class="bloque"><span class="ante chico">4 · ¿Qué tan merecido? (simulación con los tiros del partido)</span>
         <h2>Lo que valían los tiros de cada equipo</h2><div class="mcs" data-slot="montecarlo"></div>
-        <p class="nota">Cada tiro se repite <span data-slot="simulaciones">miles de</span> veces como un intento que entra con probabilidad igual a su xG. Explica el resultado; no predice partidos.</p></section>
+        <p class="nota">Cada tiro se repite <span data-slot="simulaciones">miles de</span> veces como un intento que entra con probabilidad igual a su xG (goles esperados). Explica el resultado; no predice partidos.</p></section>
 
       <section class="bloque"><span class="ante chico">5 · Cómo leerla</span>
         <div class="panel lectura-panel"><header>Cómo leerla<i aria-hidden="true"></i></header>
@@ -169,13 +173,14 @@
           <section><span class="etq-p lectura">Lectura frente a <span data-slot="rival"></span></span><div class="espacio" data-slot="lectura"></div></section>
           <section><span class="etq-p">Cómo se calcula</span><div class="espacio" data-slot="metodo"></div></section></div></section>
 
-      <section class="bloque"><span class="ante chico">6 · Lo que sigue</span><h2>En construcción</h2><div class="pendientes" data-slot="pendientes"></div></section>
+      <section class="bloque" id="siguiente"><span class="ante chico">6 · Y ahora, ¿qué hacemos?</span><h2>Del partido a la decisión</h2>
+        <div class="siguiente" data-slot="siguiente"></div></section>
       <section class="bloque" data-slot="notas"></section>
     </div>
   </div>
 </div>
 
-<!-- ===================== DECIDIR ===================== -->
+<!-- ===================== PLAN DE JUEGO (decidir) ===================== -->
 <div class="vista" id="decidir">
   <section class="titulo decidir-tit">
     <div><span class="ante">Del dato a la decisión · para el cuerpo técnico</span>
@@ -183,21 +188,21 @@
       <p class="pie" data-slot="base-decidir"></p></div>
   </section>
   <div class="decidir">
-    <section class="bloque"><span class="ante chico">1 · Matriz de situaciones</span>
+    <section class="bloque" id="sec-matriz"><span class="ante chico">1 · Matriz de situaciones</span>
       <h2>Una tarjeta por situación: qué hace, si le funciona y qué conviene (hipótesis)</h2>
-      <p class="nota">▲ le funciona (el intervalo del xG neto queda arriba de 0) · ● parejo · ▼ sufre. Las recomendaciones salen de reglas fijas sobre estos números (framework.md) y son hipótesis, no órdenes.</p>
+      <p class="nota">▲ le funciona (genera más de lo que concede: el rango probable del balance de ocasiones queda arriba de 0) · ● parejo · ▼ sufre. Índice de iniciativa: 0 espera, 100 propone. PPDA: pases que el rival da antes de que le recuperen el balón; menos = más presión. Las recomendaciones salen de reglas fijas sobre estos números y son hipótesis, no órdenes.</p>
       <div class="matriz" data-slot="matriz"></div></section>
 
     <section class="bloque" id="ficha"><span class="ante chico">2 · Ficha de 10 segundos</span>
       <div class="ficha-cab"><h2>Elige un rival</h2>
         <label class="selector-rival">Rival <select id="rival-ficha" aria-label="Rival de la ficha"></select></label></div>
       <article class="ficha" data-slot="ficha" aria-live="polite"></article>
-      <p class="nota">Estilo de cada rival frente a la liga en los torneos de Jardine (AP23–AP25), con Team Match Stats. Un rasgo aparece si se separa al menos media desviación estándar del promedio. "Quién participa poco" no está disponible: solo hay eventos de los partidos del América.</p></section>
+      <p class="nota">Estilo de cada rival frente a la liga en los torneos de Jardine (AP23–AP25), con las estadísticas de equipo de StatsBomb. Un rasgo aparece si se separa del promedio de la liga al menos media variación típica (desviación estándar). "Quién participa poco" no está disponible: solo hay eventos de los partidos del América.</p></section>
 
     <section class="bloque"><span class="ante chico">3 · Balón parado</span>
       <h2>A favor y en contra, frente a Solari y Ortiz</h2>
       <div class="dos-col"><div class="tabla-scroll"><table class="tabla-comp" data-slot="bp-resumen"></table></div>
-        <div><h3 class="sub-h">xG de balón parado por partido, por zona de remate</h3><div class="zonas" data-slot="bp-zonas"></div></div></div></section>
+        <div><h3 class="sub-h">Goles esperados (xG) de balón parado por partido, por zona de remate</h3><div class="zonas" data-slot="bp-zonas"></div></div></div></section>
 
     <section class="bloque"><span class="ante chico">4 · Uso de jugadores</span>
       <h2>Cuántos cambios, cuándo y de qué línea</h2>
@@ -215,57 +220,57 @@
   <section class="titulo decidir-tit">
     <div><span class="ante">Reporte · cómo se hizo y qué tan sólido es</span>
       <h1>Método, evidencia y límites</h1>
-      <p class="pie">Todo sale de los datos de StatsBomb y de reglas escritas antes de ver los resultados. Cada número de esta página viene del pipeline (scripts 03–09 y notebooks 02–07), no se escribió a mano.</p></div>
+      <p class="pie">Todo sale de los datos de StatsBomb y de reglas escritas antes de ver los resultados. Cada número de esta página lo calcula el código del proyecto (scripts 03–09 y notebooks 02–07); ninguno se escribió a mano.</p></div>
   </section>
   <div class="metodo">
     <section class="bloque"><span class="ante chico">1 · La pregunta y los datos</span>
       <h2>¿Qué cambió en el América con André Jardine y cómo usarlo para decidir?</h2>
-      <p class="parrafo">Leemos a Jardine siempre frente a algo: frente al rival en el mismo minuto (dos bandas), frente a sus predecesores en el América (Solari y Ortiz) y frente a la liga. El último torneo se apartó desde el principio para probar, al final, si lo aprendido se sostiene.</p>
+      <p class="parrafo">Leemos a Jardine siempre frente a algo: frente al rival en el mismo minuto (frente a frente), frente a los entrenadores anteriores del América (Solari y Ortiz) y frente a la liga. El último torneo se reservó desde el principio para comprobar, al final, si lo aprendido se sostiene.</p>
       <ul class="lista-met" data-slot="met-datos"></ul></section>
 
     <section class="bloque"><span class="ante chico">2 · Cómo se lee un partido</span>
-      <h2>A dos bandas y por puntos de quiebre</h2>
+      <h2>Frente a frente y por momentos clave</h2>
       <div class="tarjetas-met">
-        <article><h3>Dos bandas</h3><p>Cada métrica del América se lee junto a la del rival en el mismo tramo. Lo que hace un equipo solo se entiende con lo que hace el otro.</p></article>
-        <article><h3>Puntos de quiebre</h3><p>Goles, expulsiones, cambios de sistema y sustituciones (tácticas o por lesión) de los dos equipos. Se compara lo que pasa 10 minutos antes y 10 minutos después.</p></article>
-        <article><h3>Ventanas de control</h3><p>Para descontar lo que cambia solo por el paso del tiempo, cada quiebre se compara con tramos de otros partidos del mismo entrenador, en el mismo periodo, con el mismo marcador y minuto parecido, sin quiebre (diferencia en diferencias).</p></article>
+        <article><h3>Frente a frente</h3><p>Cada medida del América se lee junto a la del rival en el mismo tramo. Lo que hace un equipo solo se entiende con lo que hace el otro.</p></article>
+        <article><h3>Momentos clave</h3><p>Goles, expulsiones, cambios de sistema y sustituciones (tácticas o por lesión) de los dos equipos. Se compara lo que pasa 10 minutos antes y 10 minutos después.</p></article>
+        <article><h3>Tramos de comparación</h3><p>Para descontar lo que cambia solo por el paso del tiempo, cada momento clave se compara con tramos de otros partidos del mismo entrenador, en el mismo periodo, con el mismo marcador y minuto parecido, sin momento clave. Lo que queda es el cambio neto (en estadística, "diferencia en diferencias").</p></article>
       </div></section>
 
-    <section class="bloque"><span class="ante chico">3 · Lentes propias</span>
+    <section class="bloque"><span class="ante chico">3 · Nuestras mediciones</span>
       <h2>Espacio, iniciativa y forma de pasar</h2>
       <div class="tarjetas-met">
-        <article><h3>Voronoi del 360</h3><p>Cada punto de la cancha pertenece al jugador más cercano, recortado a la zona que ve la cámara y a 20 yardas por jugador. Mide cuánto espacio controla cada equipo. En las jugadas animadas, las posiciones entre dos fotos son estimadas y la página lo marca.</p></article>
-        <article><h3>Índice Proactivo–Reactivo</h3><p data-slot="met-pca"></p></article>
-        <article><h3>Huella de pases y redes</h3><p>Los 60 tipos de pase de StatsBomb por partido (huella) y la red de pases entre posiciones, no entre jugadores, para comparar entrenadores con plantillas distintas.</p></article>
-        <article><h3>Presión, balón parado y cambios</h3><p>PPDA y altura de recuperación por tramo (validados contra el PPDA de StatsBomb), envíos y zonas de remate a balón parado, y cuántos cambios, cuándo y de qué línea.</p></article>
+        <article><h3>Mapa de control del espacio (Voronoi)</h3><p>Sobre cada foto de posiciones (360), cada punto de la cancha pertenece al jugador que llega primero (el más cercano), recortado a la zona que ve la cámara y a 18 metros por jugador. Mide cuánto espacio controla cada equipo. En las jugadas animadas, las posiciones entre dos fotos son estimadas y la página lo marca.</p></article>
+        <article><h3>Índice de iniciativa</h3><p data-slot="met-pca"></p></article>
+        <article><h3>Forma de pasar</h3><p>Los 60 tipos de pase de StatsBomb por partido (la huella de pases) y la red de pases entre posiciones, no entre jugadores, para comparar entrenadores con plantillas distintas.</p></article>
+        <article><h3>Presión, balón parado y cambios</h3><p>PPDA (pases que el rival da antes de que le recuperen el balón) y altura de recuperación por tramo, validados contra el PPDA de StatsBomb; envíos y zonas de remate a balón parado; y cuántos cambios, cuándo y de qué línea.</p></article>
       </div></section>
 
     <section class="bloque"><span class="ante chico">4 · Cuándo algo es un hallazgo</span>
-      <h2>Criterio v2: cuatro condiciones y una prueba placebo</h2>
+      <h2>Los 4 filtros y una prueba en falso</h2>
       <ol class="lista-met">
-        <li>El intervalo de confianza al 95 % (bootstrap de partidos completos) no cruza 0.</li>
-        <li>El efecto mide al menos media desviación estándar (en los quiebres, la del cambio en las ventanas de control).</li>
-        <li>Va en la misma dirección en al menos 4 de los 5 torneos de Jardine.</li>
-        <li>Sobrevive a la corrección por pruebas múltiples de Benjamini-Hochberg (FDR).</li>
+        <li><strong>Rango probable sin cero.</strong> El rango donde cae la diferencia con 95 % de confianza (intervalo de confianza, por remuestreo de partidos completos) no cruza 0.</li>
+        <li><strong>Tamaño.</strong> La diferencia mide al menos media variación típica (desviación estándar); en los momentos clave, la de lo que cambia el partido solo en los tramos de comparación.</li>
+        <li><strong>Constancia.</strong> Va en la misma dirección en al menos 4 de los 5 torneos de Jardine.</li>
+        <li><strong>Riesgo de falso hallazgo de 10 % o menos.</strong> Como se hicieron cientos de pruebas, algunas saldrían por suerte; la corrección de Benjamini-Hochberg (FDR, el valor q) lo descuenta.</li>
       </ol>
       <p class="parrafo" data-slot="met-criterio"></p></section>
 
-    <section class="bloque"><span class="ante chico">5 · Principios con su evidencia</span>
+    <section class="bloque" id="met-evidencia"><span class="ante chico">5 · Principios con su evidencia</span>
       <h2>Lo que distingue a Jardine frente a Solari y Ortiz</h2>
       <div class="tabla-scroll"><table class="tabla-comp tabla-met" data-slot="met-principios"></table></div></section>
 
     <section class="bloque"><span class="ante chico">6 · Validación en el Clausura 2026</span>
       <h2>¿Se sostienen en un torneo que el análisis no vio?</h2>
       <div class="tabla-scroll"><table class="tabla-comp tabla-met" data-slot="met-validacion"></table></div>
-      <p class="pie">Se abrió una sola vez, con los principios ya fijados. "Se sostiene": misma dirección y el intervalo no cruza 0. "Misma dirección, sin certeza": la dirección se repite, pero un torneo no alcanza para confirmarla. Ningún principio se invirtió.</p></section>
+      <p class="pie">El torneo reservado se abrió una sola vez, con los principios ya fijados. ✓ Se sostiene: misma dirección y el rango probable no cruza 0. ≈ Misma dirección, sin certeza: la dirección se repite, pero un torneo no alcanza para confirmarla. — Sin muestra suficiente: pasó muy pocas veces. Ningún principio se invirtió.</p></section>
 
     <section class="bloque"><span class="ante chico">7 · Límites y supuestos</span>
       <h2>Lo que este análisis no dice</h2>
       <ul class="lista-met">
-        <li><strong>Comparación, no causalidad estricta.</strong> La diferencia en diferencias descuenta el paso del tiempo, pero sustituir o cambiar de sistema es una decisión que responde a lo que ya pasaba en el partido (selección).</li>
+        <li><strong>Comparación, no causalidad estricta.</strong> El cambio neto descuenta el paso del tiempo, pero sustituir o cambiar de sistema es una decisión que responde a lo que ya pasaba en el partido (selección).</li>
         <li><strong>Muestras chicas.</strong> Expulsiones, lesiones y cambios de sistema son pocos por torneo. Lo marcado como "muestra chica" o "sin certeza" se lee con cautela.</li>
-        <li><strong>La cámara del 360.</strong> El Voronoi solo ve lo que ve la cámara, y el control depende de cuántos jugadores aparecen. Por eso se recorta al área visible y el principio estructural se apoya en la forma del bloque, no solo en el control.</li>
-        <li><strong>Posiciones estimadas.</strong> Entre dos fotos 360 la animación interpola: es para leer la jugada, no un dato. Ninguna métrica la usa.</li>
+        <li><strong>La cámara de las fotos de posiciones (360).</strong> El mapa de control solo ve lo que ve la cámara, y el control depende de cuántos jugadores aparecen. Por eso se recorta a la zona visible y el principio estructural se apoya en la altura y la forma del equipo, no solo en el control.</li>
+        <li><strong>Posiciones estimadas.</strong> Entre dos fotos la animación interpola: es para leer la jugada, no un dato. Ninguna medida la usa.</li>
         <li><strong>Escala relativa.</strong> El índice se compara con los partidos del América y sus rivales, no con toda la liga, porque solo hay eventos de esos partidos.</li>
         <li><strong>Las fichas describen al rival promedio.</strong> En una eliminatoria el rival se adapta (ver el caso de los cuartos de final). "Quién participa poco" no está disponible: falta el detalle de los partidos del rival sin el América.</li>
         <li><strong>Recomendaciones = hipótesis.</strong> Salen de reglas fijas sobre los números. Nunca se dice que una decisión habría cambiado el resultado.</li>
@@ -273,16 +278,21 @@
 
     <section class="bloque"><span class="ante chico">8 · Glosario</span>
       <dl class="glosario">
-        <div><dt>Dos bandas</dt><dd>Leer cada métrica del América junto a la del rival en el mismo tramo.</dd></div>
-        <div><dt>Punto de quiebre</dt><dd>Momento que puede cambiar el partido: gol, expulsión, cambio de sistema o sustitución.</dd></div>
-        <div><dt>xG</dt><dd>Goles esperados: probabilidad de gol de cada tiro según dónde y cómo se tiró.</dd></div>
-        <div><dt>OBV</dt><dd>Valor que suma cada acción con balón a la probabilidad de anotar menos la de recibir.</dd></div>
-        <div><dt>PPDA</dt><dd>Pases que permite el equipo antes de una acción defensiva en campo rival. Más bajo = presiona más.</dd></div>
-        <div><dt>Field tilt</dt><dd>Parte de los pases al último tercio que son del equipo: quién juega más cerca del arco rival.</dd></div>
-        <div><dt>Voronoi</dt><dd>División de la cancha en la zona más cercana a cada jugador: cuánto espacio controla cada equipo.</dd></div>
-        <div><dt>FDR</dt><dd>Corrección por hacer muchas pruebas: evita contar como hallazgo lo que sale por azar.</dd></div>
-        <div><dt>Placebo</dt><dd>Repetir la prueba donde no pasó nada. Si ahí aparecen "hallazgos", el método está inventando.</dd></div>
-        <div><dt>Intervalo (IC 95 %)</dt><dd>Rango donde cae el efecto con 95 % de confianza; si incluye 0, no se puede afirmar la dirección.</dd></div>
+        <div><dt>Frente a frente</dt><dd>Leer cada medida del América junto a la del rival en el mismo tramo (en el análisis, "a dos bandas").</dd></div>
+        <div><dt>Momento clave</dt><dd>Lo que puede cambiar el partido: gol, expulsión, cambio de sistema o sustitución (en el análisis, "punto de quiebre").</dd></div>
+        <div><dt>xG (goles esperados)</dt><dd>Probabilidad de gol de cada tiro según dónde y cómo se tiró. Sumados, cuántos goles "merecía" un equipo.</dd></div>
+        <div><dt>Balance de ocasiones</dt><dd>xG a favor menos xG en contra ("xG neto"). Positivo: genera más de lo que concede.</dd></div>
+        <div><dt>Valor de cada acción (OBV)</dt><dd>Cuánto sube o baja, con cada acción con balón, la probabilidad de anotar menos la de recibir.</dd></div>
+        <div><dt>PPDA</dt><dd>Pases que el rival da antes de que le recuperen el balón en su salida. Más bajo = presiona más.</dd></div>
+        <div><dt>Dominio del último tercio</dt><dd>Parte de los pases en el último tercio que son del equipo ("field tilt"): quién juega más cerca del arco rival.</dd></div>
+        <div><dt>Índice de iniciativa</dt><dd>De 0 (espera) a 100 (propone), con ocho señales por minuto ("índice proactivo–reactivo").</dd></div>
+        <div><dt>Mapa de control del espacio</dt><dd>Divide la cancha en la zona a la que cada jugador llega primero ("Voronoi"): cuánto espacio controla cada equipo.</dd></div>
+        <div><dt>Foto de posiciones (360)</dt><dd>Dónde estaban los jugadores que ve la cámara en cada acción (StatsBomb 360).</dd></div>
+        <div><dt>Rango probable</dt><dd>Donde cae la diferencia con 95 % de confianza ("intervalo de confianza", IC 95 %). Si no incluye el 0, no es casualidad.</dd></div>
+        <div><dt>Riesgo de falso hallazgo</dt><dd>Con cientos de pruebas, algunas salen por suerte; este riesgo ya lo descuenta (valor q, corrección FDR).</dd></div>
+        <div><dt>Prueba en falso (placebo)</dt><dd>Repetir la prueba donde no pasó nada. Si ahí aparecen "hallazgos", el método está inventando.</dd></div>
+        <div><dt>Torneo reservado</dt><dd>El Clausura 2026: se apartó desde el principio y se abrió una sola vez para comprobar.</dd></div>
+        <div><dt>AP, CL y PR</dt><dd>Apertura, Clausura y prórroga (tiempo extra).</dd></div>
       </dl></section>
 
     <section class="bloque"><span class="ante chico">9 · Reproducir</span>

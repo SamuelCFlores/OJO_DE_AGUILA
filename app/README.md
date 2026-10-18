@@ -1,10 +1,12 @@
 # app/: la página de Ojo de Águila (maqueta definitiva)
 
 **Esta es la maqueta definitiva desde el 18 oct: todo cambio visual se hace aquí.** Tiene cuatro vistas:
-- **Portada:** tesis, KPI, índice por torneo y principios.
-- **Explorar:** principio → caso, reproductor con Voronoi y Monte Carlo explicativo.
-- **Decidir:** matriz de situaciones, ficha de 10 segundos, balón parado, uso de jugadores y casos del CL26.
-- **Método:** el reporte, con datos, lentes, criterio v2, principios con evidencia, validación, límites y glosario. Las anteriores (maqueta 2 de `scripts/07_caso.py` y los `outputs/reportes/maqueta_*.html`) quedan como históricas y no se editan.
+- **Resumen** (id `portada`): tesis, cifras clave, índice de iniciativa por torneo y principios.
+- **El partido** (id `explorar`): principio → caso, reproductor con el mapa de control del espacio, "¿qué tan merecido?" y el bloque 6, que lleva a la matriz, a la ficha del rival y a la evidencia.
+- **Plan de juego** (id `decidir`): matriz de situaciones, ficha de 10 segundos, balón parado, uso de jugadores y casos del CL26.
+- **Método** (id `metodo`): el reporte, con datos, mediciones, los 4 filtros, principios con evidencia, validación, límites y glosario.
+
+Los nombres y términos que ve el jurado siguen `contexto/terminologia.md`; los ids internos y las direcciones (`#explorar`…) no cambian. Para enlazar vistas: `data-ir="vista#ancla"` (con `data-rival` abre esa ficha; con `data-situacion` resalta esa tarjeta de la matriz). Las anteriores (maqueta 2 de `scripts/07_caso.py` y los `outputs/reportes/maqueta_*.html`) quedan como históricas y no se editan.
 
 El **diseño** vive aquí y se edita directo; los **datos** los genera Python y nunca entran a git.
 
@@ -47,9 +49,9 @@ Lo valida `ojo.salidas.datos_app.validar` (claves obligatorias y JSON válido). 
 | `meta` | Fecha de generación, partido, tipo de quiebre y aviso de datos |
 | `titulo`, `equipo`, `rival`, `nuevo` | Textos generales (`nuevo` = entrenador del caso: Jardine) |
 | `portada` | `kpis` [{etq, valor, detalle}], `torneos` [{torneo, entrenador, propio, rival, nuevo}], `principios` [tarjetas], `ejemplo` {texto, foto, que_muestra} |
-| `explorar` | `antetitulo`, `filtros`, `principio` (tarjeta grande), `caso` {titulo, chips, quiebres}, `montecarlo` [...], `simulaciones` (repeticiones del Monte Carlo), `lectura`, `metodo`, `que_muestra`, `pendientes`, `notas` |
+| `explorar` | `antetitulo`, `filtros`, `principio` (tarjeta grande), `caso` {titulo, chips, quiebres}, `montecarlo` [...], `simulaciones` (repeticiones del Monte Carlo), `lectura`, `metodo`, `que_muestra`, `siguiente` [{titulo, texto, boton, vista, ancla, rival?, situacion?}] (bloque 6), `notas` |
 | `barra` | Barra compacta (ver `contexto/barra_lateral.md`, versión 4): `rival`, `rivales`, `torneos`, `momento`, `condicion`, `partidos`, `mas`, `muestra`. Desde la versión 4 la app no dibuja `momento` ni `mas` |
-| `decidir` (vista Decidir) | `casos` [{id, titulo, regla, marcaba, paso[], lectura}] (notebook 07), `validacion` [{principio, veredicto, texto, entrenamiento, prueba, bajo, alto, partidos}] (notebook 06), `matriz` [{situacion, hace, funciona, recomendacion, evidencia, nivel, muestra_chica}], `base` {indice, ppda, xg_dif_90}, `fichas` [{rival, progresa, defiende, concede, balon_parado, balon_parado_rasgos, jardine, parecidos, jardine_parecidos, partidos}], `balon_parado` {resumen, zonas}, `jugadores` {resumen} |
+| `decidir` (vista Plan de juego) | `casos` [{id, titulo, regla, marcaba, paso[], lectura}] (notebook 07), `validacion` [{principio, veredicto, texto, entrenamiento, prueba, bajo, alto, partidos}] (notebook 06), `matriz` [{situacion, clave, hace, funciona, recomendacion, evidencia, nivel, muestra_chica}], `base` {indice, ppda, xg_dif_90}, `fichas` [{rival, progresa, defiende, concede, balon_parado, balon_parado_rasgos, jardine, parecidos, jardine_parecidos, partidos}], `balon_parado` {resumen, zonas}, `jugadores` {resumen} |
 | `metodo` (vista Método) | `datos` {liga, nuevo, previos, prueba, torneos_*}, `pca` {varianza, correlacion, mismo_signo, minutos}, `criterio` {placebo_pruebas, placebo_v1, placebo_v2, pruebas, pasan_v1, pasan_v2} |
 | `reproductor` | `componentes`, `minutos` (índice, z, valores y marcador por minuto), `fotos` (Voronoi por minuto), `quiebres`, `etiquetasX`, `jugadas` [{titulo, fotos, minuto}], `animacion` {escala, duracion, pausa_foto, alcance, cuartos_circulo}, `bandas` (40/60 del índice), `inicio` |
 

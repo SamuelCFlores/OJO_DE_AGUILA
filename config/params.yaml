@@ -21,15 +21,15 @@ validacion:
   min_partidos_prueba: 3       # partidos del torneo de prueba con el quiebre para dar veredicto (si no, "sin muestra suficiente")
 relevos: {min_partidos: 5, ventana_partidos: 10}   # interinatos < 5 partidos no cuentan
 
-campo: {largo: 120, ancho: 80, porteria: [120, 40], area_min_x: 102, area_y: [18, 62], area_chica_min_x: 114, area_chica_y: [30, 50]}
+campo: {largo: 120, ancho: 80, porteria: [120, 40], area_min_x: 102, area_y: [18, 62], area_chica_min_x: 114, area_chica_y: [30, 50], yarda_m: 0.9144}   # StatsBomb mide en yardas; yarda_m solo convierte lo que se muestra a metros
 tercios: {defensivo_max_x: 40, final_min_x: 80}
 presion: {campo_rival_min_x: 60, ultimo_tercio_min_x: 80, ppda_zona_max_x: 72}   # 72 = 60 % de la cancha desde la portería del rival
 transicion: {fuente: "is_transition", plan_b_segundos: 10}
 pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
-jugadores: {cambio_temprano_min: 60}
+jugadores: {cambio_temprano_min: 60}   # cambios tácticos "tempranos": antes de este minuto de reloj (lectura del reporte)
 ficha: {umbral_z: 0.5, similares: 4}   # ficha de 10 segundos: un rasgo distingue si |z| ≥ umbral_z frente a la liga; rivales parecidos por estilo
-matriz: {dif_indice: 5, dif_ppda: 2, minutos_min: 300}   # recomendaciones de la matriz: diferencias frente a la base de Jardine y minutos para no marcar muestra chica   # cambios tácticos "tempranos": antes de este minuto de reloj (lectura del reporte)
+matriz: {dif_indice: 5, dif_ppda: 2, minutos_min: 300}   # recomendaciones de la matriz: diferencias frente a la base de Jardine y minutos para no marcar muestra chica
 tramos_min: 15            # 5 para lectura fina del flujo
 red_pases: {min_pases_arista: 3, min_pases_ventana: 15}   # min_pases_ventana: mínimo para la red de una ventana
 voronoi:
