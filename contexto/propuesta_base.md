@@ -29,8 +29,8 @@ El Hackathon ISAC 2026 con el Club América pide explicar, con eventos StatsBomb
 3. **Interacción con el rival:** leer en paralelo a ambos equipos en cada partido, tramo a tramo: quién domina, cuándo cambia y cómo responde cada uno.
 4. **Contexto:** cuantificar los ajustes por marcador, localía, fuerza del rival y momento del partido.
 5. **Efecto del relevo:** comparar el cambio Ortiz → Jardine con el cambio promedio de la liga en el mismo periodo, con el relevo Solari → Ortiz como placebo y, si alcanza el tiempo, con todos los relevos de entrenador de la Liga MX en la ventana.
-6. **Predicción del comportamiento:** con lo aprendido en AP23–AP25, anticipar en el Clausura 2026 el PPDA, el field tilt, el control territorial y la altura de recuperación del América por partido y por tramo según el contexto, y medir con R² si supera a la línea base.
-7. **Predicción de resultados:** con información previa a cada partido, simular 10,000 veces los partidos del Clausura 2026 (Monte Carlo) y evaluar las probabilidades de ganar, empatar o perder con log-loss y calibración frente a la línea base.
+6. **Estabilidad fuera de muestra** (desde el 18 oct; antes "predicción del comportamiento", que se conserva como referencia): con lo aprendido en AP23–AP25, anticipar en el Clausura 2026 el PPDA, el field tilt, el control territorial y la altura de recuperación del América por partido y por tramo según el contexto, y medir con R² si supera a la línea base.
+7. **Predicción de resultados (fuera del alcance desde el 18 oct: la rúbrica oficial pide que la simulación explique, no prediga):** con información previa a cada partido, simular 10,000 veces los partidos del Clausura 2026 (Monte Carlo) y evaluar las probabilidades de ganar, empatar o perder con log-loss y calibración frente a la línea base.
 8. **Decisión:** mostrar con casos concretos del Clausura 2026 qué recomendaba la herramienta antes del partido o en el descanso frente a lo que decidió el cuerpo técnico.
 9. **Herramienta:** dejar el motor listo para cualquier equipo y generar la ficha de 10 segundos.
 
@@ -39,7 +39,7 @@ El Hackathon ISAC 2026 con el Club América pide explicar, con eventos StatsBomb
 | Pilar | Qué es | Criterio |
 | --- | --- | --- |
 | **1. Espacio** | Control territorial con Voronoi sobre el 360, de ambos equipos y en los momentos clave; siempre recortado a `visible_area` y leído como "control en la zona visible al momento de cada acción". Es la imagen central del reporte y del video, y también se predice (objetivo 6). Regla de corte el 14 de octubre | Interpretabilidad y predictiva |
-| **2. Validación fuera de muestra** | (a) Comportamiento: PPDA, field tilt, control territorial y altura de recuperación, con R² contra la línea base. (b) Resultados: Monte Carlo antes del partido, con log-loss y calibración | Predictiva |
+| **2. Evidencia con rigor** (18 oct) | Cada principio con número, intervalo, prueba placebo y corrección por pruebas múltiples (FDR); estabilidad de la dirección en el torneo que no se vio. El Monte Carlo solo explica | Metodología |
 | **3. Del dato a la decisión** | Casos de decisión del Clausura 2026 y ficha de 10 segundos por rival, hechos solo con datos previos | Valor operativo |
 
 La parte causal es el diseño de comparación del objetivo 5. El Monte Carlo después del partido ("qué tan merecido fue el resultado") queda como componente opcional e interpretativo, separado del predictivo.
@@ -53,7 +53,18 @@ La parte causal es el diseño de comparación del objetivo 5. El Monte Carlo des
 | Ajustes según contexto | 3, 4 | Lectura a dos bandas, comparaciones dentro del partido, cambios tácticos de ambos equipos | Tabla “si el rival hace X, Jardine hace Y” |
 | Diferencias entre partidos o momentos | 2, 3 | Partidos atípicos, tramos de 15 minutos, evolución por torneo, resultado merecido (Monte Carlo posterior) | Línea de tiempo con partidos anómalos explicados |
 
-**Cómo cubre la tabla de evaluación** (supuesto: aplica a este reto, hasta que los organizadores lo confirmen)
+**Rúbrica oficial (confirmada el 18 oct).** Cuatro criterios de 25 % y los componentes esperados de la página oficial:
+
+| Criterio | Peso | Cómo lo demostramos | Piezas |
+| --- | --- | --- | --- |
+| Innovación | 25 % | Una forma de ver el partido que no es estándar: el espacio (Voronoi recortado al área visible y en movimiento), la lectura por puntos de quiebre a dos bandas y el índice Proactivo–Reactivo minuto a minuto | `ojo.lentes.voronoi`, `seguimiento`, `indice`; reproductor de la app |
+| Comunicación | 25 % | Un solo HTML que se entiende sin el equipo: "Jardine en 90 segundos", principios con su caso y "Cómo leerla"; video de 5 minutos con el caso de la final AP23; prueba de 3 escenarios en menos de 90 s con alguien externo | `app/`, `scripts/09_entrega.py`, guion del video |
+| Accionabilidad | 25 % | Matriz de situaciones (situación → qué hace Jardine → qué le funciona → recomendación → evidencia), ficha de 10 segundos por rival frecuente y casos de decisión ("la herramienta marcaba X; el cuerpo técnico hizo Y", sin prometer que habría cambiado nada) | `ojo.salidas.ficha`, secciones de la app |
+| Metodología y visualización | 25 % | Framework escrito antes de los resultados; criterio de hallazgo v2 con prueba placebo y FDR; estabilidad fuera de muestra; relevo como experimento natural; Monte Carlo explicativo; visualización auditada (16 oct) | `contexto/framework.md`, `ojo.lentes.hallazgo`, notebooks 02–04 |
+
+Componentes esperados que faltaban el 18 oct: balón parado (`ojo.lentes.balon_parado`) y uso de jugadores (`ojo.lentes.jugadores`). Salen del alcance: el Monte Carlo predictivo, el modelo de riesgo de 10 minutos, el costo de progresión, la barra que filtra de verdad y el CI.
+
+**Tabla planeada (sustituida el 18 oct, se conserva como referencia)**
 
 | Criterio | Peso | Objetivos | Cómo lo demostramos |
 | --- | --- | --- | --- |
@@ -164,7 +175,7 @@ Usamos las 10 APIs de StatsBomb y adoptamos sus definiciones donde existen; lo p
 
 | Entregable | Contenido | Fecha |
 | --- | --- | --- |
-| Reporte HTML (Quarto) | Metodología, framework, los 4–6 principios, lectura a dos bandas, comparaciones y fichas | 22 oct 2026 |
+| HTML único (app + reporte, sin Quarto) | Metodología, framework, los 4–6 principios, lectura a dos bandas, comparaciones, matriz de situaciones y fichas | 22 oct 2026 |
 | Video de máximo 5 minutos | La historia de Jardine en sus principios y una demostración de la ficha de unos 15 segundos | 22 oct 2026 |
 | Ficha de 10 segundos | Una tarjeta por rival: cómo progresa, dónde concede, quién participa poco, su balón parado vulnerable y cómo respondió Jardine ante rivales parecidos | Dentro del reporte |
 | Presentación final (solo finalistas) | Máximo 10 diapositivas, con la hoja de ruta como cierre | 11 nov 2026 |

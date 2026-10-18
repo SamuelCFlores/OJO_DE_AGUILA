@@ -8,9 +8,9 @@ Un **motor analítico reutilizable** sobre las APIs de StatsBomb (Liga MX, Apert
 
 Objetivo: contar la historia de Jardine en el América: sus principios de juego, con el control del espacio como lente central; qué tan estables fueron; cómo interactúan con lo que hace el rival en cada partido y cómo los ajustó según marcador, localía, rival y momento. Medir qué cambió con su llegada frente a Solari y Ortiz (relevo como experimento natural) y validar en un torneo que el modelo no vio (Clausura 2026) que esos principios anticipan su comportamiento y sus resultados, de forma que un cuerpo técnico lo entienda sin ver un solo video y lo use para tomar decisiones. Texto completo en `contexto/propuesta_base.md`.
 
-Eje central, tres pilares: (1) **Espacio**: Voronoi sobre el 360, recortado a `visible_area`; (2) **Validación fuera de muestra**: comportamiento con R² y resultados con Monte Carlo antes del partido (log-loss y calibración); (3) **Del dato a la decisión**: casos de decisión del CL26 y ficha de 10 segundos. Nunca prometer que la herramienta "habría cambiado" una decisión: se muestra qué recomendaba frente a lo que se decidió.
+Eje central, tres pilares: (1) **Espacio**: Voronoi sobre el 360, recortado a `visible_area`; (2) **Evidencia con rigor**: cada principio con número, intervalo, prueba placebo y corrección por pruebas múltiples, y su estabilidad en un torneo que el análisis no vio; (3) **Del dato a la decisión**: matriz de situaciones, ficha de 10 segundos y casos de decisión. Nunca prometer que la herramienta "habría cambiado" una decisión: se muestra qué recomendaba frente a lo que se decidió.
 
-Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 minutos y una "ficha de 10 segundos" por rival. Finalistas: presentación de 10 diapositivas (11 de noviembre).
+Entregables (22 de octubre de 2026): **un solo archivo HTML autocontenido** (la app y el reporte juntos, con las fichas de 10 segundos; sin Quarto) y un video de máximo 5 minutos. Finalistas: presentación de 10 diapositivas (11 de noviembre).
 
 ## Decisiones tomadas
 
@@ -20,10 +20,10 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - Regla del framework: si StatsBomb define un objeto, se adopta; si no, se define en `contexto/framework.md`. Todos los umbrales viven en `config/params.yaml`.
 - Tiempo real: solo visión a futuro. Nada en vivo, sin video ni tracking durante el hackathon.
 - Regla de corte: si el 14 de octubre Voronoi no da hallazgos claros, pasa a lente de apoyo.
-- Rúbrica: nos apegamos a la tabla de evaluación publicada (predictiva 30 %, causal 25 %, interpretabilidad 25 %, valor operativo 20 %) y el objetivo se adapta a ella (supuesto hasta que los organizadores confirmen). La interpretabilidad se cubre con la capa "Decide en 90 segundos" (`contexto/propuesta_base.md`).
+- Rúbrica (confirmada el 18 oct): la **oficial**, cuatro criterios de 25 %: innovación, comunicación, accionabilidad, y metodología y visualización. Además, los "componentes esperados" de la página oficial, entre ellos balón parado y uso de jugadores. La simulación es **para explicar, no para predecir**. La tabla 30/25/25/20 queda sustituida; cómo se cubre cada criterio está en `contexto/propuesta_base.md`, "Rúbrica oficial".
 - Validación: entrenamiento AP23–AP25, prueba en el Clausura 2026 (intocable hasta la evaluación final, sin fuga de información). Plan B si los organizadores no permiten datos posteriores al CL25: AP23–AP24 y prueba en el CL25. Detalle en `contexto/framework.md`, "Validación, causalidad y decisión".
 - Idea central (12 oct): leer el partido por **puntos de quiebre** (goles, expulsiones, cambios de sistema, sustituciones tácticas y por lesión, de ambos equipos): antes/después en ambos equipos, contra ventanas de control emparejadas (diferencia en diferencias). Criterio de hallazgo fijado antes de ver resultados y evaluado sin el CL26 (`contexto/framework.md`, "Lectura del partido por puntos de quiebre"). Cómo se conecta cada herramienta: `contexto/propuesta_base.md`, "Idea central".
-- Monte Carlo: antes del partido es predictivo (cuenta para el 30 %, evaluado en toda la liga del CL26 y aparte el América); después del partido ("qué tan merecido fue") es interpretativo y opcional. Nunca se mezclan.
+- Monte Carlo: solo explicativo ("qué tan merecido fue", con el xG de los tiros del propio partido). El Monte Carlo predictivo antes del partido y el modelo de riesgo de 10 minutos salieron del alcance el 18 oct.
 
 ## Reglas no negociables
 
@@ -37,7 +37,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 ## Entorno
 
 - Windows + PowerShell, Python 3.13, `venv`, `requirements.txt` con versiones fijas, VS Code + Jupyter.
-- Librerías: requests, python-dotenv, pandas, pyarrow, duckdb, numpy, scipy, shapely, networkx, mplsoccer, matplotlib, scikit-learn, statsmodels, pyyaml, tqdm, nbstripout. Quarto después.
+- Librerías: requests, python-dotenv, pandas, pyarrow, duckdb, numpy, scipy, shapely, networkx, mplsoccer, matplotlib, scikit-learn, statsmodels, pyyaml, tqdm, nbstripout. Sin Quarto: la entrega es un HTML autocontenido que arma un script.
 - Rutas con `pathlib`; nada de rutas absolutas ni separadores fijos. Cuidado con OneDrive y rutas con acentos.
 - Clon local de Samuel: `C:\Users\samue\OneDrive\Documentos\PROYECTOS\C_AMERICA`. Está bajo la carpeta de OneDrive pero la sincronización no está activa (todo queda en local); si se activa, excluir `data/` y `.venv/`.
 - Activar el entorno: `.venv\Scripts\Activate.ps1` (si falla: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`).
@@ -74,7 +74,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 - [x] Maqueta 3 (14 oct): narrativa principio → caso confirmador (final AP23, roja a Fulgencio), índice Proactivo–Reactivo por minuto (`ojo.lentes.indice`, **propuesta pendiente de confirmar**), reproductor minuto a minuto con Voronoi (`ojo.salidas.reproductor`) y Monte Carlo explicativo (`ojo.lentes.simulacion`). La página es la plantilla `app/maqueta.html` (+ `app.css`, `app.js`); `scripts/08_maqueta.py` solo escribe `outputs/app/datos.js`. Barra lateral v3: compacta, plegable y ocultable. Voronoi en movimiento en las jugadas (seguimiento estimado, `ojo.lentes.seguimiento`; Voronoi recalculado en el navegador). Auditoría del 14 oct en `auditoria/`. Auditoría visual del 16 oct implementada el 17 oct: `app/movimiento.js` (`OjoMov`), barra en tres variantes (por defecto `sobre`) y opciones `?sin-intro`, `?barra=` y `?movimiento=reducido` (`app/README.md`).
 - [ ] Métricas de comportamiento por tramo (PPDA, altura de recuperación), fuerza del rival previa, modelado (R², Monte Carlo), validación en el CL26, ficha, `scripts/09_resumenes.py`, reporte, video.
 
-Preguntas abiertas: ¿los organizadores confirman que la tabla de evaluación aplica a este reto?, ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, al parecer heredado de ediciones anteriores; se usan, con plan B listo), ¿cómo evalúan "la herramienta cambia una decisión real"?, ¿qué implica la nota de que no se necesita programación avanzada? Samuel envía el correo a los organizadores el 8 de octubre.
+Preguntas abiertas (la rúbrica oficial y el HTML único ya están confirmados): ¿cómo se plantean los coach drills?, ¿la elección de Jardine es libre?, ¿límites de consumo de la API?, ¿los organizadores aceptan datos de AP25–CL26? (la convocatoria habla de AP21–CL25, al parecer heredado de ediciones anteriores; se usan, con plan B listo), ¿cómo evalúan "la herramienta cambia una decisión real"?, ¿qué implica la nota de que no se necesita programación avanzada? Samuel envía el correo a los organizadores el 8 de octubre.
 
 ## Documentos (léelos solo cuando la tarea lo pida)
 

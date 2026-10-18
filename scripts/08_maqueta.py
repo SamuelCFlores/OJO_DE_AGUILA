@@ -321,14 +321,11 @@ def generar(args: argparse.Namespace) -> int:
     titulo = (f"La expulsión de {protagonista} y lo que vino después" if args.tipo.startswith("expulsion")
               else f"{sc.etiqueta_quiebre(q, equipo, rival)} y lo que vino después")
     pendientes = [
-        ("Modelo de riesgo", "Probabilidad de recibir peligro en los próximos 10 minutos según el índice y el contexto; "
-         "evaluado en el Clausura 2026 con log-loss y calibración.", "predictivo"),
-        ("Balón parado", "Cómo se ubican y qué espacio cubren en córners y tiros libres (Voronoi en el envío) y desde dónde "
-         "rematan o les rematan.", "componente del reto"),
-        ("Costo de progresión", "Grafo de pases dirigido: qué tan caro le resulta llegar al último tercio, con la "
-         "probabilidad de éxito de cada pase.", "innovación"),
-        ("Matriz de situaciones y ficha", "Qué hace Jardine y qué le funciona en cada situación; ficha de 10 segundos por rival.",
-         "decisión"),
+        ("Matriz de situaciones", "Qué hace Jardine y qué le funciona en cada situación, con la recomendación y su evidencia.",
+         "accionabilidad"),
+        ("Ficha de 10 segundos", "Por rival: cómo progresa, dónde concede, su balón parado y cómo le respondió Jardine.", "accionabilidad"),
+        ("Balón parado", "Córners y tiros libres a favor y en contra: xG, zonas de remate y de vulnerabilidad.", "componente del reto"),
+        ("Uso de jugadores", "Qué cambia con las sustituciones de Jardine y cómo reparte los roles por posición.", "componente del reto"),
     ]
     notas = ["Índice provisional: definición del 14 oct en contexto/framework.md, pendiente de confirmar (pesos iguales, falta la verificación con PCA).",
              "Principios: candidatos con el criterio v1; la auditoría del 14 oct pide la versión 2 (escala de las ventanas de control, FDR) y la prueba placebo.",

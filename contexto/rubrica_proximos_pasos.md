@@ -1,5 +1,11 @@
 # Rúbrica de próximos pasos · 14 oct 2026
 
+> **Actualización 18 oct.** Los organizadores confirmaron la rúbrica **oficial**: innovación, comunicación, accionabilidad, y metodología y visualización, 25 % cada una; la simulación explica, no predice. La entrega es **un solo HTML** (sin Quarto). Por eso:
+> - salen los pasos 6 (modelo de riesgo), 13 (barra que filtra), 14 (costo de progresión), 15, 20 (CI) y 22 (presentación, después del 22);
+> - el paso 5 pasa a "estabilidad fuera de muestra" y el 16 a "HTML único" (`scripts/09_entrega.py`).
+>
+> Lo hacen chamuel y Claude Code. El plan y el cómo se cubre cada criterio están en `contexto/propuesta_base.md`, "Rúbrica oficial".
+
 Para revisarla entre **chamuel** y **Tilin** en unos 30 minutos y decidir qué hacer en los 8 días que quedan (entrega: 22 oct).
 
 **Rúbrica del jurado.** Se trabaja con la tabla planeada (predictiva 30 %, causal 25 %, interpretabilidad 25 %, valor operativo 20 %) mientras los organizadores responden el correo del 14 oct. Al lado va la tabla de la página oficial (innovación, comunicación, accionabilidad, metodología y visualización, 25 % cada una) y sus "componentes esperados", para que nada de lo que hagamos quede fuera si la oficial es la que aplica.

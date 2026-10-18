@@ -128,7 +128,7 @@ Clave: id del entrenador. Dentro, una entrada por situación con las métricas d
 
 ### `caso_por_defecto`
 
-Lo que la página abre sin tocar la barra. El texto redactado a mano del caso vive en el reporte (Quarto), no en este archivo.
+Lo que la página abre sin tocar la barra. El texto redactado a mano del caso vive en el reporte (el HTML de la entrega), no en este archivo.
 
 ```json
 "caso_por_defecto": {"rival": "1301", "torneo": "todos", "situacion": "salida"}

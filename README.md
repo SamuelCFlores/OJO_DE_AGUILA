@@ -90,7 +90,7 @@ OJO_DE_AGUILA/
 │   └── salidas/              # capa 4 · figuras, tablas del reporte, ficha de 10 segundos
 ├── scripts/                  # puntos de entrada numerados: 00_prueba_humo.py, 01_inspector.py, 02_descarga.py…
 ├── notebooks/                # exploración numerada (NN_tema.ipynb); solo llaman a src/ojo
-├── reports/                  # fuentes Quarto (.qmd) y resúmenes revisados, sin datos crudos
+├── reports/                  # resúmenes revisados, sin datos crudos (la entrega es un HTML único: scripts/09_entrega.py)
 ├── tests/
 │   └── fixtures/             # datos SINTÉTICOS hechos a mano, nunca datos reales
 │

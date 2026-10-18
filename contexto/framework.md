@@ -167,21 +167,21 @@ Una combinación rival · torneo · situación con menos de `resumenes.min_parti
 - Plan B, si los organizadores no permiten datos posteriores al Clausura 2025: entrenamiento AP23–AP24 y prueba en el Clausura 2025 (`validacion.plan_b`).
 - Sin fuga: todo lo que alimenta una predicción o una ficha del torneo de prueba se calcula con partidos anteriores a ese día. La fuerza del rival se recalcula con partidos previos en vez de usar la estadística de la temporada completa.
 
-**Predicción del comportamiento (R²)**
+**Estabilidad fuera de muestra** (18 oct: con la rúbrica oficial deja de ser un criterio predictivo y se presenta como prueba de rigor; se conserva el diseño)
 
 - Variables objetivo, por partido y por tramo: PPDA, field tilt, control territorial y altura de recuperación del América.
 - Variables explicativas: marcador, localía, fuerza del rival, momento y los principios estimados en entrenamiento.
 - Líneas base: el promedio de la liga en la misma situación y el América de Ortiz en la misma situación. Se reporta R² y error absoluto medio en el torneo de prueba; si los principios no mejoran a la línea base, se dice.
 
-**Predicción de resultados (Monte Carlo antes del partido)**
+**Predicción de resultados (Monte Carlo antes del partido): fuera del alcance desde el 18 oct.** La rúbrica oficial pide que la simulación explique, no prediga. Se conserva la definición por si se retoma.
 
 - Para cada partido del torneo de prueba se estima el xG esperado a favor y en contra de cada equipo solo con información previa: forma reciente (últimos `simulacion.forma_partidos` partidos), perfil del rival, localía y, para el América, los principios de Jardine.
 - Se simulan `simulacion.repeticiones` marcadores y se obtienen las probabilidades de ganar, empatar o perder.
 - Se evalúa con log-loss y calibración sobre todos los partidos de la Liga MX del torneo de prueba, y aparte sobre los del América. Líneas base: las frecuencias históricas de resultados por localía y el xG reciente de cada equipo sin principios.
 
-**Monte Carlo después del partido (opcional, interpretativo)**
+**Monte Carlo después del partido (explicativo; el único que se usa)**
 
-- Con el xG de los tiros del propio partido se simula el marcador para medir qué tan merecido fue el resultado. No es predicción y no cuenta para la parte predictiva.
+- Con el xG de los tiros del propio partido se simula el marcador para medir qué tan merecido fue el resultado. No es predicción.
 
 **Efecto del relevo (causal)**
 
