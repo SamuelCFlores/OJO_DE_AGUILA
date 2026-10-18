@@ -387,6 +387,13 @@
         }).join(''));
     }
     if (X.jugadores) html('uso-resumen', tablaComp(X.jugadores.resumen, 'Por partido'));
+    html('casos', (X.casos || []).map(function (c, k) {
+      return '<article class="caso-dec"><span class="n">' + (k + 1) + '</span><h3>' + esc(c.titulo) + '</h3>' +
+        '<p class="regla">Regla: ' + esc(c.regla) + '</p>' +
+        '<div class="dos-col"><div><span class="etq-c">Qué marcaba la herramienta</span><p>' + esc(c.marcaba) + '</p></div>' +
+        '<div><span class="etq-c">Qué pasó</span><ul>' + c.paso.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></div></div>' +
+        '<p class="lect"><b>Lectura.</b> ' + esc(c.lectura) + '</p></article>';
+    }).join('') || '<p class="pie">Falta correr el notebook 07.</p>');
   }
 
   // ---------- reproductor: minuto a minuto (fundido) y jugadas animadas (Voronoi en movimiento) ----------

@@ -14,6 +14,7 @@ y abrir app/maqueta.html (doble clic, o con el servidor de .claude/launch.json e
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from datetime import date
 
@@ -401,7 +402,17 @@ def fichas_rivales(p: dict, team: int) -> list[dict]:
 
 def datos_decidir(p: dict, team: int) -> dict:
     """Matriz de situaciones (notebook 05), fichas de 10 segundos, balón parado y uso de jugadores (notebook 04)."""
-    salida: dict = {"matriz": [], "base": None, "fichas": fichas_rivales(p, team), "balon_parado": None, "jugadores": None}
+    salida: dict = {"matriz": [], "base": None, "fichas": fichas_rivales(p, team), "balon_parado": None, "jugadores": None,
+                    "casos": [], "validacion": []}
+    casos = DIR_HALLAZGOS / "casos_cl26.json"  # notebook 07
+    if casos.exists():
+        salida["casos"] = json.loads(casos.read_text(encoding="utf-8"))
+    val = DIR_HALLAZGOS / "validacion_cl26.parquet"  # notebook 06
+    if val.exists():
+        salida["validacion"] = [{"principio": r.principio, "veredicto": r.veredicto, "texto": r.veredicto_texto,
+                                 "entrenamiento": _num(r.dif_entrenamiento, 3), "prueba": _num(r.dif_prueba, 3),
+                                 "bajo": _num(r.bajo, 3), "alto": _num(r.alto, 3), "partidos": int(r.partidos_prueba)}
+                                for r in pd.read_parquet(val).itertuples()]
     rm, rb = DIR_HALLAZGOS / "matriz.parquet", DIR_HALLAZGOS / "matriz_base.parquet"
     if rm.exists() and rb.exists():
         base = pd.read_parquet(rb).iloc[0]

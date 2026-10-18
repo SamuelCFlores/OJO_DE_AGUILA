@@ -443,6 +443,17 @@
   .zona-fila .b.p { background: var(--c-azul); }
   .zonas h4 { margin: 4px 0 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--oda-gris-texto); }
   .zonas .ley { font-size: 12px; color: var(--oda-gris-texto); display: flex; gap: 12px; }
+  .casos { display: grid; gap: 14px; }
+  .caso-dec { position: relative; background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 2px var(--c-azul); padding: 18px 20px 18px 64px; display: grid; gap: 10px; }
+  .caso-dec .n { position: absolute; left: 16px; top: 14px; font-size: 40px; font-weight: 900; line-height: 1; color: transparent; -webkit-text-stroke: 2px var(--c-azul); }
+  .caso-dec h3 { margin: 0; font-size: 18px; font-weight: 900; text-transform: uppercase; }
+  .caso-dec p, .caso-dec li { margin: 0; font-size: 14px; }
+  .caso-dec ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+  .caso-dec .regla { font-size: 12.5px; color: var(--oda-gris-texto); }
+  .caso-dec .etq-c { display: block; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--oda-gris-texto); margin-bottom: 4px; }
+  .caso-dec .lect { background: var(--c-azul); color: #fff; border-radius: 8px; padding: 10px 12px; }
+  .caso-dec .lect b { color: var(--c-acento); }
+  @media (max-width: 520px) { .caso-dec { padding-left: 20px; } .caso-dec .n { position: static; } }
   .zonas .ley i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
 
   /* Objetivos táctiles de al menos 44 px en el teléfono y con puntero grueso (V-M10) */
