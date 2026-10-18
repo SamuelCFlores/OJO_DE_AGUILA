@@ -30,6 +30,10 @@ Opciones en la dirección (para revisar y grabar):
 | `?barra=sobre`, `riel` o `chips` | Variante de la barra lateral (por defecto `sobre`; también `data-barra-variante` en el `<body>`) |
 | `?movimiento=reducido` | Simula `prefers-reduced-motion`: nada se anima y todo queda en su estado final |
 
+## La entrega: un solo HTML
+
+`python scripts/09_entrega.py` incrusta la página, `app.css`, `app.js`, `movimiento.js`, `branding/dist` (marca, React y Poppins 500/700), `branding/tokens.css`, el ícono y `outputs/app/datos.js` en `outputs/entrega/ojo_de_aguila.html`. Ese archivo abre con doble clic, sin servidor. Lo único externo es la hoja de Google Fonts para los demás pesos de Poppins; sin internet, esos pesos caen al respaldo. Lleva datos reales: es para los organizadores y no se sube a git.
+
 ## Contrato de `datos.js`
 
 Lo valida `ojo.salidas.datos_app.validar` (claves obligatorias y JSON válido). Primer nivel:
@@ -41,6 +45,7 @@ Lo valida `ojo.salidas.datos_app.validar` (claves obligatorias y JSON válido). 
 | `portada` | `kpis` [{etq, valor, detalle}], `torneos` [{torneo, entrenador, propio, rival, nuevo}], `principios` [tarjetas], `ejemplo` {texto, foto, que_muestra} |
 | `explorar` | `antetitulo`, `filtros`, `principio` (tarjeta grande), `caso` {titulo, chips, quiebres}, `montecarlo` [...], `simulaciones` (repeticiones del Monte Carlo), `lectura`, `metodo`, `que_muestra`, `pendientes`, `notas` |
 | `barra` | Barra compacta (ver `contexto/barra_lateral.md`, versión 3): `rival`, `rivales`, `torneos`, `momento`, `condicion`, `partidos`, `mas`, `muestra` |
+| `decidir` | `matriz` [{situacion, hace, funciona, recomendacion, evidencia, nivel, muestra_chica}], `base` {indice, ppda, xg_dif_90}, `fichas` [{rival, progresa, defiende, concede, balon_parado, balon_parado_rasgos, jardine, parecidos, jardine_parecidos, partidos}], `balon_parado` {resumen, zonas}, `jugadores` {resumen} |
 | `reproductor` | `componentes`, `minutos` (índice, z, valores y marcador por minuto), `fotos` (Voronoi por minuto), `quiebres`, `etiquetasX`, `jugadas` [{titulo, fotos, minuto}], `animacion` {escala, duracion, pausa_foto, alcance, cuartos_circulo}, `bandas` (40/60 del índice), `inicio` |
 
 Una **foto** (`ojo.salidas.reproductor.foto`) trae celdas y a quién pertenecen, frontera, área visible, jugadores `[x, y, propio, actor]`, la flecha del pase o la conducción y el control, siempre con el América atacando hacia la derecha. En las **jugadas** cada foto agrega `t` (segundos), `ids` (pista estimada de cada jugador, `ojo.lentes.seguimiento`) y `nombre` (quien ejecuta, de Events + Lineups).

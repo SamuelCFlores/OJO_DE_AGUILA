@@ -35,6 +35,7 @@ Los scripts se corren en orden; todos son incrementales (lo ya hecho se salta) y
 | 6 | `python scripts/06_paso_a_paso.py --listar --quiebre sustitucion_tactica_propia` y luego el comando que imprime | No | El Voronoi de una jugada real paso a paso → `outputs/reportes/voronoi_paso_a_paso.html` (también `--partido MATCH_ID`) |
 | 7 | `python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra` | No | **Histórica** (maqueta 2, no se edita): caso puntual leído hasta un quiebre → `outputs/reportes/maqueta_2.html` |
 | 8 | `python scripts/08_maqueta.py --partido 3918375 --tipo expulsion_favor` | No | Datos de la **maqueta definitiva** → `outputs/app/datos.js`; la página es `app/maqueta.html` (diseño editable a mano, ver `app/README.md`) |
+| 9 | `python scripts/09_entrega.py` | No | **Entrega**: un solo HTML autocontenido con la maqueta, sus estilos, scripts, marca y datos → `outputs/entrega/ojo_de_aguila.html` (abre con doble clic; lleva datos reales, no se sube) |
 
 Pasos 0–2 los corre quien tenga credenciales (Samuel). Del 3 en adelante cualquiera con la caché. Después de agregar una columna a `ojo.datos.tablas`: `python scripts/03_procesar.py --rehacer eventos`.
 
