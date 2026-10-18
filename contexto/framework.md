@@ -113,6 +113,20 @@ Las métricas de forma solo usan frames con al menos `forma.min_jugadores_equipo
 2. Su tamaño es al menos `hallazgo.tamano_min_de` desviaciones estándar de la variación entre partidos de esa métrica (DE del valor por partido en los partidos del América usados).
 3. Va en la misma dirección en al menos `hallazgo.min_torneos_misma_direccion` de los torneos de Jardine.
 
+**Criterio v2** (18 oct, tras la auditoría A2). Se fijó antes de correrlo, pero después de ver la v1. Cambia dos cosas y agrega una prueba:
+- En los quiebres, la escala de la condición 2 es la DE del cambio antes→después en las ventanas de control.
+- Condición 4: el efecto sobrevive a Benjamini-Hochberg (q ≤ `hallazgo.fdr_q`) dentro de su familia de pruebas.
+- Prueba placebo: el mismo criterio sobre ventanas de control tratadas como quiebres falsos.
+
+Código: `ojo.lentes.hallazgo` (`p_bootstrap`, `fdr_bh`, `con_fdr`, `efectos_placebo`).
+
+Resultado del 18 oct:
+
+| | v1 | v2 |
+| --- | --- | --- |
+| Placebo (quiebres falsos) | 11 de 280 | 0 de 280 |
+| Tabla final (de 636 pruebas) | 69 | 30 |
+
 IMPOR1: el Clausura 2026 es el torneo de prueba (sección "Validación, causalidad y decisión"). Los hallazgos alimentan los principios que luego se validan ahí, así que el criterio se evalúa en los 5 torneos de entrenamiento (AP23–AP25: al menos 4 de 5) y el CL26 se usa al final solo para confirmar la dirección.
 
 Se reporta cuántas pruebas se hicieron, porque con muchas pruebas algunas pasan por azar. Agregado al ver los primeros resultados, sin cambiar qué pasa: los efectos con menos de `hallazgo.partidos_aviso` partidos se marcan como muestra chica (con tan pocos partidos el bootstrap subestima la incertidumbre). OBS1: en los quiebres, la condición 2 filtra poco, porque una ventana de 10 minutos cambia mucho más que el promedio de un partido completo; los filtros que pesan son la 1 y la 3. **Voronoi** sigue como lente estructural si alguna de sus métricas (control en campo rival, forma) cumple el criterio después de algún quiebre; si no, queda como apoyo visual. El resultado final es una tabla de qué pasa y qué no.
