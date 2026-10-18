@@ -93,7 +93,8 @@ def principios(caso_tipo: str, caso_texto: str) -> tuple[list[datos_app.Principi
         nuevo, previo = (f["efecto_nuevo"], f["efecto_previos"]) if d["cambio"] else (f["nuevo"], f["previos"])
         fmt = (lambda v: f"{v * d['escala']:+.{d['dec']}f}{d['unidad']}") if d["cambio"] else (lambda v: f"{v * d['escala']:.{d['dec']}f}{d['unidad']}")
         dif = lambda v: f"{v * d['escala']:+.{d['dec']}f}{d['unidad']}"  # noqa: E731
-        estado = f"Pasa el criterio v2 · q = {f['q']:.2f}".replace(".", ",", 1) if f["pasa"] else "No pasa el criterio v2"
+        q_txt = "q < 0,01" if f["q"] < .01 else f"q = {f['q']:.2f}".replace(".", ",")
+        estado = f"Pasa el criterio v2 · {q_txt}" if f["pasa"] else "No pasa el criterio v2"
         if f.get("muestra_chica", False):
             estado += " · muestra chica"
         p = datos_app.Principio(
@@ -361,6 +362,7 @@ def generar(args: argparse.Namespace) -> int:
             "pendientes": [{"titulo": a_, "texto": b_, "requisito": c_} for a_, b_, c_ in pendientes], "notas": notas,
         },
         "barra": barra, "reproductor": repro, "decidir": datos_decidir(p, team),
+        "metodo": datos_metodo(partidos, pca, nuevo),
     }
     ruta = datos_app.escribir(datos)
     print(f"Maqueta 3: {titulo}\nDatos: {ruta.relative_to(RAIZ)} ({ruta.stat().st_size // 1024} KB; reales: no se publican ni se suben a git)\n"
@@ -400,6 +402,34 @@ def fichas_rivales(p: dict, team: int) -> list[dict]:
     return sorted(salida, key=lambda f: (-f["partidos"], f["rival"]))
 
 
+def datos_metodo(partidos: pd.DataFrame, pca: indice.VerificacionPCA, nuevo: str) -> dict:
+    """Números de la vista Método: datos usados, verificación del índice, criterio v2 (placebo y tabla final)."""
+    liga = fp.validos(almacen.cargar("partidos"))
+    grupos = partidos.assign(grupo=np.where(partidos["prueba"], "prueba", np.where(partidos["entrenador_corto"] == nuevo, "nuevo", "previos")))
+    conteo = grupos.groupby("grupo").size()
+    torneos = grupos.groupby("grupo")["torneo_corto"].agg(lambda s: ", ".join(dict.fromkeys(s)))
+    salida = {"datos": {"liga": int(len(liga)), "nuevo": int(conteo.get("nuevo", 0)), "previos": int(conteo.get("previos", 0)),
+                        "prueba": int(conteo.get("prueba", 0)), "torneos_nuevo": torneos.get("nuevo", ""),
+                        "torneos_previos": torneos.get("previos", ""), "torneos_prueba": torneos.get("prueba", "")},
+              "pca": {"varianza": _num(pca.varianza, 3), "correlacion": _num(pca.correlacion, 3), "mismo_signo": bool(pca.mismo_signo),
+                      "minutos": int(pca.minutos)},
+              "criterio": None}
+    placebo, final = DIR_HALLAZGOS / "placebo.parquet", DIR_HALLAZGOS / "tabla_final.parquet"
+    if placebo.exists() and final.exists():
+        pl, tf = pd.read_parquet(placebo), pd.read_parquet(final)
+        v1 = 0
+        for archivo in ("quiebres_jardine", "quiebres_contra_predecesores", "agresividad", "estilo", "huella"):
+            ruta = DIR_HALLAZGOS / f"{archivo}.parquet"
+            if ruta.exists():
+                t = pd.read_parquet(ruta)
+                if archivo == "agresividad":
+                    t = t[t["grupo"] == nuevo]
+                v1 += int((t["pasa_v1"] if "pasa_v1" in t else t["pasa_1a3"]).sum())
+        salida["criterio"] = {"placebo_pruebas": int(len(pl)), "placebo_v1": int(pl["pasa_v1"].sum()), "placebo_v2": int(pl["pasa"].sum()),
+                              "pruebas": int(len(tf)), "pasan_v1": v1, "pasan_v2": int(tf["pasa"].sum())}
+    return salida
+
+
 def datos_decidir(p: dict, team: int) -> dict:
     """Matriz de situaciones (notebook 05), fichas de 10 segundos, balón parado y uso de jugadores (notebook 04)."""
     salida: dict = {"matriz": [], "base": None, "fichas": fichas_rivales(p, team), "balon_parado": None, "jugadores": None,
@@ -409,9 +439,15 @@ def datos_decidir(p: dict, team: int) -> dict:
         salida["casos"] = json.loads(casos.read_text(encoding="utf-8"))
     val = DIR_HALLAZGOS / "validacion_cl26.parquet"  # notebook 06
     if val.exists():
+        formato = {d["titulo"]: d for d in PRINCIPIOS}
+
+        def fmt(titulo: str, v: float) -> str | None:
+            d = formato.get(titulo, {"escala": 1, "dec": 3, "unidad": ""})
+            return None if pd.isna(v) else f"{v * d['escala']:+.{d['dec']}f}{d['unidad']}"
+
         salida["validacion"] = [{"principio": r.principio, "veredicto": r.veredicto, "texto": r.veredicto_texto,
-                                 "entrenamiento": _num(r.dif_entrenamiento, 3), "prueba": _num(r.dif_prueba, 3),
-                                 "bajo": _num(r.bajo, 3), "alto": _num(r.alto, 3), "partidos": int(r.partidos_prueba)}
+                                 "entrenamiento": fmt(r.principio, r.dif_entrenamiento), "prueba": fmt(r.principio, r.dif_prueba),
+                                 "bajo": fmt(r.principio, r.bajo), "alto": fmt(r.principio, r.alto), "partidos": int(r.partidos_prueba)}
                                 for r in pd.read_parquet(val).itertuples()]
     rm, rb = DIR_HALLAZGOS / "matriz.parquet", DIR_HALLAZGOS / "matriz_base.parquet"
     if rm.exists() and rb.exists():

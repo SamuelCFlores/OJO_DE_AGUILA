@@ -338,6 +338,7 @@
     html('pendientes', X.pendientes.map(function (p) { return '<article class="pendiente"><span class="estado">En construcción · ' + esc(p.requisito) + '</span><h3>' + esc(p.titulo) + '</h3><p>' + esc(p.texto) + '</p></article>'; }).join(''));
     html('notas', X.notas.map(function (n) { return '<p class="nota">' + esc(n) + '</p>'; }).join(''));
     if (D.decidir) renderDecidir(D.decidir);
+    if (D.metodo) renderMetodo(D.metodo);
   }
 
   // ---------- Decidir: matriz de situaciones, ficha de 10 segundos, balón parado y uso de jugadores ----------
@@ -394,6 +395,36 @@
         '<div><span class="etq-c">Qué pasó</span><ul>' + c.paso.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></div></div>' +
         '<p class="lect"><b>Lectura.</b> ' + esc(c.lectura) + '</p></article>';
     }).join('') || '<p class="pie">Falta correr el notebook 07.</p>');
+  }
+
+  // ---------- Método: el reporte (datos, criterio, principios con evidencia y validación) ----------
+  function renderMetodo(M) {
+    var d = M.datos;
+    html('met-datos', '<li><strong>StatsBomb, Liga MX:</strong> ' + d.liga.toLocaleString('es-MX') + ' partidos de AP21 a CL26, con Events, 360, Team Match Stats y Lineups.</li>' +
+      '<li><strong>' + esc(D.nuevo) + ':</strong> ' + d.nuevo + ' partidos (' + esc(d.torneos_nuevo) + ').</li>' +
+      '<li><strong>Solari y Ortiz:</strong> ' + d.previos + ' partidos (' + esc(d.torneos_previos) + ').</li>' +
+      '<li><strong>Torneo de prueba:</strong> ' + d.prueba + ' partidos (' + esc(d.torneos_prueba) + '), apartados hasta la evaluación final.</li>');
+    var p = M.pca;
+    texto('met-pca', 'Ocho componentes por minuto (juego asentado, posesión, field tilt, espacio en campo rival, altura del bloque, presión alta, juego directo y largo de pase), con el mismo peso y de 0 (reactivo) a 100 (proactivo). Confirmado con PCA: ' +
+      (p.mismo_signo ? 'los 8 cargan con su signo' : 'no todos cargan con su signo') + ' en el primer componente (' + Math.round(p.varianza * 100) + ' % de la varianza) y el promedio correlaciona ' + num(p.correlacion) + ' con él.');
+    if (M.criterio) {
+      var c = M.criterio;
+      texto('met-criterio', 'Prueba placebo: en ' + c.placebo_pruebas + ' pruebas sobre quiebres falsos (tramos donde no pasó nada), la versión 1 del criterio aprobaba ' + c.placebo_v1 +
+        ' y la versión 2 aprueba ' + c.placebo_v2 + '. En la tabla final de ' + c.pruebas + ' pruebas pasan ' + c.pasan_v2 + ' (con la versión 1, ' + c.pasan_v1 + ').');
+    }
+    var val = {};
+    ((D.decidir && D.decidir.validacion) || []).forEach(function (v) { val[v.principio] = v; });
+    html('met-principios', '<thead><tr><th>Principio</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>Diferencia</th><th>Torneos</th><th>Criterio v2</th><th>CL26</th></tr></thead><tbody>' +
+      D.portada.principios.map(function (pr) {
+        var v = val[pr.titulo];
+        return '<tr><th>' + esc(pr.titulo) + '</th><td>' + esc(pr.jardine) + '</td><td>' + esc(pr.previos) + '</td><td>' + esc(pr.diferencia) + '<br><small>' + esc(pr.intervalo) + '</small></td><td>' +
+          esc(pr.torneos) + '</td><td>' + esc(pr.estado) + '</td><td class="ver-' + (v ? v.veredicto : '') + '">' + esc(v ? v.texto : '—') + '</td></tr>';
+      }).join('') + '</tbody>');
+    html('met-validacion', '<thead><tr><th>Principio</th><th>Diferencia en entrenamiento</th><th>Diferencia en el CL26 (IC 95 %)</th><th>Partidos</th><th>Veredicto</th></tr></thead><tbody>' +
+      ((D.decidir && D.decidir.validacion) || []).map(function (v) {
+        return '<tr><th>' + esc(v.principio) + '</th><td>' + esc(v.entrenamiento || '—') + '</td><td>' + (v.prueba == null ? '—' : esc(v.prueba) + '<br><small>IC ' + esc(v.bajo) + ' a ' + esc(v.alto) + '</small>') +
+          '</td><td>' + v.partidos + '</td><td class="ver-' + v.veredicto + '">' + esc(v.texto) + '</td></tr>';
+      }).join('') + '</tbody>');
   }
 
   // ---------- reproductor: minuto a minuto (fundido) y jugadas animadas (Voronoi en movimiento) ----------
@@ -716,7 +747,7 @@
     var oculta = false;
     try { oculta = localStorage.getItem('ojo.barraOculta') === '1'; } catch (e) { /* sin almacenamiento */ }
     ocultarBarra(oculta);
-    mostrar(['#explorar', '#decidir'].indexOf(location.hash) >= 0 ? location.hash.slice(1) : 'portada');
+    mostrar(['#explorar', '#decidir', '#metodo'].indexOf(location.hash) >= 0 ? location.hash.slice(1) : 'portada');
   }
 
   if (window.OjoMarca) OjoMarca.loop(document.getElementById('loop-icono'), { estatico: reducido() });

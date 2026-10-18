@@ -48,6 +48,7 @@
     <button type="button" data-vista="portada" aria-current="page">Portada</button>
     <button type="button" data-vista="explorar">Explorar</button>
     <button type="button" data-vista="decidir">Decidir</button>
+    <button type="button" data-vista="metodo">Método</button>
     <button type="button" class="solo-movil" data-cajon aria-expanded="false">Filtros · <span data-cuenta-filtros>0</span></button>
   </nav>
 </header>
@@ -206,6 +207,87 @@
       <h2>Qué marcaba la herramienta y qué pasó</h2>
       <p class="pie">Tres partidos del torneo que el análisis no vio, elegidos con una regla escrita antes de ver lo que pasó. No se dice qué habría pasado con otra decisión.</p>
       <div class="casos" data-slot="casos"></div></section>
+  </div>
+</div>
+
+<!-- ===================== MÉTODO (reporte) ===================== -->
+<div class="vista" id="metodo">
+  <section class="titulo decidir-tit">
+    <div><span class="ante">Reporte · cómo se hizo y qué tan sólido es</span>
+      <h1>Método, evidencia y límites</h1>
+      <p class="pie">Todo sale de los datos de StatsBomb y de reglas escritas antes de ver los resultados. Cada número de esta página viene del pipeline (scripts 03–09 y notebooks 02–07), no se escribió a mano.</p></div>
+  </section>
+  <div class="metodo">
+    <section class="bloque"><span class="ante chico">1 · La pregunta y los datos</span>
+      <h2>¿Qué cambió en el América con André Jardine y cómo usarlo para decidir?</h2>
+      <p class="parrafo">Leemos a Jardine siempre frente a algo: frente al rival en el mismo minuto (dos bandas), frente a sus predecesores en el América (Solari y Ortiz) y frente a la liga. El último torneo se apartó desde el principio para probar, al final, si lo aprendido se sostiene.</p>
+      <ul class="lista-met" data-slot="met-datos"></ul></section>
+
+    <section class="bloque"><span class="ante chico">2 · Cómo se lee un partido</span>
+      <h2>A dos bandas y por puntos de quiebre</h2>
+      <div class="tarjetas-met">
+        <article><h3>Dos bandas</h3><p>Cada métrica del América se lee junto a la del rival en el mismo tramo. Lo que hace un equipo solo se entiende con lo que hace el otro.</p></article>
+        <article><h3>Puntos de quiebre</h3><p>Goles, expulsiones, cambios de sistema y sustituciones (tácticas o por lesión) de los dos equipos. Se compara lo que pasa 10 minutos antes y 10 minutos después.</p></article>
+        <article><h3>Ventanas de control</h3><p>Para descontar lo que cambia solo por el paso del tiempo, cada quiebre se compara con tramos de otros partidos del mismo entrenador, en el mismo periodo, con el mismo marcador y minuto parecido, sin quiebre (diferencia en diferencias).</p></article>
+      </div></section>
+
+    <section class="bloque"><span class="ante chico">3 · Lentes propias</span>
+      <h2>Espacio, iniciativa y forma de pasar</h2>
+      <div class="tarjetas-met">
+        <article><h3>Voronoi del 360</h3><p>Cada punto de la cancha pertenece al jugador más cercano, recortado a la zona que ve la cámara y a 20 yardas por jugador. Mide cuánto espacio controla cada equipo. En las jugadas animadas, las posiciones entre dos fotos son estimadas y la página lo marca.</p></article>
+        <article><h3>Índice Proactivo–Reactivo</h3><p data-slot="met-pca"></p></article>
+        <article><h3>Huella de pases y redes</h3><p>Los 60 tipos de pase de StatsBomb por partido (huella) y la red de pases entre posiciones, no entre jugadores, para comparar entrenadores con plantillas distintas.</p></article>
+        <article><h3>Presión, balón parado y cambios</h3><p>PPDA y altura de recuperación por tramo (validados contra el PPDA de StatsBomb), envíos y zonas de remate a balón parado, y cuántos cambios, cuándo y de qué línea.</p></article>
+      </div></section>
+
+    <section class="bloque"><span class="ante chico">4 · Cuándo algo es un hallazgo</span>
+      <h2>Criterio v2: cuatro condiciones y una prueba placebo</h2>
+      <ol class="lista-met">
+        <li>El intervalo de confianza al 95 % (bootstrap de partidos completos) no cruza 0.</li>
+        <li>El efecto mide al menos media desviación estándar (en los quiebres, la del cambio en las ventanas de control).</li>
+        <li>Va en la misma dirección en al menos 4 de los 5 torneos de Jardine.</li>
+        <li>Sobrevive a la corrección por pruebas múltiples de Benjamini-Hochberg (FDR).</li>
+      </ol>
+      <p class="parrafo" data-slot="met-criterio"></p></section>
+
+    <section class="bloque"><span class="ante chico">5 · Principios con su evidencia</span>
+      <h2>Lo que distingue a Jardine frente a Solari y Ortiz</h2>
+      <div class="tabla-scroll"><table class="tabla-comp tabla-met" data-slot="met-principios"></table></div></section>
+
+    <section class="bloque"><span class="ante chico">6 · Validación en el Clausura 2026</span>
+      <h2>¿Se sostienen en un torneo que el análisis no vio?</h2>
+      <div class="tabla-scroll"><table class="tabla-comp tabla-met" data-slot="met-validacion"></table></div>
+      <p class="pie">Se abrió una sola vez, con los principios ya fijados. "Se sostiene": misma dirección y el intervalo no cruza 0. "Misma dirección, sin certeza": la dirección se repite, pero un torneo no alcanza para confirmarla. Ningún principio se invirtió.</p></section>
+
+    <section class="bloque"><span class="ante chico">7 · Límites y supuestos</span>
+      <h2>Lo que este análisis no dice</h2>
+      <ul class="lista-met">
+        <li><strong>Comparación, no causalidad estricta.</strong> La diferencia en diferencias descuenta el paso del tiempo, pero sustituir o cambiar de sistema es una decisión que responde a lo que ya pasaba en el partido (selección).</li>
+        <li><strong>Muestras chicas.</strong> Expulsiones, lesiones y cambios de sistema son pocos por torneo. Lo marcado como "muestra chica" o "sin certeza" se lee con cautela.</li>
+        <li><strong>La cámara del 360.</strong> El Voronoi solo ve lo que ve la cámara, y el control depende de cuántos jugadores aparecen. Por eso se recorta al área visible y el principio estructural se apoya en la forma del bloque, no solo en el control.</li>
+        <li><strong>Posiciones estimadas.</strong> Entre dos fotos 360 la animación interpola: es para leer la jugada, no un dato. Ninguna métrica la usa.</li>
+        <li><strong>Escala relativa.</strong> El índice se compara con los partidos del América y sus rivales, no con toda la liga, porque solo hay eventos de esos partidos.</li>
+        <li><strong>Las fichas describen al rival promedio.</strong> En una eliminatoria el rival se adapta (ver el caso de los cuartos de final). "Quién participa poco" no está disponible: falta el detalle de los partidos del rival sin el América.</li>
+        <li><strong>Recomendaciones = hipótesis.</strong> Salen de reglas fijas sobre los números. Nunca se dice que una decisión habría cambiado el resultado.</li>
+      </ul></section>
+
+    <section class="bloque"><span class="ante chico">8 · Glosario</span>
+      <dl class="glosario">
+        <div><dt>Dos bandas</dt><dd>Leer cada métrica del América junto a la del rival en el mismo tramo.</dd></div>
+        <div><dt>Punto de quiebre</dt><dd>Momento que puede cambiar el partido: gol, expulsión, cambio de sistema o sustitución.</dd></div>
+        <div><dt>xG</dt><dd>Goles esperados: probabilidad de gol de cada tiro según dónde y cómo se tiró.</dd></div>
+        <div><dt>OBV</dt><dd>Valor que suma cada acción con balón a la probabilidad de anotar menos la de recibir.</dd></div>
+        <div><dt>PPDA</dt><dd>Pases que permite el equipo antes de una acción defensiva en campo rival. Más bajo = presiona más.</dd></div>
+        <div><dt>Field tilt</dt><dd>Parte de los pases al último tercio que son del equipo: quién juega más cerca del arco rival.</dd></div>
+        <div><dt>Voronoi</dt><dd>División de la cancha en la zona más cercana a cada jugador: cuánto espacio controla cada equipo.</dd></div>
+        <div><dt>FDR</dt><dd>Corrección por hacer muchas pruebas: evita contar como hallazgo lo que sale por azar.</dd></div>
+        <div><dt>Placebo</dt><dd>Repetir la prueba donde no pasó nada. Si ahí aparecen "hallazgos", el método está inventando.</dd></div>
+        <div><dt>Intervalo (IC 95 %)</dt><dd>Rango donde cae el efecto con 95 % de confianza; si incluye 0, no se puede afirmar la dirección.</dd></div>
+      </dl></section>
+
+    <section class="bloque"><span class="ante chico">9 · Reproducir</span>
+      <h2>Del dato crudo a esta página</h2>
+      <p class="parrafo">El repositorio tiene el código; los datos no se publican. Con las credenciales de StatsBomb en <code>.env</code>, se corren en orden: <code>02_descarga</code> (con caché), <code>03_procesar</code>, <code>04_voronoi</code>, <code>05_panel</code>, los notebooks 02 a 07, <code>08_maqueta</code> y <code>09_entrega</code>, que arma este archivo. Todos los umbrales están en <code>config/params.yaml</code> y cada definición en <code>contexto/framework.md</code>.</p></section>
   </div>
 </div>
 </main>
