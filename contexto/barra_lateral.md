@@ -49,7 +49,7 @@ API StatsBomb → caché (02) → parquet (03) → framework + lentes (04…) �
 
 ## Versión 2 (13 oct): propuesta visual + caso Fidalgo
 
-La maqueta 2 (`scripts/07_caso.py` → `outputs/reportes/maqueta_2.html`, plantilla en `ojo.salidas.app`) toma la estructura del handoff de diseño (`branding/exportados/app_maximalismo`, local) con la paleta de la marca. La barra lleva la mayoría de los elementos:
+**Histórica:** desde el 18 oct la maqueta definitiva es `app/maqueta.html` (versión 3 de la barra). La maqueta 2 (`scripts/07_caso.py` → `outputs/reportes/maqueta_2.html`, plantilla en `ojo.salidas.app`) toma la estructura del handoff de diseño (`branding/exportados/app_maximalismo`, local) con la paleta de la marca. La barra lleva la mayoría de los elementos:
 
 | # | Elemento | Qué muestra | Cambio frente a la versión 1 |
 | --- | --- | --- | --- |

@@ -1,4 +1,6 @@
-# app/: la página de Ojo de Águila (maqueta 3)
+# app/: la página de Ojo de Águila (maqueta definitiva)
+
+**Esta es la maqueta definitiva desde el 18 oct: todo cambio visual se hace aquí.** Las anteriores (maqueta 2 de `scripts/07_caso.py` y los `outputs/reportes/maqueta_*.html`) quedan como históricas y no se editan.
 
 El **diseño** vive aquí y se edita directo; los **datos** los genera Python y nunca entran a git.
 

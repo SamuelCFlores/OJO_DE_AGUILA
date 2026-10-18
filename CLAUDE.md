@@ -45,6 +45,7 @@ Entregables (22 de octubre de 2026): reporte HTML en Quarto, video de máximo 5 
 ## Cómo trabajar
 
 - El código reutilizable va en `src/ojo/`; los notebooks son solo exploración y llaman a `src/`.
+- **Maqueta definitiva (18 oct): `app/maqueta.html`** con `app.css`, `app.js` y `movimiento.js`. Todo cambio visual se hace ahí; sus datos los escribe `scripts/08_maqueta.py` en `outputs/app/datos.js`. La maqueta 2 (`scripts/07_caso.py`, `ojo.salidas.app`), los `outputs/reportes/maqueta_*.html` y `branding/maqueta.html` (solo la demostración de la marca) quedan como históricas y no se editan.
 - Las páginas (maquetas, explorador) se diseñan en `app/` (HTML, CSS y JS editables a mano y versionados); Python solo escribe sus datos en `outputs/app/` (fuera de git). Contrato en `app/README.md`.
 - Los modelos (comportamiento con R², Monte Carlo, efecto del relevo) se trabajan en notebooks `notebooks/NN_tema.ipynb`. La primera celda dice qué hace, qué necesita (pasos 02–04 corridos) y cómo probarlo; al terminar, se le dice a Samuel qué se hizo y qué celdas correr. Lo que sirva dos veces se mueve a `src/ojo/`.
 - Funciones pequeñas con docstring en español, tipadas, sin efectos ocultos. Identificadores en español o inglés sin acentos, de forma consistente dentro de cada módulo.

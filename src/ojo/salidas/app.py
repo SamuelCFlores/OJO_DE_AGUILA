@@ -7,6 +7,7 @@ con la paleta de la marca (azul, dorado y blanco) y el contenido de un caso punt
 NOTA1: es una maqueta con un caso real: los filtros de la barra cambian de estado pero todavía no
 recalculan la vista; eso llega con resumenes.json (contexto/resumenes.md).
 IMPOR1: con datos reales la página es un resultado para la competencia: va a outputs/ (fuera de git).
+DEPREC1: solo la usa la maqueta 2 (scripts/07_caso.py), histórica. La maqueta definitiva es app/maqueta.html.
 """
 
 from __future__ import annotations

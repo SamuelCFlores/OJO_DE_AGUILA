@@ -6,6 +6,9 @@ partido, la cadena de jugadas con su Voronoi y las acciones del protagonista. Es
 outputs/reportes/maqueta_2.html (fuera de git: lleva posiciones y nombres reales); la barra, la
 entrada y el ícono salen de branding/dist, igual que branding/maqueta.html.
 
+DEPREC1: maqueta histórica (13 oct). La maqueta definitiva es app/maqueta.html (datos: scripts/08_maqueta.py);
+los cambios visuales ya no se hacen aquí ni en ojo.salidas.app.
+
 Cómo correrlo (desde la raíz del repo y con el entorno activado; antes 03, 04 y 05):
     python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra
     python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra --paleta marca   (la identidad original)
