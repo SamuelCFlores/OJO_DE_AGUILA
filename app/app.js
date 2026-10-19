@@ -384,7 +384,7 @@
         '<div class="dos-col"><div><span class="etq-c">Qué marcaba la herramienta</span><p>' + esc(c.marcaba) + '</p></div>' +
         '<div><span class="etq-c">Qué pasó</span><ul>' + c.paso.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></div></div>' +
         '<p class="lect"><b>Lectura.</b> ' + esc(c.lectura) + '</p></article>';
-    }).join('') || '<p class="pie">Falta correr el notebook 07.</p>');
+    }).join('') || '<p class="pie">Sin casos disponibles.</p>');
   }
 
   // ---------- Método: el reporte (datos, criterio, principios con evidencia y validación) ----------

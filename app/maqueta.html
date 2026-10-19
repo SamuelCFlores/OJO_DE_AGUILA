@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><!-- si se comparte por enlace, que no la indexen los buscadores (lleva datos de StatsBomb) -->
 <title>Ojo de Águila · Jardine en el América</title>
 <!-- Plantilla de la app: se edita directo (HTML, app.css, app.js). Los datos llegan de ../outputs/app/datos.js,
      que escribe scripts/08_maqueta.py y no se sube a git. Ver app/README.md. -->
@@ -220,7 +221,7 @@
   <section class="titulo decidir-tit">
     <div><span class="ante">Reporte · cómo se hizo y qué tan sólido es</span>
       <h1>Método, evidencia y límites</h1>
-      <p class="pie">Todo sale de los datos de StatsBomb y de reglas escritas antes de ver los resultados. Cada número de esta página lo calcula el código del proyecto (scripts 03–09 y notebooks 02–07); ninguno se escribió a mano.</p></div>
+      <p class="pie">Todo sale de los datos de StatsBomb y de reglas escritas antes de ver los resultados. Cada número de esta página lo calcula el código del proyecto; ninguno se escribió a mano.</p></div>
   </section>
   <div class="metodo">
     <section class="bloque"><span class="ante chico">1 · La pregunta y los datos</span>
@@ -295,9 +296,10 @@
         <div><dt>AP, CL y PR</dt><dd>Apertura, Clausura y prórroga (tiempo extra).</dd></div>
       </dl></section>
 
-    <section class="bloque"><span class="ante chico">9 · Reproducir</span>
+    <section class="bloque"><span class="ante chico">9 · Cómo se hizo</span>
       <h2>Del dato crudo a esta página</h2>
-      <p class="parrafo">El repositorio tiene el código; los datos no se publican. Con las credenciales de StatsBomb en <code>.env</code>, se corren en orden: <code>02_descarga</code> (con caché), <code>03_procesar</code>, <code>04_voronoi</code>, <code>05_panel</code>, los notebooks 02 a 07, <code>08_maqueta</code> y <code>09_entrega</code>, que arma este archivo. Todos los umbrales están en <code>config/params.yaml</code> y cada definición en <code>contexto/framework.md</code>.</p></section>
+      <p class="parrafo">Para leer esta página no hace falta instalar ni correr nada: los datos, las gráficas y las animaciones vienen dentro de este mismo archivo, que se abre en cualquier navegador.</p>
+      <p class="parrafo">Detrás hay un proceso que se puede repetir de principio a fin: descarga de StatsBomb (sin pedir dos veces lo mismo), limpieza, mediciones, las pruebas con los 4 filtros, la comprobación en el torneo reservado y el armado de esta página. Todos los umbrales viven en un solo archivo de configuración y cada definición está escrita antes de ver los resultados. El código está en el repositorio del equipo; los datos de StatsBomb no se publican.</p></section>
   </div>
 </div>
 </main>

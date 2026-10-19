@@ -301,7 +301,7 @@ def generar(args: argparse.Namespace) -> int:
               f"de 0 (espera) a 100 (propone), frente a los minutos de AP21–AP25. Comprobación de los pesos (PCA): correlación de "
               f"{pca.correlacion:.2f}. Mapa de control del espacio (Voronoi) sobre cada foto de posiciones (360), recortado a lo que "
               f"ve la cámara y a {v['alcance_max_yd'] * YARDA_M:.0f} m por jugador. Una foto por minuto: la acción con más jugadores "
-              "visibles. Principios: cambio neto frente a tramos de comparación (notebook 02) y estilo frente a la liga (notebook 03).")
+              "visibles. Principios: cambio neto frente a tramos de comparación y estilo frente a la liga.")
 
     # Monte Carlo explicativo
     tiros = ev[(ev["tipo"] == "Shot") & (ev["periodo"] != contexto.PERIODO_PENALES)]
