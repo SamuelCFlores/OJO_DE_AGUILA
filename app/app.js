@@ -213,68 +213,47 @@
     });
   }
 
-  // ---------- barra lateral v4: rival, torneo, condición y partidos; compacta, plegable y ocultable ----------
-  function chip(etq, activo, clase, titulo) {
-    return '<button type="button" class="chip-t ' + (clase || '') + '" data-toggle aria-pressed="' + !!activo + '"' + (titulo ? ' title="' + esc(titulo) + '"' : '') + '>' + esc(etq) + '</button>';
-  }
+  // ---------- barra lateral v5: elegir rival y abrir su ficha de 10 segundos; plegable y ocultable ----------
+  // Los rivales y sus partidos salen de las fichas (D.decidir.fichas: partidos con Jardine, AP23–AP25), igual que en Plan de juego.
   function seccion(id, titulo, contenido, abierta, clase) {
     return '<details class="seccion ' + (clase || '') + '" data-seccion="' + id + '"' + (abierta ? ' open' : '') + '><summary>' + esc(titulo) +
       '<span class="resumen-sec"></span></summary><div class="cuerpo-sec">' + contenido + '</div></details>';
   }
   function tamanoNombre(nombre) { return Math.min(30, Math.floor(228 / (0.8 * nombre.length))); }  // igual que app.tamano_nombre
-  function renderBarra(b) {
-    var rivales = b.rivales.map(function (r) {
-      return '<li><button type="button" class="rival-btn" data-rival="' + esc(r[0]) + '" data-n="' + r[1] + '"><span>' + esc(r[0]) + '</span><span class="n">' + r[1] + '</span></button></li>';
+  function conJardine(n) { return n + (n === 1 ? ' partido' : ' partidos') + ' con ' + D.nuevo; }
+  function renderBarra(fichas, inicial) {
+    var sel = fichas.filter(function (f) { return f.rival === inicial; })[0] || fichas[0];
+    var otros = fichas.filter(function (f) { return f !== sel; });
+    var rivales = otros.map(function (f) {
+      return '<li><button type="button" class="rival-btn" data-rival="' + esc(f.rival) + '" data-n="' + f.partidos + '"><span>' + esc(f.rival) + '</span><span class="n">' + f.partidos + '</span></button></li>';
     }).join('');
-    var rival = '<div class="placa-rival"><span class="sel">Seleccionado</span><strong id="rival-nombre" style="font-size:' + tamanoNombre(b.rival.nombre) + 'px">' + esc(b.rival.nombre) + '</strong>' +
-      '<span class="cinta-n" id="rival-n">' + b.rival.partidos + ' partidos</span></div><ul class="lista-rivales">' + rivales + '</ul>' +
-      (b.rivales.length > 4 ? '<button type="button" class="ver-todos">Ver todos (' + b.rivales.length + ')</button>' : '');
-    var torneos = '<div class="rejilla-3">' + b.torneos.map(function (t) { return chip(t.id, t.activo, t.prueba ? 'prueba' : '', t.prueba ? 'Torneo reservado: el análisis no lo vio' : ''); }).join('') + '</div>' +
-      '<p class="aviso-prueba">Línea punteada: torneo reservado para comprobar (CL26).</p>';
-    var condicion = '<div class="segmentado" role="radiogroup" aria-label="Condición">' + ['Todos', 'Local', 'Visita'].map(function (c) {
-      return '<button type="button" role="radio" aria-checked="' + (c === b.condicion) + '" class="seg">' + c + '</button>'; }).join('') + '</div>';
-    var partidos = '<ul class="lista-partidos">' + b.partidos.map(function (p) {
-      return '<li><button type="button" class="partido-btn" aria-pressed="' + p.activo + '"><span class="fecha">' + esc(p.fecha) + '</span><span>' + esc(p.etapa) +
-        '</span><strong>' + esc(p.marcador) + '</strong></button></li>'; }).join('') + '</ul>';
+    var rival = '<div class="placa-rival"><span class="sel">Seleccionado</span><strong id="rival-nombre" style="font-size:' + tamanoNombre(sel.rival) + 'px">' + esc(sel.rival) + '</strong>' +
+      '<span class="cinta-n" id="rival-n" data-n="' + sel.partidos + '">' + conJardine(sel.partidos) + '</span></div><ul class="lista-rivales">' + rivales + '</ul>' +
+      (otros.length > 4 ? '<button type="button" class="ver-todos">Ver todos (' + otros.length + ')</button>' : '');
     html('barra',
-      '<div class="barra-cab"><span class="titulo-barra">Filtros</span><div class="acciones-cab"><button type="button" class="enlace" data-volver>Restablecer</button>' +
-      '<button type="button" class="btn-ocultar" data-ocultar aria-label="Ocultar filtros" aria-expanded="true">‹</button></div></div>' +
-      seccion('rival', 'Rival', rival, true) + seccion('torneo', 'Torneo', torneos, true) +
-      seccion('condicion', 'Condición', condicion, true) +
-      seccion('partidos', 'Partidos', partidos, false) +
-      '<div class="pie-barra"><p class="muestra">' + esc(b.muestra) + '</p>' +
+      '<div class="barra-cab"><span class="titulo-barra">Rivales</span><div class="acciones-cab"><button type="button" class="enlace" data-volver>Restablecer</button>' +
+      '<button type="button" class="btn-ocultar" data-ocultar aria-label="Ocultar la barra de rivales" aria-expanded="true">‹</button></div></div>' +
+      seccion('rival', 'Rival', rival, true) +
+      '<div class="pie-barra"><p class="muestra">Su ficha de 10 segundos: cómo progresa, cómo defiende, dónde concede, su balón parado y cómo le fue a ' + esc(D.nuevo) +
+      ' (AP23–AP25). El número es de partidos con ' + esc(D.nuevo) + '.</p>' +
       '<button type="button" class="btn-borde" data-ir-ficha>Ver su ficha de 10 segundos →</button></div>');
   }
-  function montarBarra() {  // también "Restablecer": vuelve al estado inicial sin recargar
-    renderBarra(D.barra);
+  function montarBarra() {  // también "Restablecer": vuelve al rival del caso sin recargar
+    renderBarra((D.decidir && D.decidir.fichas) || [], D.rival);
     if (MOV) document.querySelectorAll('details.seccion').forEach(MOV.plegable);
     actualizarResumenes();
   }
-  function activos(sel, raiz) { return Array.prototype.map.call((raiz || document).querySelectorAll(sel), function (b) { return b.textContent; }); }
   function actualizarResumenes() {
-    var total = 0, chips = [];
-    document.querySelectorAll('details.seccion').forEach(function (d) {
-      var id = d.dataset.seccion, txt = '', n = 0;
-      if (id === 'rival') txt = document.getElementById('rival-nombre').textContent;
-      else if (id === 'condicion') { txt = activos('.seg[aria-checked="true"]', d)[0] || 'Todos'; n = txt === 'Todos' ? 0 : 1; }
-      else if (id === 'partidos') { var p = d.querySelector('.partido-btn[aria-pressed="true"] span:nth-child(2)'); txt = p ? p.textContent : d.querySelectorAll('.partido-btn').length + ''; }
-      else { var a = activos('[data-toggle][aria-pressed="true"]', d); n = a.length; txt = a.length ? a.join(', ') : 'Todos'; }
-      total += n;
-      d.querySelector('.resumen-sec').textContent = txt;
-      if (id === 'rival' || n) chips.push(txt);
-    });
-    document.querySelectorAll('[data-cuenta-filtros]').forEach(function (c) { c.textContent = total; });
-    // Variante chips (3c): con la barra oculta, los filtros activos quedan arriba del contenido
-    document.querySelector('.tira-filtros .chips-tira').innerHTML = chips.map(function (c) { return '<span class="chip-tira">' + esc(c) + '</span>'; }).join('');
+    var nombre = document.getElementById('rival-nombre').textContent;
+    document.querySelectorAll('details.seccion .resumen-sec').forEach(function (s) { s.textContent = nombre; });
+    // Variante chips (3c): con la barra oculta, el rival elegido queda arriba del contenido
+    document.querySelector('.tira-filtros .chips-tira').innerHTML = '<span class="chip-tira">' + esc(nombre) + '</span>';
   }
   function conectarBarra() {
     var aside = document.querySelector('aside.barra');
     aside.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      if (b.hasAttribute('data-toggle')) b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
-      else if (b.classList.contains('seg')) document.querySelectorAll('.seg').forEach(function (o) { o.setAttribute('aria-checked', o === b ? 'true' : 'false'); });
-      else if (b.classList.contains('partido-btn')) document.querySelectorAll('.partido-btn').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
-      else if (b.classList.contains('rival-btn')) cambiarRival(b);
+      if (b.classList.contains('rival-btn')) cambiarRival(b);
       else if (b.classList.contains('ver-todos')) { var l = aside.querySelector('.lista-rivales'); l.classList.toggle('todos'); b.textContent = l.classList.contains('todos') ? 'Ver menos' : 'Ver todos (' + l.children.length + ')'; }
       else if (b.hasAttribute('data-ocultar')) ocultarBarra(!cuerpo.classList.contains('barra-oculta'), true);
       else if (b.hasAttribute('data-volver')) { montarBarra(); var v = aside.querySelector('[data-volver]'); if (v) v.focus(); return; }
@@ -284,12 +263,12 @@
   }
   function cambiarRival(b) {
     var nombre = document.getElementById('rival-nombre'), conteo = document.getElementById('rival-n');
-    var antes = [nombre.textContent, parseInt(conteo.textContent, 10)];
-    nombre.textContent = b.dataset.rival; conteo.textContent = b.dataset.n + ' partidos';
+    var antes = [nombre.textContent, conteo.dataset.n];
+    nombre.textContent = b.dataset.rival; conteo.dataset.n = b.dataset.n; conteo.textContent = conJardine(+b.dataset.n);
     nombre.style.fontSize = tamanoNombre(b.dataset.rival) + 'px';
     b.dataset.rival = antes[0]; b.dataset.n = antes[1];
     b.firstElementChild.textContent = antes[0]; b.lastElementChild.textContent = antes[1];
-    cerrarCajon();
+    // el cajón del teléfono sigue abierto: el siguiente paso es "Ver su ficha", dentro de la barra
   }
   // Mostrar u ocultar la barra en escritorio (variantes en movimiento.js). Lo oculto queda inerte y el foco pasa al botón visible.
   function ocultarBarra(oculta, porUsuario) {

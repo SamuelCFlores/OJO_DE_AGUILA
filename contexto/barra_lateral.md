@@ -89,3 +89,15 @@ Decisión de chamuel del 18 oct, al revisar la maqueta antes del video:
 - **Quedan:** Rival, Torneo, Condición y Partidos. Al pie, la muestra y el botón **"Ver su ficha de 10 segundos →"**, que lleva a Decidir con la ficha de ese rival ya elegida (`irAFicha` en `app/app.js`).
 - **La barra ya no se sobrepone al contenido:** la variante por defecto pasa de `sobre` a `riel`. Abierta, el contenido empieza a su derecha; oculta, queda el riel de 56 px y el contenido se ensancha. `?barra=sobre` y `?barra=chips` siguen disponibles.
 - `outputs/app/datos.js` conserva `barra.momento` y `barra.mas` (el contrato no cambia), pero la app ya no los dibuja.
+
+## Versión 5 (18 oct): solo el rival
+
+Decisión de chamuel: primero una versión terminada; después se refina bloque por bloque.
+
+- **Salen Torneo, Condición y Partidos.** No cambiaban la vista: solo está armado el partido del caso.
+- **La lista de rivales sale de las fichas de 10 segundos** (`decidir.fichas`): los 17 rivales de Jardine en AP23–AP25, con los mismos conteos que la ficha ("7 partidos con Jardine").
+  - Antes la barra decía "12 partidos", que contaba todos los entrenadores de AP21 a CL26, y listaba solo 6 rivales.
+- **Uso:** eliges un rival y "Ver su ficha de 10 segundos →" abre Plan de juego con esa ficha.
+  - En el teléfono, el cajón sigue abierto después de elegir, para llegar al botón.
+- **Nombres:** el título de la barra es "Rivales"; el riel dice "Rival" (sin contador) y el botón del teléfono, "Elegir rival".
+- **Pendiente (propuesta de chamuel):** que elegir un rival también cambie el partido en movimiento del reproductor. Se define con las observaciones generales de la estructura.
