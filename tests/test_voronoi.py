@@ -84,3 +84,10 @@ def test_por_evento_une_eventos_y_frames() -> None:
     tabla = voronoi.por_evento(eventos, frames, jugadores)
     assert list(tabla["id"]) == ["e1"]
     assert tabla.loc[0, "control"] == pytest.approx(0.5)
+
+
+def test_actor_con_coordenadas_repetidas_se_conserva() -> None:
+    """Auditoría B1: si otro jugador comparte coordenadas con el actor y llega antes, se queda el actor."""
+    repetido = [Jugador(40, 20, False)] + _simetrico()
+    r = voronoi.analizar_frame(repetido, CANCHA_COMPLETA)
+    assert r.indice_actor is not None and r.jugadores[r.indice_actor].actor

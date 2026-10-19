@@ -139,12 +139,17 @@ def filtrar_jugadores(jugadores: list[Jugador], visible: Polygon, min_dist_borde
     puntos = _puntos(jugadores)
     dentro = shapely.contains(visible.buffer(1e-6), puntos)
     lejos = shapely.distance(visible.boundary, puntos) >= min_dist_borde
-    elegidos, vistos = [], set()
+    elegidos, vistos = [], {}
     for j, d, l in zip(jugadores, dentro, lejos):
         clave = (round(j.x, 2), round(j.y, 2))
-        if clave in vistos or not d or not (l or j.actor):
+        if not d or not (l or j.actor):
             continue
-        vistos.add(clave)
+        if clave in vistos:
+            # FIX1 (auditoría B1): si el actor comparte coordenadas con un jugador que llegó antes, se queda el actor
+            if j.actor:
+                elegidos[vistos[clave]] = j
+            continue
+        vistos[clave] = len(elegidos)
         elegidos.append(j)
     return elegidos
 

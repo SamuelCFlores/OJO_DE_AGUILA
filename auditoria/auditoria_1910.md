@@ -85,6 +85,7 @@ Arreglo (texto): en Método y en el video, decir exactamente eso: "se sostienen 
 - **N11.** `contexto/propuesta_base.md:62` cita `ojo.salidas.ficha`, que no existe (es `ojo.salidas.decision`).
 - **N12.** La ficha no tiene "quién participa poco", que la definición de "hecho" pide; ya está declarado en Límites. Basta con quitarlo del glosario de `CLAUDE.md` o dejarlo como futuro.
 - **N13.** La entrega carga Poppins de Google Fonts (V-M14 pendiente). Si el jurado abre el archivo sin internet, la tipografía cambia. No rompe nada.
+- **N15.** Desde el 19 oct la página se alojará en la web (`outputs/publicar/`, con `noindex`; commit `9ed9039`). Lleva posiciones del 360 y nombres reales, y la regla 1 de `CLAUDE.md` dice "se publican resultados, nunca datos". `noindex` no impide que alguien con el enlace lo comparta. Conviene confirmar con los organizadores que un enlace privado está permitido, o alojar una versión sin las fotos de posiciones.
 - **N14.** El PPDA de la matriz (16.2) y el del notebook 03 (frente a la liga) usan definiciones distintas (eventos propios frente a Team Match Stats). Si ambos aparecen, una nota de una línea evita la pregunta.
 
 ## 4. Frente a la rúbrica oficial (4 × 25 %)
@@ -114,3 +115,21 @@ Un jurado técnico va a buscar justo N1–N4. Ninguno obliga a rehacer el análi
 | 10 | `08_maqueta` → `09_entrega` → promoción a `main` → correo | chamuel | 1 h | Cierre |
 
 Si hay que recortar, lo último que sale es 8 y 9; 1–4 son texto y son lo que más protege la calificación.
+
+## 6. Arreglos hechos el 19 oct (Tilin, con Claude Code)
+
+Los puntos 1, 2, 4 y 9 de la lista. Toca a chamuel volver a correr el notebook 07, `08_maqueta.py` y `09_entrega.py` para que la entrega los muestre.
+
+- **Punto 1 (N1).** `ojo.salidas.decision`: la recomendación de "replegado y parejo" pasa a ser "Hipótesis a probar: sostener la iniciativa", y dice que no está probado que el repliegue cause el empate. Se cambiaron igual el guion (bloques 5 y 6, coach drill 1), el texto del caso 1 (notebook 07) y las lecturas de los notebooks 05 y 06.
+- **Punto 2 (N3, N5).**
+  - Titular: "Propone más que sus rivales…".
+  - "No es casualidad" pasa a "es poco probable que sea casualidad".
+  - La nota de los 4 filtros solo dice "cada principio pasa" si todos pasan, y aclara que el placebo se hizo con los momentos clave de Jardine.
+  - Método muestra los filtros 1 a 3 del placebo frente a los reales (nuevos campos `placebo_1a3`, `reales_1a3` y `reales_pruebas` en `datos_metodo`).
+- **Punto 4 (N4).** El pie de la validación dice que solo los ✓ quedan confirmados y que la comparación es contra los mismos partidos de Solari y Ortiz. El guion dice "dos se sostienen, tres mantienen la dirección sin certeza".
+- **Punto 9.**
+  - Prueba de humo de `ojo.lentes.efectos` (`tests/test_efectos.py`).
+  - B1 corregido en `filtrar_jugadores`, con su prueba.
+  - Los textos fijos de N9 ahora son condicionales (la constancia "de 5" y el cierre de la lectura del caso).
+  - `propuesta_base.md`: corregida la referencia a `ojo.salidas.ficha` y el relevo frente a la liga queda como trabajo futuro (N7, N11).
+- 128 pruebas pasan (había 126).

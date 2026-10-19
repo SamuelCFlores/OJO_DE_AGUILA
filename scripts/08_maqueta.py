@@ -79,8 +79,11 @@ PRINCIPIOS = [
 ]
 
 
-def principios(caso_tipo: str, caso_texto: str) -> tuple[list[datos_app.Principio], datos_app.Principio | None]:
-    """Tarjetas de los principios candidatos con sus números (si los notebooks ya se corrieron)."""
+def principios(caso_tipo: str, caso_texto: str, n_torneos: int) -> tuple[list[datos_app.Principio], datos_app.Principio | None]:
+    """Tarjetas de los principios candidatos con sus números (si los notebooks ya se corrieron).
+
+    n_torneos: torneos de entrenamiento del entrenador nuevo (el denominador de la constancia).
+    """
     tarjetas, del_caso = [], None
     for d in PRINCIPIOS:
         ruta = DIR_HALLAZGOS / f"{d['archivo']}.parquet"
@@ -103,7 +106,7 @@ def principios(caso_tipo: str, caso_texto: str) -> tuple[list[datos_app.Principi
         p = datos_app.Principio(
             titulo=d["titulo"], frase=d["frase"].format(jardine=fmt(nuevo), previos=fmt(previo)), significa=d["significa"],
             uso=d["uso"], jardine=fmt(nuevo), previos=fmt(previo), diferencia=dif(f["diferencia"]),
-            intervalo=f"Rango probable: {sin_unidad(f['ic_bajo'])} a {dif(f['ic_alto'])}", torneos=f"{int(f['torneos_misma_direccion'])} de 5",
+            intervalo=f"Rango probable: {sin_unidad(f['ic_bajo'])} a {dif(f['ic_alto'])}", torneos=f"{int(f['torneos_misma_direccion'])} de {n_torneos}",
             estado=estado)
         if d.get("tipo_caso") == caso_tipo:
             p.caso = caso_texto
@@ -293,7 +296,7 @@ def generar(args: argparse.Namespace) -> int:
     lectura = (f"Al {q['minuto']}', con {gf}-{gc}, {quiebre_txt[0].lower() + quiebre_txt[1:]} ({protagonista}). "
                f"En los minutos siguientes, el índice de iniciativa del {equipo} pasó de {ia0:.0f} a {ia1:.0f} y su dominio "
                f"del último tercio, de {ft0 * 100:.0f} % a {ft1 * 100:.0f} %.{respuesta}" + (f" Goles del {equipo} después: {goles_txt}." if goles_txt else "")
-               + " Es lo que dice el principio: con uno más, se instala arriba.")
+               + (" Es lo que dice el principio: con uno más, se instala arriba." if args.tipo == "expulsion_favor" and ft1 > ft0 else ""))
     que_muestra = (f"Foto de posiciones (360) del {principal['reloj']}, después de la expulsión: {principal['texto']}. Crema: zonas del {equipo}; "
                    f"blanco: de {rival}; la línea blanca marca dónde chocan los equipos. El {equipo} ataca hacia la derecha.")
     v = p["voronoi"]
@@ -322,7 +325,8 @@ def generar(args: argparse.Namespace) -> int:
     # Principios, barra y textos de la página
     fase = sb.minuscula(sb.etiqueta_partido(partidos, info)).replace(" · ", " de ")
     caso_texto = f"Caso: {fase} {info['torneo_corto']}"
-    tarjetas, del_caso = principios(args.tipo, caso_texto)
+    n_torneos = partidos.loc[(partidos["entrenador_corto"] == nuevo) & ~partidos["prueba"], "torneo_corto"].nunique()
+    tarjetas, del_caso = principios(args.tipo, caso_texto, n_torneos)
     if del_caso is None:
         print("✗ Faltan los resultados de los notebooks 02 y 03 (outputs/hallazgos) o el principio del caso.")
         return 1
@@ -339,9 +343,10 @@ def generar(args: argparse.Namespace) -> int:
     notas = [f"Pesos del índice comprobados (PCA): {'las 8 señales empujan' if pca.mismo_signo else 'no todas las señales empujan'} en la "
              f"dirección esperada ({pca.varianza * 100:.0f} % de la variación) y el promedio con pesos iguales coincide en "
              f"{pca.correlacion:.2f} (correlación) con la combinación que sale de los datos.",
-             "Cada principio pasa los 4 filtros: rango probable sin cero, tamaño mayor que lo que cambia el partido solo, "
-             f"misma dirección en 4 de 5 torneos y riesgo de falso hallazgo de {p['hallazgo']['fdr_q'] * 100:.0f} % o menos. "
-             "En la prueba en falso (placebo), ninguno de los momentos clave inventados los pasa.",
+             ("Cada principio pasa" if all(t.estado.startswith("Pasa") for t in tarjetas) else "Un principio es hallazgo si pasa")
+             + " los 4 filtros: rango probable sin cero, tamaño mayor que lo que cambia el partido solo, "
+             f"misma dirección en {p['hallazgo']['min_torneos_misma_direccion']} de los torneos de {nuevo} y riesgo de falso hallazgo de "
+             f"{p['hallazgo']['fdr_q'] * 100:.0f} % o menos. La prueba en falso (placebo) se hizo con los momentos clave de {nuevo}.",
              "Página con datos reales de StatsBomb: solo para la competencia; no se sube a git ni se publica."]
     datos = {
         "meta": {"generado": date.today().isoformat(), "partido": int(args.partido), "tipo": args.tipo,
@@ -450,7 +455,12 @@ def datos_metodo(partidos: pd.DataFrame, pca: indice.VerificacionPCA, nuevo: str
                     t = t[t["grupo"] == nuevo]
                 v1 += int((t["pasa_v1"] if "pasa_v1" in t else t["pasa_1a3"]).sum())
         salida["criterio"] = {"placebo_pruebas": int(len(pl)), "placebo_v1": int(pl["pasa_v1"].sum()), "placebo_v2": int(pl["pasa"].sum()),
-                              "pruebas": int(len(tf)), "pasan_v1": v1, "pasan_v2": int(tf["pasa"].sum())}
+                              "pruebas": int(len(tf)), "pasan_v1": v1, "pasan_v2": int(tf["pasa"].sum()),
+                              "placebo_1a3": int(pl["pasa_1a3"].sum()), "reales_1a3": None, "reales_pruebas": None}
+        reales = DIR_HALLAZGOS / "quiebres_jardine.parquet"  # la misma familia del placebo (auditoría del 19 oct, N3)
+        if reales.exists():
+            qj = pd.read_parquet(reales)
+            salida["criterio"].update({"reales_1a3": int(qj["pasa_1a3"].sum()), "reales_pruebas": int(len(qj))})
     return salida
 
 

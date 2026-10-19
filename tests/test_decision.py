@@ -15,11 +15,12 @@ def _fila(**kw) -> pd.Series:
     return pd.Series(base)
 
 
-def test_replegado_y_parejo_pide_no_regalar_la_iniciativa() -> None:
+def test_replegado_y_parejo_propone_sostener_la_iniciativa() -> None:
     f = decision.fila_matriz(_fila(), BASE, cfg=CFG)
     assert f["nivel"] == decision.PAREJO
     assert "se repliega" in f["hace"]
-    assert f["recomendacion"].startswith("No regalar la iniciativa")
+    assert f["recomendacion"].startswith("Hipótesis a probar: sostener la iniciativa")
+    assert "no está probado que el repliegue lo cause" in f["recomendacion"]
     assert "con Solari y Ortiz, +0.38" in f["evidencia"] and not f["muestra_chica"]
 
 

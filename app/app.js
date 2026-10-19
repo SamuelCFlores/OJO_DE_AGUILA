@@ -402,7 +402,9 @@
     if (M.criterio) {
       var c = M.criterio;
       texto('met-criterio', 'Prueba en falso (placebo): en ' + c.placebo_pruebas + ' momentos clave inventados (tramos donde no pasó nada), la primera versión de los filtros, sin el filtro 4, aprobaba ' + c.placebo_v1 +
-        '; con los 4 filtros, ' + c.placebo_v2 + '. De las ' + c.pruebas + ' pruebas del análisis pasan ' + c.pasan_v2 + ' (con la primera versión pasaban ' + c.pasan_v1 + ').');
+        '; con los 4 filtros, ' + c.placebo_v2 + '. De las ' + c.pruebas + ' pruebas del análisis pasan ' + c.pasan_v2 + ' (con la primera versión pasaban ' + c.pasan_v1 + ').' +
+        (c.reales_1a3 == null ? '' : ' Sin el filtro 4, los filtros 1 a 3 aprueban ' + c.placebo_1a3 + ' de ' + c.placebo_pruebas + ' momentos inventados frente a ' + c.reales_1a3 + ' de ' + c.reales_pruebas + ' reales: esa diferencia es la que muestra que el método no inventa.') +
+        ' La prueba en falso se hizo con los momentos clave de ' + D.nuevo + '; la comparación con Solari y Ortiz no tiene una propia.');
     }
     var val = {};
     ((D.decidir && D.decidir.validacion) || []).forEach(function (v) { val[v.principio] = v; });

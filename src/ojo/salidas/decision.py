@@ -54,7 +54,8 @@ def fila_matriz(r: pd.Series, base: pd.Series, equipo: str = "América", cfg: di
     elif r.get("situacion") == "uno_menos" and replegado:
         rec = "Con uno menos, replegarse es lo esperado: el partido se sostiene parejo."
     else:
-        rec = ("No regalar la iniciativa: cuando se repliega, el partido se empareja." if replegado
+        rec = ("Hipótesis a probar: sostener la iniciativa. Replegado, el balance de ocasiones deja de ser claro; "
+               "no está probado que el repliegue lo cause (todo equipo que gana tiende a replegarse)." if replegado
                else "Buscar la ventaja: tiene el balón, pero no saca diferencia en ocasiones.")
     chica = r["minutos"] < cfg["minutos_min"]
     evidencia = (f"{r['minutos']:.0f} minutos en {r['partidos']:.0f} partidos · balance {r['xg_dif_90']:+.2f} "
