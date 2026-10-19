@@ -6,11 +6,14 @@ otros archivos. Lo único externo es la hoja de Google Fonts para los pesos de P
 internet, esos pesos caen al respaldo del sistema.
 
 IMPOR1: la entrega lleva datos reales de StatsBomb (posiciones del 360 y nombres en las jugadas): es para los
-organizadores del hackathon; se guarda en outputs/entrega/ (fuera de git) y no se publica.
+organizadores del hackathon; se guarda en outputs/entrega/ (fuera de git). Solo se aloja en la web con el enlace que va
+en el formulario de entrega (la página lleva noindex), por decisión de chamuel.
+NOTA1: además escribe outputs/publicar/index.html, el mismo archivo con el nombre que piden los servicios de alojamiento
+de arrastrar y soltar (la carpeta publicar/ completa es lo que se sube).
 
 Cómo correrlo, desde la raíz del repo y con el entorno activado (antes, scripts/08_maqueta.py):
     python scripts/09_entrega.py
-y abrir outputs/entrega/ojo_de_aguila.html con doble clic.
+y abrir outputs/entrega/ojo_de_aguila.html con doble clic. Para alojarla, se sube la carpeta outputs/publicar/.
 """
 
 from __future__ import annotations
@@ -25,6 +28,7 @@ from ojo.config import DIR_SALIDAS, RAIZ
 
 APP = RAIZ / "app"
 SALIDA = DIR_SALIDAS / "entrega" / "ojo_de_aguila.html"
+PUBLICAR = DIR_SALIDAS / "publicar" / "index.html"  # copia para alojar (NOTA1)
 
 
 def _seguro_en_script(texto: str) -> str:
@@ -81,7 +85,10 @@ def main() -> int:
         return 1
     args.salida.parent.mkdir(parents=True, exist_ok=True)
     args.salida.write_text(html, encoding="utf-8")
-    print(f"Entrega: {args.salida.relative_to(RAIZ)} ({args.salida.stat().st_size / 1e6:.1f} MB; datos reales: no se sube a git ni se publica)")
+    PUBLICAR.parent.mkdir(parents=True, exist_ok=True)
+    PUBLICAR.write_text(html, encoding="utf-8")
+    print(f"Entrega: {args.salida.relative_to(RAIZ)} ({args.salida.stat().st_size / 1e6:.1f} MB; datos reales: no se sube a git)")
+    print(f"Para alojar: {PUBLICAR.parent.relative_to(RAIZ)}/ (index.html; solo con el enlace del formulario)")
     print("Incrustados: " + ", ".join(usados))
     return 0
 

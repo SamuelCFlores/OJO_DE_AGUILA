@@ -10,7 +10,11 @@ Objetivo: contar la historia de Jardine en el América: sus principios de juego,
 
 Eje central, tres pilares: (1) **Espacio**: Voronoi sobre el 360, recortado a `visible_area`; (2) **Evidencia con rigor**: cada principio con número, intervalo, prueba placebo y corrección por pruebas múltiples, y su estabilidad en un torneo que el análisis no vio; (3) **Del dato a la decisión**: matriz de situaciones, ficha de 10 segundos y casos de decisión. Nunca prometer que la herramienta "habría cambiado" una decisión: se muestra qué recomendaba frente a lo que se decidió.
 
-Entregables (22 de octubre de 2026): **un solo archivo HTML autocontenido** (la app y el reporte juntos, con las fichas de 10 segundos; sin Quarto) y un video de máximo 5 minutos. Finalistas: presentación de 10 diapositivas (11 de noviembre).
+Entregables (formulario, una persona por equipo, jueves 22 de octubre de 2026, 23:59 CDMX):
+- **Obligatorios:** video de máximo 5 minutos y reporte del proyecto (HTML o PDF).
+- **Adicionales:** archivo HTML, enlace a la app alojada, repositorio y presentación en PDF (esta última obligatoria si pasamos a la final, con el contenido del reporte; 10 diapositivas, 11 de noviembre).
+- **El jurado no ejecuta código ni instala nada:** ve páginas web, videos, tableros y reportes; no clona repositorios ni descarga ejecutables.
+- **Decisión (19 oct):** el reporte es **un solo archivo HTML autocontenido** (la app y el reporte juntos, con las fichas de 10 segundos; sin Quarto). Debe abrirse con doble clic, y se entrega además como **enlace web**: la carpeta `outputs/publicar/` se aloja, con `noindex` y el enlace solo en el formulario. A eso se suma el video.
 
 ## Decisiones tomadas
 

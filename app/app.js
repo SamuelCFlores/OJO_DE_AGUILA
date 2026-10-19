@@ -776,6 +776,7 @@
     setTimeout(function () { if (control) control.detener(); intro.remove(); if (D) contarKPIs(); }, 650);
   }
   control = OjoMarca.intro(document.getElementById('intro-lienzo'), { segundos: 5, alTerminar: cerrar });
+  setTimeout(cerrar, 6500);  // respaldo: si el navegador no dibuja cuadros (pestaña en segundo plano), la entrada no se queda puesta
   intro.addEventListener('click', cerrar);
   window.addEventListener('keydown', function (e) { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') cerrar(); });
 })();
