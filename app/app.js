@@ -676,7 +676,7 @@
     document.querySelectorAll('nav.vistas [data-vista]').forEach(function (b) {
       if (b.dataset.vista === vista) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     });
-    if (location.hash !== '#' + vista) history.replaceState(null, '', '#' + vista);
+    try { if (location.hash !== '#' + vista) history.replaceState(null, '', '#' + vista); } catch (e) { /* marco que no deja cambiar la dirección: la vista cambia igual */ }
     cerrarCajon(); window.scrollTo(0, 0);
   }
   var abridorCajon = null;

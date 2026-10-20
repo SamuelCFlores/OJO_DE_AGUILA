@@ -11,7 +11,7 @@
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }  /* que ningún display de una clase le gane al atributo hidden */
   html, body { margin: 0; }
-  body { background: var(--oda-gris-fondo); color: var(--c-azul); font-family: var(--oda-fuente); line-height: 1.5; }
+  body { background: var(--oda-gris-fondo); color: var(--c-azul); font-family: var(--oda-fuente); font-size: 16px; line-height: 1.5; }  /* 16 px explícito: el esqueleto de un artifact lo baja a 14 */
   html.con-intro { overflow: hidden; }
   button { font: inherit; color: inherit; cursor: pointer; }
   :focus-visible { outline: 2px solid var(--c-acento); outline-offset: 2px; }

@@ -10,6 +10,8 @@ organizadores del hackathon; se guarda en outputs/entrega/ (fuera de git). Solo 
 en el formulario de entrega (la página lleva noindex), por decisión de chamuel.
 NOTA1: además escribe outputs/publicar/index.html, el mismo archivo con el nombre que piden los servicios de alojamiento
 de arrastrar y soltar (la carpeta publicar/ completa es lo que se sube).
+NOTA2: y outputs/entrega/ojo_de_aguila_artifact.html, la misma página para publicarla como artifact de claude.ai (privado,
+compartido por invitación): sin <!doctype>, <html>, <head> ni <body> propios, porque el artifact pone ese esqueleto.
 
 Cómo correrlo, desde la raíz del repo y con el entorno activado (antes, scripts/08_maqueta.py):
     python scripts/09_entrega.py
@@ -20,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import json
 import re
 import sys
 from pathlib import Path
@@ -29,6 +32,7 @@ from ojo.config import DIR_SALIDAS, RAIZ
 APP = RAIZ / "app"
 SALIDA = DIR_SALIDAS / "entrega" / "ojo_de_aguila.html"
 PUBLICAR = DIR_SALIDAS / "publicar" / "index.html"  # copia para alojar (NOTA1)
+ARTIFACT = DIR_SALIDAS / "entrega" / "ojo_de_aguila_artifact.html"  # versión para artifact (NOTA2)
 
 
 def _seguro_en_script(texto: str) -> str:
@@ -70,6 +74,26 @@ def incrustar(html: str, base: Path) -> tuple[str, list[str]]:
     return html, usados
 
 
+def para_artifact(html: str, titulo: str = "Ojo de Águila") -> str:
+    """La página sin su esqueleto (doctype, html, head y body), que el artifact pone por su cuenta. Los atributos de
+    <html> y <body> (idioma, vista inicial y variante de la barra) se fijan con un script al principio del contenido."""
+    def atributos(etiqueta: str) -> list[tuple[str, str]]:
+        m = re.search(rf"<{etiqueta}(\s[^>]*)?>", html, flags=re.I)
+        return re.findall(r'([\w-]+)="([^"]*)"', (m.group(1) or "") if m else "")
+    poner = "".join(f"document.documentElement.setAttribute({json.dumps(k)},{json.dumps(v)});" for k, v in atributos("html"))
+    poner += "".join(f"document.body.setAttribute({json.dumps(k)},{json.dumps(v)});" for k, v in atributos("body"))
+    cuerpo = html
+    for patron in (r"<!doctype html>\s*", r"<html(\s[^>]*)?>\s*", r"<head>\s*", r"<meta charset=\"utf-8\">\s*",
+                   r"<meta name=\"viewport\"[^>]*>\s*", r"</head>\s*"):
+        cuerpo = re.sub(patron, "", cuerpo, count=1, flags=re.I)  # la primera aparición es la etiqueta real
+    cuerpo = re.sub(r"<body(\s[^>]*)?>", lambda _: f"<script>{poner}</script>", cuerpo, count=1, flags=re.I)
+    for cierre in ("</html>", "</body>"):  # la última aparición es la etiqueta real
+        k = cuerpo.lower().rfind(cierre)
+        if k >= 0:
+            cuerpo = cuerpo[:k] + cuerpo[k + len(cierre):]
+    return re.sub(r"<title>[^<]*</title>", f"<title>{titulo}</title>", cuerpo, count=1)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--salida", type=Path, default=SALIDA, help="archivo HTML a escribir")
@@ -89,6 +113,8 @@ def main() -> int:
     PUBLICAR.write_text(html, encoding="utf-8")
     print(f"Entrega: {args.salida.relative_to(RAIZ)} ({args.salida.stat().st_size / 1e6:.1f} MB; datos reales: no se sube a git)")
     print(f"Para alojar: {PUBLICAR.parent.relative_to(RAIZ)}/ (index.html; solo con el enlace del formulario)")
+    ARTIFACT.write_text(para_artifact(html), encoding="utf-8")
+    print(f"Para artifact: {ARTIFACT.relative_to(RAIZ)} (privado, compartido por invitación)")
     print("Incrustados: " + ", ".join(usados))
     return 0
 
