@@ -18,16 +18,14 @@
 <div id="intro" role="img" aria-label="Animación de entrada de Ojo de Águila"><div id="intro-lienzo"></div>
   <button id="intro-saltar" type="button">Saltar ›</button></div>
 <script>
-  // La entrada se ve una vez por sesión del navegador y nunca con ?sin-intro (grabación, revisiones) ni con movimiento reducido
+  // La entrada se ve cada vez que se abre o se recarga la página (branding/README.md); nunca con ?sin-intro (grabación,
+  // revisiones) ni con movimiento reducido
   (function () {
     var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches || /[?&]movimiento=reducido(&|$)/.test(location.search);
-    var sinIntro = /[?&]sin-intro(&|=|$)/.test(location.search), vista = false;
-    try { vista = sessionStorage.getItem('ojo.intro') === '1'; } catch (e) { /* sin almacenamiento: se muestra */ }
-    window.__ojoMostrarIntro = !reducir && !sinIntro && !vista;
-    if (window.__ojoMostrarIntro) {
-      document.documentElement.classList.add('con-intro');
-      try { sessionStorage.setItem('ojo.intro', '1'); } catch (e) { /* sin almacenamiento */ }
-    } else document.getElementById('intro').classList.add('oculto');
+    var sinIntro = /[?&]sin-intro(&|=|$)/.test(location.search);
+    window.__ojoMostrarIntro = !reducir && !sinIntro;
+    if (window.__ojoMostrarIntro) document.documentElement.classList.add('con-intro');
+    else document.getElementById('intro').classList.add('oculto');
   })();
 </script>
 
@@ -77,8 +75,14 @@
       <div class="col-indice"><h3 class="sub-h">Índice de iniciativa por torneo</h3>
         <div class="figura" data-slot="torneos"></div>
         <p class="pie">0 = espera (va directo, vive del contragolpe) · 100 = propone (tiene el balón y juega en campo rival); de 40 a 60, equilibrado. Ocho señales con el mismo peso, comprobadas con los datos. AP = Apertura, CL = Clausura; el Clausura 2026 no aparece: se guardó para comprobar al final.</p></div>
-      <div><h3 class="sub-h">Principios que pasan los 4 filtros</h3>
-        <p class="pie">Cada tarjeta compara a Jardine con Solari y Ortiz. Pasa los 4 filtros si es poco probable que la diferencia sea casualidad (detalle en Método). xG = goles esperados.</p>
+      <div class="col-principios"><h3 class="sub-h">Los seis principios de Jardine</h3>
+        <p class="pie">Cada tarjeta compara a Jardine con Solari y Ortiz. Para entrar aquí, la diferencia tuvo que pasar 4 filtros (detalle en Método):</p>
+        <ol class="filtros-nombres">
+          <li><b>Claro</b>Tiene una dirección clara: su rango probable no cruza el cero.</li>
+          <li><b>Grande</b>Pesa en la cancha: al menos media variación típica.</li>
+          <li><b>Constante</b>Se repite en al menos 4 de los 5 torneos de Jardine.</li>
+          <li><b>A prueba de suerte</b>Entre cientos de pruebas, el riesgo de que sea casualidad es de 10 % o menos.</li>
+        </ol>
         <div class="tarjetas" data-slot="principios"></div></div>
     </div>
   </section>
@@ -87,21 +91,25 @@
     <div class="col"><span class="etq-p">Caso ilustrativo</span><p data-slot="ejemplo-texto"></p><span class="uno" aria-hidden="true">1</span></div>
     <div class="cont">
       <h2>Así se ve un principio en un partido</h2>
-      <div class="figura" data-slot="ejemplo-foto"></div>
-      <ul class="leyenda" data-slot="leyenda"></ul>
-      <p class="pie" data-slot="que-muestra"></p>
+      <div class="ejemplo-grid">
+        <div class="figura figura-recorte" data-slot="ejemplo-foto"></div>
+        <div class="ejemplo-datos"><span class="etq-p">Lo que dice esta foto</span><dl data-slot="ejemplo-datos"></dl>
+          <ul class="leyenda columna" data-slot="leyenda"></ul>
+          <p class="pie" data-slot="que-muestra"></p></div>
+      </div>
     </div>
   </section>
 
   <section class="pilares">
-    <div class="pilar"><span class="n">1</span><h3>Identidad</h3><p>Índice de iniciativa y mapa de control del espacio: cómo juega, minuto a minuto, frente a cada rival.</p>
+    <div class="pilar"><span class="n">1</span><h3>Ojo de Águila</h3><p class="sub-pilar">¿Cómo funciona?</p>
+      <p>Mide cada minuto con un <b>índice de iniciativa</b>: de 0, un equipo que espera y sale al contragolpe, a 100, uno que tiene el balón y presiona arriba. Lo cruza con el <b>mapa de control del espacio</b> (quién domina cada metro de la cancha) y con los <b>momentos clave</b>: goles, expulsiones, lesiones y cambios de sistema.</p>
       <button type="button" class="enlace-pilar oscuro" data-vista="explorar">Ver un partido →</button></div>
-    <div class="pilar"><span class="n">2</span><h3>Evidencia</h3><p>Cada principio con su número, su rango probable y un partido que lo ilustra, comprobado en el Clausura 2026, un torneo que el análisis no vio: ninguno se invirtió.</p>
+    <div class="pilar"><span class="n">2</span><h3>Evidencia</h3><p>Cada principio trae su número y un partido real donde se ve. Además, lo pusimos a prueba en el Clausura 2026, un torneo que guardamos sin mirar: <span data-slot="pilar-validacion">ninguno salió al revés</span>.</p>
       <button type="button" class="enlace-pilar oscuro" data-ir="metodo#met-evidencia">Ver la evidencia →</button></div>
-    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Qué conviene en cada situación, una ficha de 10 segundos por rival y tres partidos del Clausura 2026: qué marcaba la herramienta y qué pasó.</p>
+    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Qué conviene en cada situación según cómo viene el partido, una ficha por rival y, en tres partidos del Clausura 2026, lo que marcaba la herramienta frente a lo que pasó.</p>
       <button type="button" class="enlace-pilar" data-vista="decidir">Ir al plan de juego →</button></div>
   </section>
-  <section class="cierre-p"><strong>¿Contra quién juegan? Su ficha de 10 segundos</strong>
+  <section class="cierre-p"><strong>El sistema de juego contra cada rival</strong>
     <button type="button" class="btn-explorar" data-ir="decidir#ficha">Ver las fichas<span>→</span></button></section>
 </div>
 
@@ -249,10 +257,10 @@
     <section class="bloque"><span class="ante chico">4 · Cuándo algo es un hallazgo</span>
       <h2>Los 4 filtros y una prueba en falso</h2>
       <ol class="lista-met">
-        <li><strong>Rango probable sin cero.</strong> El rango donde cae la diferencia con 95 % de confianza (intervalo de confianza, por remuestreo de partidos completos) no cruza 0.</li>
-        <li><strong>Tamaño.</strong> La diferencia mide al menos media variación típica (desviación estándar); en los momentos clave, la de lo que cambia el partido solo en los tramos de comparación.</li>
-        <li><strong>Constancia.</strong> Va en la misma dirección en al menos 4 de los 5 torneos de Jardine.</li>
-        <li><strong>Riesgo de falso hallazgo de 10 % o menos.</strong> Como se hicieron cientos de pruebas, algunas saldrían por suerte; la corrección de Benjamini-Hochberg (FDR, el valor q) lo descuenta.</li>
+        <li><strong>Claro: rango probable sin cero.</strong> El rango donde cae la diferencia con 95 % de confianza (intervalo de confianza, por remuestreo de partidos completos) no cruza 0.</li>
+        <li><strong>Grande: tamaño.</strong> La diferencia mide al menos media variación típica (desviación estándar); en los momentos clave, la de lo que cambia el partido solo en los tramos de comparación.</li>
+        <li><strong>Constante: se repite.</strong> Va en la misma dirección en al menos 4 de los 5 torneos de Jardine.</li>
+        <li><strong>A prueba de suerte: riesgo de falso hallazgo de 10 % o menos.</strong> Como se hicieron cientos de pruebas, algunas saldrían por suerte; la corrección de Benjamini-Hochberg (FDR, el valor q) lo descuenta.</li>
       </ol>
       <p class="parrafo" data-slot="met-criterio"></p></section>
 

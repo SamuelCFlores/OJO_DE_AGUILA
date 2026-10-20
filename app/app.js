@@ -40,10 +40,41 @@
     '<rect x="0" y="0" width="120" height="80" style="fill:url(#fuera)"/><g class="capa"></g>' +
     '<g class="lineas"><rect x="0" y="0" width="120" height="80"/><line x1="60" y1="0" x2="60" y2="80"/><circle cx="60" cy="40" r="10"/>' +
     '<rect x="0" y="18" width="18" height="44"/><rect x="102" y="18" width="18" height="44"/><rect x="0" y="30" width="6" height="20"/><rect x="114" y="30" width="6" height="20"/></g>' +
+    '<g class="rotulos"></g>' +
     '<rect class="borde-foto" x="-2" y="-2" width="124" height="84" rx="2"/>' +
     '<text class="sin-foto" x="60" y="42" text-anchor="middle">Sin foto de posiciones en este minuto</text></svg>';
 
-  function crearCancha(contenedor) { contenedor.innerHTML = CANCHA; return contenedor.querySelector('svg'); }
+  // Cada portería con su nombre: el América ataca siempre hacia la derecha (orientación de StatsBomb para el equipo)
+  function crearCancha(contenedor) {
+    contenedor.innerHTML = CANCHA;
+    var svg = contenedor.querySelector('svg'), rotulos = svg.querySelector('.rotulos');
+    var local = !(D.portada && D.portada.ejemplo && D.portada.ejemplo.local === false);
+    [[1.5, 'start', local ? 'Portería local' : 'Portería visitante', D.equipo], [118.5, 'end', local ? 'Portería visitante' : 'Portería local', D.rival]].forEach(function (r) {
+      var t = el('text', { x: r[0], y: 13.2, 'text-anchor': r[1], class: 'porteria' }, rotulos);
+      el('tspan', { x: r[0], dy: 0 }, t).textContent = r[2];
+      el('tspan', { x: r[0], dy: 2.7, class: 'quien' }, t).textContent = r[3];
+    });
+    return svg;
+  }
+  // Encuadre de la foto del caso: de la zona que ve la cámara hasta la portería hacia la que va la jugada (sin cancha vacía)
+  function recortar(svg, f) {
+    var xs = [];
+    (f.visible || []).forEach(function (v) { for (var k = 0; k < v.length; k += 2) xs.push(v[k]); });
+    (f.jugadores || []).forEach(function (j) { xs.push(j[0]); });
+    if (!xs.length) return;
+    var min = Math.min.apply(null, xs), max = Math.max.apply(null, xs);
+    var x0 = (min + max) / 2 >= 60 ? Math.max(-3, min - 8) : -3, x1 = (min + max) / 2 >= 60 ? 123 : Math.min(123, max + 8);
+    svg.setAttribute('viewBox', x0 + ' -3 ' + (x1 - x0) + ' 86');
+  }
+  // El balón junto a quien ejecuta: al inicio de la flecha, un poco hacia donde va (el 360 no lo marca)
+  function balonDe(f) {
+    if (f.flecha) {
+      var dx = f.flecha[2] - f.flecha[0], dy = f.flecha[3] - f.flecha[1], n = Math.hypot(dx, dy) || 1, d = Math.min(1.8, n / 2);
+      return [f.flecha[0] + dx / n * d, f.flecha[1] + dy / n * d];
+    }
+    var a = (f.jugadores || []).filter(function (j) { return j[3]; })[0];
+    return a ? [a[0] + 1.6, a[1]] : null;
+  }
   function ojo(x, y, padre) {
     var s = 4.6 / 102, g = el('g', { transform: 'translate(' + (x - 54 * s) + ',' + (y - 54 * s) + ') scale(' + s + ')' }, padre);
     el('polygon', { points: '12,19.6 86,30.8 99,46.7 95.4,50.6 24.1,29.2', style: 'fill:var(--c-acento);stroke:var(--c-acento);stroke-width:2' }, g);
@@ -122,7 +153,7 @@
     return { celdas: f.celdas.map(function (c, k) { return { poli: aPuntos(c), propio: !!f.propias[k] }; }),
              frontera: f.frontera.map(function (l) { return l; }), visibles: f.visible.map(aPuntos),
              jugadores: f.jugadores.map(function (j) { return { x: j[0], y: j[1], propio: !!j[2], actor: !!j[3], op: 1 }; }),
-             flecha: f.flecha, eq: f.eq, nombre: f.nombre || '', control: f.control };
+             flecha: f.flecha, eq: f.eq, nombre: f.nombre || '', control: f.control, balon: balonDe(f), balonEstimado: false };
   }
   function dibujarEstado(svg, e) {
     var capa = svg.querySelector('.capa');
@@ -154,6 +185,11 @@
       if (j.propio) ojo(j.x, j.y, g);
       else el('circle', { cx: j.x, cy: j.y, r: .95, style: 'fill:#fff;stroke:var(--c-azul);stroke-width:.35' }, g);
     });
+    if (e.balon) {  // balón: blanco con centro azul; entre fotos es una estimación (borde punteado)
+      var b = el('g', { class: 'balon' + (e.balonEstimado ? ' estimado' : '') }, capa);
+      el('circle', { cx: e.balon[0], cy: e.balon[1], r: 1.2 }, b);
+      el('circle', { cx: e.balon[0], cy: e.balon[1], r: .45, class: 'centro' }, b);
+    }
   }
   function dibujarFoto(svg, f) { dibujarEstado(svg, f ? fotoAEstado(f) : null); }
 
@@ -165,8 +201,21 @@
       '<div><dt>Diferencia</dt><dd>' + esc(p.diferencia) + '<small>' + esc(p.intervalo) + '</small></dd></div>' +
       '<div><dt>Torneos en la misma dirección</dt><dd>' + esc(p.torneos) + '</dd></div></dl>';
     var extra = grande ? '<p><strong>Qué significa.</strong> ' + esc(p.significa) + '</p><p><strong>Para el cuerpo técnico (hipótesis).</strong> ' + esc(p.uso) + '</p>' : '';
+    var muestra = p.muestra ? '<p class="muestra-p">' + esc(p.muestra) + '</p>' : '';
     return '<article class="tarjeta' + (grande ? ' grande' : '') + '"><header><h3>' + esc(p.titulo) + '</h3>' + caso + '</header>' +
-      '<p class="frase">' + esc(p.frase) + '</p>' + cifras + extra + '<span class="estado">' + esc(p.estado) + '</span></article>';
+      '<p class="frase">' + esc(p.frase) + '</p>' + cifras + muestra + extra + notaXG(p.frase + p.jardine) + '<span class="estado">' + esc(p.estado) + '</span></article>';
+  }
+  function notaXG(texto) { return /\bxG\b/.test(texto) ? '<p class="nota-xg">xG = goles esperados: la probabilidad de gol de los tiros, sumada.</p>' : ''; }
+  // "ninguno salió al revés: 2 se confirmaron, 3 van en la misma dirección…", contado desde la validación del CL26
+  function textoValidacion(lista) {
+    var c = {};
+    (lista || []).forEach(function (v) { c[v.veredicto] = (c[v.veredicto] || 0) + 1; });
+    function n(k, uno, varios) { return c[k] ? c[k] + ' ' + (c[k] === 1 ? uno : varios) : null; }
+    var partes = [n('se_sostiene', 'se confirmó', 'se confirmaron'), n('misma_direccion', 'va en la misma dirección sin certeza todavía', 'van en la misma dirección sin certeza todavía'),
+                  n('sin_muestra', 'no tuvo casos suficientes', 'no tuvieron casos suficientes')].filter(Boolean);
+    var lista2 = partes.length > 1 ? partes.slice(0, -1).join(', ') + ' y ' + partes[partes.length - 1] : (partes[0] || '');
+    var alReves = c.no_se_sostiene ? c.no_se_sostiene + (c.no_se_sostiene === 1 ? ' salió al revés' : ' salieron al revés') : 'ninguno salió al revés';
+    return alReves + (lista2 ? ': ' + lista2 : '');
   }
   function montecarlo(m) {
     var marcadores = m.marcadores.slice(0, 3).map(function (x) { return esc(x[0]) + ' (' + pct(x[1]) + ')'; }).join(' · ');
@@ -290,13 +339,22 @@
   // ---------- render general ----------
   function render() {
     texto('equipo', D.equipo); texto('rival', D.rival);
-    html('kpis', D.portada.kpis.map(function (k) { return '<div class="kpi"><span>' + esc(k.etq) + '</span><strong>' + esc(k.valor) + '</strong><small>' + esc(k.detalle) + '</small></div>'; }).join(''));
+    // OBS3 · cada cuadro dice qué mide y compara al nuevo (arriba) con sus predecesores (abajo, separados por una raya)
+    html('kpis', D.portada.kpis.map(function (k) {
+      return '<article class="kpi"><span class="etq">' + (k.clave !== 'indice' ? '<i>Principio</i>' : '') + esc(k.etq) + '</span><p class="que">' + esc(k.que) + '</p>' +
+        k.filas.map(function (f) {
+          return '<div class="fila' + (f.nuevo ? ' nuevo' : '') + '"><span class="quien">' + esc(f.quien) + '</span><strong>' + esc(f.valor) + '</strong><small>' + esc(f.nota) + '</small></div>';
+        }).join('') + '</article>';
+    }).join(''));
     slots('torneos').forEach(function (c) { graficaTorneos(c, D.portada.torneos); });
     html('principios', D.portada.principios.map(function (p) { return tarjeta(p, false); }).join(''));
     texto('ejemplo-texto', 'Ejemplo: ' + D.portada.ejemplo.texto);
-    slots('ejemplo-foto').forEach(function (c) { dibujarFoto(crearCancha(c), D.portada.ejemplo.foto); });
+    slots('ejemplo-foto').forEach(function (c) { var s = crearCancha(c); dibujarFoto(s, D.portada.ejemplo.foto); recortar(s, D.portada.ejemplo.foto); });
+    html('ejemplo-datos', (D.portada.ejemplo.datos || []).map(function (d) { return '<div><dt>' + esc(d[0]) + '</dt><dd>' + esc(d[1]) + '</dd></div>'; }).join(''));
     html('leyenda', '<li><span class="pastilla">' + OJO_LEYENDA + '</span>' + esc(D.equipo) + '</li><li><span class="pastilla"><span class="punto"></span></span>' + esc(D.rival) +
-      '</li><li><span class="pastilla"><span class="raya"></span></span>Frontera entre equipos</li>');
+      '</li><li><span class="pastilla"><span class="raya"></span></span>Frontera entre equipos</li>' +
+      '<li><span class="pastilla"><span class="balon-ley"></span></span>Balón (junto a quien juega; entre fotos, estimado)</li>');
+    texto('pilar-validacion', textoValidacion(D.decidir && D.decidir.validacion));
     texto('que-muestra', D.explorar.que_muestra);
     var X = D.explorar;
     texto('antetitulo', X.antetitulo);
@@ -338,7 +396,8 @@
       '<div class="campo"><span>Dónde concede</span>' + chips(f.concede) + '</div>' +
       '<div class="campo"><span>Balón parado</span>' + (f.balon_parado_rasgos.length ? chips(f.balon_parado_rasgos) : '') + '<p>' + esc(f.balon_parado) + '</p></div>' +
       '<div class="campo"><span>' + esc(D.nuevo) + ' contra él</span><p>' + esc(f.jardine) + '</p></div>' +
-      '<div class="campo"><span>Contra rivales parecidos</span><p>' + esc(f.parecidos.join(', ')) + '</p><p>' + esc(f.jardine_parecidos) + '</p></div>');
+      '<div class="campo"><span>Contra rivales parecidos</span><p>' + esc(f.parecidos.join(', ')) + '</p><p>' + esc(f.jardine_parecidos) + '</p></div>' +
+      notaXG('xG'));
   }
   // De la barra a la ficha de 10 segundos del rival elegido (vista Decidir)
   function irAFicha(nombre) {
@@ -508,9 +567,11 @@
         if (!enA[b.ids[j]] && prog >= .5) jug.push({ x: jb[0], y: jb[1], propio: !!jb[2], actor: !!jb[3], op: 2 * prog - 1 });  // entra a cámara
       });
       var v = voronoiJS(jug, mayorVisible(base.visible), A.alcance, 4 * A.cuartos_circulo);
+      var ba = balonDe(a), bb = balonDe(b);  // el balón viaja en línea recta de una acción a la siguiente (estimado)
+      var balon = ba && bb ? [ba[0] + (bb[0] - ba[0]) * prog, ba[1] + (bb[1] - ba[1]) * prog] : (prog < .5 ? ba : bb);
       return { celdas: v.celdas.map(function (c, k2) { return { poli: c, propio: jug[k2].propio }; }), frontera: v.frontera,
                visibles: base.visible.map(aPuntos), jugadores: jug, flecha: a.flecha, opFlecha: 1 - prog, eq: base.eq,
-               nombre: base.nombre, control: v.control, texto: base.texto, reloj: base.reloj };
+               nombre: base.nombre, control: v.control, texto: base.texto, reloj: base.reloj, balon: balon, balonEstimado: prog > 0 };
     }
     function duracion(fotos, k) {
       if (k >= fotos.length - 1) return 1;
@@ -747,6 +808,13 @@
     if (D) ocultarBarra(cuerpo.classList.contains('barra-oculta'));
   });
   window.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarCajon(); });
+  // OBS1 · al bajar, el encabezado se compacta (más página a la vista); al volver arriba, regresa. Con histéresis para no parpadear.
+  var compacto = false;
+  function revisarEncabezado() {
+    var y = window.scrollY || document.documentElement.scrollTop || 0, nuevo = compacto ? y > 8 : y > 64;
+    if (nuevo !== compacto) { compacto = nuevo; cuerpo.classList.toggle('enc-compacto', compacto); }
+  }
+  window.addEventListener('scroll', revisarEncabezado, { passive: true });
   // El encabezado crece en el teléfono: al desplazarse a una sección se usa su alto real (--alto-enc-real)
   var enc = document.querySelector('header.enc');
   function altoEnc() { if (enc) document.documentElement.style.setProperty('--alto-enc-real', enc.offsetHeight + 'px'); }

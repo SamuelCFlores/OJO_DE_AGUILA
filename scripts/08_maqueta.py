@@ -25,7 +25,7 @@ from ojo.config import DIR_SALIDAS, RAIZ, params
 from ojo.datos import almacen, crudo
 from ojo.framework import contexto, quiebres
 from ojo.framework import partidos as fp
-from ojo.lentes import balon_parado, indice, jugadores, minuto, rivales, simulacion, voronoi
+from ojo.lentes import balon_parado, indice, jugadores, minuto, pases, rivales, simulacion, voronoi
 from ojo.salidas import barra as sb
 from ojo.salidas import caso as sc
 from ojo.salidas import datos_app, decision, reproductor
@@ -42,47 +42,49 @@ CLAVES_CORTAS = {"gol_favor": "Gol", "gol_contra": "Gol rival", "expulsion_favor
 # Principios: de dónde sale cada número y cómo se lee (notebooks 02 y 03, criterio v2 del 18 oct).
 PRINCIPIOS = [
     {"archivo": "estilo", "filtro": {"metrica": "largo_pase"}, "escala": YARDA_M, "unidad": " m", "dec": 1, "cambio": False,
-     "titulo": "Sale jugando corto",
+     "clave": "salida_corta", "titulo": "Sale jugando corto",
      "frase": "Con Jardine, los pases del América miden {jardine} en promedio; con Solari y Ortiz, {previos}.",
      "significa": "Cambia el pelotazo por circulación corta, también desde su propio campo.",
      "uso": "Si el rival presiona alto, el plan del América es tocar para salir, no rifar el balón: la presión rival pone a prueba este principio."},
     {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "expulsion_favor", "lado": "rival", "metrica": "altura_sin_balon"},
      "escala": YARDA_M, "unidad": " m", "dec": 1, "cambio": True, "tipo_caso": "expulsion_favor",
-     "titulo": "Con uno más, hunde al rival",
+     "clave": "uno_mas", "casos": "expulsiones del rival", "titulo": "Con uno más, hunde al rival",
      "frase": "Tras una expulsión del rival, el rival se mete atrás: su altura sin balón cambia {jardine} contra Jardine; contra Solari y Ortiz, {previos}.",
      "significa": "Con superioridad numérica no administra: se instala en campo rival, mete al rival en su área y además concede menos contragolpes.",
      "uso": "Con un jugador más, esperar al América volcado arriba; el rival que se queda con diez tiene que preparar la salida desde su área."},
     {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "sustitucion_lesion_propia", "lado": "propio", "metrica": "presiones"},
      "escala": 10, "unidad": " cada 10 min", "dec": 1, "cambio": True, "tipo_caso": "sustitucion_lesion_propia",
-     "titulo": "Una lesión no lo frena",
+     "clave": "lesion", "casos": "cambios por lesión", "titulo": "Una lesión no lo frena",
      "frase": "Tras una sustitución por lesión, sus presiones cambian {jardine} con Jardine; con Solari y Ortiz, {previos}.",
      "significa": "Un cambio obligado no lo hace recular: sale a presionar más.",
      "uso": "Tras una lesión del América no esperar un repliegue: el rival tiene que preparar la salida ante más presión."},
     {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "gol_contra", "lado": "rival", "metrica": "contrapresiones"},
      "escala": 10, "unidad": " cada 10 min", "dec": 1, "cambio": True, "tipo_caso": "gol_contra",
-     "titulo": "Tras recibir gol, el rival no lo aprieta",
+     "clave": "gol_contra", "casos": "goles en contra", "titulo": "Tras recibir gol, el rival no lo aprieta",
      "frase": "Después de que el América recibe gol, la presión del rival tras perder el balón cambia {jardine} contra Jardine; contra Solari y Ortiz, {previos}.",
      "significa": "El rival que se adelanta en el marcador se repliega en lugar de seguir presionando la salida.",
      "uso": "El rival que anota tiene que decidir si se mete atrás: contra Jardine suele hacerlo y le cede el balón."},
     {"archivo": "quiebres_contra_predecesores", "filtro": {"tipo": "cambio_sistema_propio", "lado": "propio", "metrica": "xg"},
      "escala": 10, "unidad": " xG cada 10 min", "dec": 2, "cambio": True, "tipo_caso": "cambio_sistema_propio",
-     "titulo": "Alerta: cambiar el sistema le cuesta",
+     "clave": "cambio_sistema", "casos": "cambios de sistema", "titulo": "Alerta: cambiar el sistema le cuesta",
      "frase": "Tras sus cambios de sistema, los goles esperados (xG) del América cambian {jardine} con Jardine; con Solari y Ortiz, {previos}.",
      "significa": "Los 10 minutos que siguen a un cambio de sistema produce menos. Puede ser porque el cambio responde a algo que ya iba mal: es una pista, no una causa.",
      "uso": "Para el cuerpo técnico: cuidar el paso al nuevo sistema. Para el rival: es una ventana para atacar."},
     {"archivo": "jugadores_lineas_criterio", "filtro": {"metrica": "tacticos_defensa"}, "escala": 1, "unidad": " por partido",
      "dec": 2, "cambio": False,
-     "titulo": "Refresca las bandas",
+     "clave": "bandas", "titulo": "Refresca las bandas",
      "frase": "Con Jardine, los cambios tácticos de defensas son {jardine}; con Solari y Ortiz, {previos}.",
      "significa": "Mueve laterales y centrales (mediana del minuto 76) más que mediocampistas: gestión de piernas más que golpe táctico.",
      "uso": "Desde el minuto 70, esperar laterales frescos del América: el rival puede preparar sus cambios de banda para ese momento."},
 ]
 
 
-def principios(caso_tipo: str, caso_texto: str, n_torneos: int) -> tuple[list[datos_app.Principio], datos_app.Principio | None]:
+def principios(caso_tipo: str, caso_texto: str, n_torneos: int, nombre_nuevo: str,
+               n_partidos: tuple[int, int]) -> tuple[list[datos_app.Principio], datos_app.Principio | None]:
     """Tarjetas de los principios candidatos con sus números (si los notebooks ya se corrieron).
 
     n_torneos: torneos de entrenamiento del entrenador nuevo (el denominador de la constancia).
+    n_partidos: partidos de entrenamiento del nuevo y de los previos (la muestra de los principios por partido).
     """
     tarjetas, del_caso = [], None
     for d in PRINCIPIOS:
@@ -107,7 +109,10 @@ def principios(caso_tipo: str, caso_texto: str, n_torneos: int) -> tuple[list[da
             titulo=d["titulo"], frase=d["frase"].format(jardine=fmt(nuevo), previos=fmt(previo)), significa=d["significa"],
             uso=d["uso"], jardine=fmt(nuevo), previos=fmt(previo), diferencia=dif(f["diferencia"]),
             intervalo=f"Rango probable: {sin_unidad(f['ic_bajo'])} a {dif(f['ic_alto'])}", torneos=f"{int(f['torneos_misma_direccion'])} de {n_torneos}",
-            estado=estado)
+            estado=estado, clave=d["clave"])
+        # Muestra: momentos clave de cada grupo (principios de quiebres) o partidos (principios por partido)
+        p.n_nuevo, p.n_previos = ((int(f["quiebres_nuevo"]), int(f["quiebres_previos"])) if "quiebres_nuevo" in f else n_partidos)
+        p.muestra = f"{p.n_nuevo} {d.get('casos', 'partidos')} con {nombre_nuevo} · {p.n_previos} con Solari y Ortiz"
         if d.get("tipo_caso") == caso_tipo:
             p.caso = caso_texto
             del_caso = p
@@ -210,7 +215,6 @@ def generar(args: argparse.Namespace) -> int:
                                             minuto.PROPIO: "propio", minuto.RIVAL: "rival"})
     por_torneo = por_torneo.groupby("torneo", sort=False).agg(entrenador=("entrenador", "last"), propio=("propio", "mean"),
                                                              rival=("rival", "mean")).reset_index()
-    medias = entr.groupby([entr["entrenador_corto"] == nuevo, "lado"])["indice"].mean().unstack("lado")
     n_nuevo = partidos[(partidos["entrenador_corto"] == nuevo) & ~partidos["prueba"]].shape[0]
     n_previos = partidos[(partidos["entrenador_corto"] != nuevo) & ~partidos["prueba"]].shape[0]
 
@@ -270,6 +274,7 @@ def generar(args: argparse.Namespace) -> int:
         res = voronoi.analizar_frame(todos, area)
         if res is not None and res.control > mejor:
             principal = reproductor.foto(res, sc.reloj(c.minuto, c.segundo), describir(c), True, reproductor.flecha_de(c, True))
+            principal["nombre"] = noms.get(c.jugador_id, "")
             mejor, indice_destacada = res.control, int(c.indice)
     if principal is None:
         print("✗ No hay una foto analizable del equipo en campo rival después del quiebre.")
@@ -326,16 +331,14 @@ def generar(args: argparse.Namespace) -> int:
     fase = sb.minuscula(sb.etiqueta_partido(partidos, info)).replace(" · ", " de ")
     caso_texto = f"Caso: {fase} {info['torneo_corto']}"
     n_torneos = partidos.loc[(partidos["entrenador_corto"] == nuevo) & ~partidos["prueba"], "torneo_corto"].nunique()
-    tarjetas, del_caso = principios(args.tipo, caso_texto, n_torneos)
+    tarjetas, del_caso = principios(args.tipo, caso_texto, n_torneos, nuevo, (n_nuevo, n_previos))
     if del_caso is None:
         print("✗ Faltan los resultados de los notebooks 02 y 03 (outputs/hallazgos) o el principio del caso.")
         return 1
     barra = sb.compacta(partidos, info, q["tipo"], q["estado_antes"],
                         f"1 partido · {len(repro['fotos'])} minutos con foto de posiciones (360)")
-    kpis = [
-        (f"Índice con {nuevo}", f"{medias.loc[True, minuto.PROPIO]:.0f}", f"rivales {medias.loc[True, minuto.RIVAL]:.0f} · {n_nuevo} partidos"),
-        ("Índice con Solari y Ortiz", f"{medias.loc[False, minuto.PROPIO]:.0f}", f"rivales {medias.loc[False, minuto.RIVAL]:.0f} · {n_previos} partidos"),
-    ] + [(t.titulo, t.diferencia, "frente a Solari y Ortiz") for t in tarjetas[:2]]
+    kpis = cuadros_resumen(partidos, entr, tarjetas, nuevo, team)
+    ejemplo_datos = datos_del_ejemplo(principal, ev, d0, q, args.tipo, equipo, rival, team)
     titulo = (f"La expulsión de {protagonista} y lo que vino después" if args.tipo.startswith("expulsion")
               else f"{sc.etiqueta_quiebre(q, equipo, rival)} y lo que vino después")
     decidir = datos_decidir(p, team)
@@ -353,12 +356,13 @@ def generar(args: argparse.Namespace) -> int:
                  "aviso": "Datos reales de StatsBomb: solo para la competencia; no se suben a git ni se publican."},
         "titulo": titulo, "equipo": equipo, "rival": rival, "nuevo": nuevo,
         "portada": {
-            "kpis": [{"etq": a_, "valor": b_, "detalle": c_} for a_, b_, c_ in kpis],
+            "kpis": kpis,
             "torneos": [{"torneo": r_.torneo, "entrenador": r_.entrenador, "propio": round(float(r_.propio), 1),
                          "rival": round(float(r_.rival), 1), "nuevo": r_.entrenador == nuevo} for r_ in por_torneo.itertuples()],
             "principios": [datos_app.principio(x) for x in tarjetas],
             "ejemplo": {"texto": f"{equipo} vs {rival}, {fase} del {info['torneo']} {pd.Timestamp(info['fecha']).year}: "
-                                 f"{sb.minuscula(titulo)}.", "foto": principal, "que_muestra": que_muestra},
+                                 f"{sb.minuscula(titulo)}.", "foto": principal, "que_muestra": que_muestra,
+                         "datos": ejemplo_datos, "local": info["localia"] == "local"},
         },
         "explorar": {
             "antetitulo": f"Principio → caso · {info['torneo_corto']} · {etapa} · {fecha}",
@@ -377,6 +381,65 @@ def generar(args: argparse.Namespace) -> int:
     print(f"Maqueta 3: {titulo}\nDatos: {ruta.relative_to(RAIZ)} ({ruta.stat().st_size // 1024} KB; reales: no se publican ni se suben a git)\n"
           "Página: app/maqueta.html")
     return 0
+
+
+def cuadros_resumen(partidos: pd.DataFrame, entr: pd.DataFrame, tarjetas: list[datos_app.Principio], nuevo: str,
+                    team: int) -> list[dict]:
+    """Cuadros del Resumen: cada medida con el entrenador nuevo arriba y debajo sus predecesores.
+
+    Índice y largo de pase van por entrenador (cada uno tiene decenas de partidos); el principio de la expulsión va con
+    los predecesores juntos, porque por separado quedarían muy pocas expulsiones por entrenador.
+    """
+    def fila(quien: str, valor: str, nota: str, es_nuevo: bool = False) -> dict:
+        return {"quien": quien, "valor": valor, "nota": nota, "nuevo": es_nuevo}
+
+    entrenamiento = partidos[~partidos["prueba"]]
+    n_coach = entrenamiento.groupby("entrenador_corto").size()
+    previos = (entrenamiento[entrenamiento["entrenador_corto"] != nuevo].groupby("entrenador_corto")["fecha"].min()
+               .sort_values(ascending=False).index.tolist())  # el más reciente primero
+    idx = entr.groupby(["entrenador_corto", "lado"])["indice"].mean().unstack("lado")
+    cuadros = [{"etq": "Índice de iniciativa", "clave": "indice",
+                "que": "De 0 (espera al rival y sale al contragolpe) a 100 (tiene el balón y presiona arriba). Promedio de sus partidos.",
+                "filas": [fila(c, f"{idx.loc[c, minuto.PROPIO]:.0f}", f"sus rivales: {idx.loc[c, minuto.RIVAL]:.0f} · {int(n_coach[c])} partidos",
+                               c == nuevo) for c in [nuevo, *previos]]}]
+    por_clave = {t.clave: t for t in tarjetas}
+    if "salida_corta" in por_clave:
+        ev = almacen.cargar("eventos", entrenamiento["match_id"].tolist(), columnas=pases.COLUMNAS)
+        largo = entrenamiento.assign(largo=entrenamiento["match_id"].map(pases.largo_por_partido(ev, team)) * YARDA_M)
+        por_coach = largo.groupby("entrenador_corto")["largo"].mean()
+        menos = largo.loc[largo["entrenador_corto"] != nuevo, "largo"].mean() - por_coach[nuevo]
+        cuadros.append({"etq": por_clave["salida_corta"].titulo, "clave": "salida_corta",
+                        "que": "Largo medio de sus pases en juego abierto: toca corto desde atrás en lugar de rifar el balón.",
+                        "filas": [fila(nuevo, f"{por_coach[nuevo]:.1f} m", f"{abs(menos):.1f} m {'menos' if menos > 0 else 'más'} que con Solari y Ortiz", True)]
+                        + [fila(c, f"{por_coach[c]:.1f} m", f"{int(n_coach[c])} partidos") for c in previos]})
+    if "uno_mas" in por_clave:
+        t = por_clave["uno_mas"]
+        cuadros.append({"etq": t.titulo, "clave": "uno_mas",
+                        "que": "Tras una expulsión del rival: cuánto cambia la altura sin balón del rival que se queda con diez. "
+                               "En negativo, se mete atrás, más cerca de su portería.",
+                        "filas": [fila(nuevo, t.jardine, f"{t.n_nuevo} expulsiones del rival", True),
+                                  fila("Solari y Ortiz", t.previos, f"{t.n_previos} expulsiones; por separado serían muy pocas")]})
+    return cuadros
+
+
+def datos_del_ejemplo(foto: dict, ev: pd.DataFrame, evento: pd.Series, q: pd.Series, tipo: str, equipo: str, rival: str,
+                      team: int) -> list[list[str]]:
+    """Lo que dice la foto del caso ilustrativo, en datos: minuto, marcador, espacio, jugadores a la vista y la jugada.
+
+    NOTA1: no se muestra la altura del rival en la foto: la cámara ve pocos jugadores cerca del balón y el principio se
+    mide con el cambio entre tramos, no con una foto.
+    """
+    m = contexto.marcador(ev, team).loc[evento.name]
+    propios = [j for j in foto["jugadores"] if j[2]]
+    ajenos = [j for j in foto["jugadores"] if not j[2]]
+    salida = [["Minuto", foto["reloj"]],
+              ["Marcador", f"{equipo} {int(m['goles_favor'])}-{int(m['goles_contra'])} {rival}"]]
+    if tipo == "expulsion_favor":
+        salida.append(["Con uno más", f"desde el {q['minuto']}'"])
+    salida += [[f"Espacio del {equipo}", f"{foto['control'] * 100:.0f} % de lo que ve la cámara"],
+               ["Jugadores a la vista", f"{len(propios)} del {equipo} · {len(ajenos)} de {rival}"]]
+    salida.append(["La jugada", foto["texto"]])
+    return salida
 
 
 def siguiente_paso(decidir: dict, tipo: str, rival: str, principio: datos_app.Principio) -> list[dict]:

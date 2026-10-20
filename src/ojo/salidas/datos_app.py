@@ -37,6 +37,10 @@ class Principio:
     torneos: str
     estado: str
     caso: str = ""
+    clave: str = ""        # identificador estable del principio (enlaza los cuadros del Resumen)
+    muestra: str = ""      # cuántos casos lo sostienen en cada grupo, en palabras
+    n_nuevo: int = 0
+    n_previos: int = 0
 
 
 def principio(p: Principio) -> dict:

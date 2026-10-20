@@ -95,7 +95,7 @@ Los ids internos (`portada`, `explorar`, `decidir`, `metodo`) y las direcciones 
 | IC 95 % | **rango probable** | |
 | Bootstrap | **remuestreo de partidos** | Solo en Método. |
 | q / FDR / Benjamini-Hochberg | **riesgo de falso hallazgo**, en % | Por ejemplo, "menos de 1 %" o "6 %". |
-| Criterio v2 | **los 4 filtros** | |
+| Criterio v2 | **los 4 filtros**, con nombre: **Claro** (rango probable sin cero) · **Grande** (al menos media variación típica) · **Constante** (4 de 5 torneos) · **A prueba de suerte** (riesgo de falso hallazgo ≤ 10 %) | Nombres del 19 oct, en el Resumen y en Método |
 | Placebo | **prueba en falso (placebo)** | |
 | DE / desviación estándar | **variación típica** | |
 | PCA / cargas / varianza | **comprobación de los pesos** | El término técnico va entre paréntesis en Método. |
