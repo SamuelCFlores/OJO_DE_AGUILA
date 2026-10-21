@@ -21,6 +21,15 @@ SITUACIONES = {
     "empata_1t": "Empatando, primer tiempo", "empata_2t": "Empatando, segundo tiempo",
     "pierde_1": "Perdiendo por 1", "pierde_2": "Perdiendo por 2 o más",
 }
+# Contextos (21 oct, chamuel): se cruzan con las situaciones de arriba, así que un minuto puede caer en varios.
+# NOTA3: liguilla = cualquier fase final (incluye el repechaje); "desde el 75'" es desde matriz.minuto_cierre (si cambia, cambiar
+# también los nombres).
+CONTEXTOS = {
+    "local": "De local", "visitante": "De visitante",
+    "cerrar": "Cerrar el partido: ganando por 1 desde el 75'",
+    "ultimos_15": "Desde el 75', con cualquier marcador",
+    "liguilla": "En liguilla", "fase_regular": "En fase regular",
+}
 SUMAS = ["xg_favor", "xg_contra", "tercio_favor", "tercio_contra", "pases_rival_zona", "acciones_def", "rec_n", "rec_x"]
 
 
@@ -45,6 +54,21 @@ def asignar(estado: pd.DataFrame) -> pd.Series:
     condiciones = [j > 0, j < 0, d >= 2, d == 1, (d == 0) & (p == 1), d == 0, d == -1]
     claves = list(SITUACIONES)
     return pd.Series(np.select(condiciones, claves[:-1], claves[-1]), index=estado.index)
+
+
+def en_contexto(tabla: pd.DataFrame, clave: str, minuto_cierre: int) -> pd.Series:
+    """Minutos de la tabla que caen en un contexto (claves de CONTEXTOS).
+
+    La tabla trae periodo, minuto, dif_goles, localia ("local" o "visitante") y liguilla (bool). El último cuarto de
+    hora es el segundo tiempo desde minuto_cierre, con el añadido y sin la prórroga.
+    """
+    final = (tabla["periodo"] == 2) & (tabla["minuto"] >= minuto_cierre)
+    mascaras = {
+        "local": tabla["localia"] == "local", "visitante": tabla["localia"] == "visitante",
+        "cerrar": final & (tabla["dif_goles"] == 1), "ultimos_15": final,
+        "liguilla": tabla["liguilla"].astype(bool), "fase_regular": ~tabla["liguilla"].astype(bool),
+    }
+    return mascaras[clave]
 
 
 def resumir(tabla: pd.DataFrame, por: list[str]) -> pd.DataFrame:

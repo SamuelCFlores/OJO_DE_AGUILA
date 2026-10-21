@@ -15,6 +15,7 @@ from ojo.config import params
 from ojo.lentes import rivales
 
 DOMINA, PAREJO, SUFRE = "domina", "parejo", "sufre"
+GANANDO = frozenset({"gana_1", "gana_2", "cerrar"})  # situaciones y contextos en los que el América va arriba
 
 
 def banda_indice(v: float) -> str:
@@ -53,16 +54,20 @@ def fila_matriz(r: pd.Series, base: pd.Series, equipo: str = "América", cfg: di
         rec = "Corregir: en esta situación concede más de lo que genera; proteger la pérdida."
     elif r.get("situacion") == "uno_menos" and replegado:
         rec = "Con uno menos, replegarse es lo esperado: el partido se sostiene parejo."
+    elif replegado:
+        rec = "Hipótesis a probar: sostener la iniciativa. Replegado, el balance de ocasiones deja de ser claro"
+        # el repliegue al ir ganando es de cualquier equipo; en los contextos sin marcador fijo no aplica esa cautela
+        rec += ("; no está probado que el repliegue lo cause (todo equipo que gana tiende a replegarse)."
+                if r.get("situacion") in GANANDO or not r.get("situacion") else ".")
     else:
-        rec = ("Hipótesis a probar: sostener la iniciativa. Replegado, el balance de ocasiones deja de ser claro; "
-               "no está probado que el repliegue lo cause (todo equipo que gana tiende a replegarse)." if replegado
-               else "Buscar la ventaja: tiene el balón, pero no saca diferencia en ocasiones.")
+        rec = "Buscar la ventaja: tiene el balón, pero no saca diferencia en ocasiones."
     chica = r["minutos"] < cfg["minutos_min"]
     evidencia = (f"{r['minutos']:.0f} minutos en {r['partidos']:.0f} partidos · balance {r['xg_dif_90']:+.2f} "
                  f"(rango probable {r['xg_dif_bajo']:+.2f} a {r['xg_dif_alto']:+.2f})")
     if pd.notna(r.get("previos_xg_dif_90")):
         evidencia += f" · con Solari y Ortiz, {r['previos_xg_dif_90']:+.2f}"
-    return {"situacion": r["nombre"], "clave": str(r.get("situacion", "")), "hace": "; ".join(hace) + ".", "funciona": funciona + ".",
+    return {"situacion": r["nombre"], "clave": str(r.get("situacion", "")), "grupo": str(r.get("grupo") or "situacion"),
+            "hace": "; ".join(hace) + ".", "funciona": funciona + ".",
             "recomendacion": rec + (" Muestra chica: leer con cautela." if chica else ""), "evidencia": evidencia,
             "nivel": nivel, "muestra_chica": bool(chica)}
 

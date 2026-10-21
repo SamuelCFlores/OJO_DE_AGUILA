@@ -41,3 +41,12 @@ def test_registro_de_resultados() -> None:
 def test_con_uno_menos_replegarse_es_lo_esperado() -> None:
     f = decision.fila_matriz(_fila(situacion="uno_menos", nombre="Con uno menos", indice=44, minutos=76), BASE, cfg=CFG)
     assert f["recomendacion"].startswith("Con uno menos, replegarse es lo esperado")
+
+
+def test_contexto_sin_marcador_no_dice_que_gana() -> None:
+    f = decision.fila_matriz(_fila(situacion="visitante", nombre="De visitante", grupo="contexto"), BASE, cfg=CFG)
+    assert f["recomendacion"].startswith("Hipótesis a probar: sostener la iniciativa")
+    assert "todo equipo que gana" not in f["recomendacion"] and f["grupo"] == "contexto"
+    cerrar = decision.fila_matriz(_fila(situacion="cerrar", nombre="Cerrar el partido", grupo="contexto"), BASE, cfg=CFG)
+    assert "todo equipo que gana" in cerrar["recomendacion"]
+    assert decision.fila_matriz(_fila(), BASE, cfg=CFG)["grupo"] == "situacion"

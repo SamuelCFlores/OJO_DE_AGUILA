@@ -48,7 +48,7 @@
     '<rect x="0" y="0" width="120" height="80" style="fill:url(#fuera)"/><g class="capa"></g>' +
     '<g class="lineas"><rect x="0" y="0" width="120" height="80"/><line x1="60" y1="0" x2="60" y2="80"/><circle cx="60" cy="40" r="10"/>' +
     '<rect x="0" y="18" width="18" height="44"/><rect x="102" y="18" width="18" height="44"/><rect x="0" y="30" width="6" height="20"/><rect x="114" y="30" width="6" height="20"/></g>' +
-    '<g class="rotulos"></g>' +
+    '<g class="rotulos"></g><g class="eventos"></g>' +
     '<rect class="borde-foto" x="-2" y="-2" width="124" height="84" rx="2"/>' +
     '<text class="sin-foto" x="60" y="42" text-anchor="middle">Sin foto de posiciones en este minuto</text></svg>';
 
@@ -200,6 +200,38 @@
   }
   function dibujarFoto(svg, f) { dibujarEstado(svg, f ? fotoAEstado(f) : null); }
 
+  // ---------- eventos del minuto (21 oct): gol, cambio, falta, tiro de esquina y saques de banda y de meta ----------
+  // Salen de ojo.salidas.reproductor.eventos_por_minuto y solo se dibujan: ninguna medida los usa. Crema: del equipo; blanco: del rival.
+  var NOMBRE_EVENTO = { gol: 'Gol', cambio: 'Cambio', falta: 'Falta', corner: 'Tiro de esquina', banda: 'Saque de banda', meta: 'Saque de meta' };
+  function iconoEvento(tipo, padre, color) {  // centrado en 0,0 y de unas 4.6 unidades de la cancha de ancho
+    var g = el('g', { class: 'ev-ico ev-' + tipo }, padre);
+    var trazo = 'fill:none;stroke:' + color + ';stroke-width:.42;stroke-linecap:round;stroke-linejoin:round';
+    el('circle', { r: 2.3, style: 'fill:var(--c-azul);stroke:' + color + ';stroke-width:.4' }, g);
+    if (tipo === 'gol') {
+      el('circle', { r: 1.35, style: 'fill:#fff' }, g);
+      el('path', { d: 'M0 -.6L.57 -.19L.35 .49L-.35 .49L-.57 -.19Z', style: 'fill:var(--c-azul)' }, g);
+    } else if (tipo === 'cambio') el('path', { d: 'M-1.2 -.55H1.1M.55 -1.1L1.1 -.55L.55 0M1.2 .6H-1.1M-.55 .05L-1.1 .6L-.55 1.15', style: trazo }, g);
+    else if (tipo === 'falta') el('path', { d: 'M-.85 -.85L.85 .85M.85 -.85L-.85 .85', style: trazo + ';stroke-width:.55' }, g);
+    else if (tipo === 'corner') { el('path', { d: 'M-.75 1.25V-1.25', style: trazo }, g); el('path', { d: 'M-.75 -1.25L1.05 -.68L-.75 -.1Z', style: 'fill:' + color }, g); }
+    else if (tipo === 'banda') { el('path', { d: 'M-1 .8Q-1 -1 .8 -1M.25 -1.5L.85 -1L.3 -.45', style: trazo }, g); el('circle', { cx: -1, cy: 1.05, r: .42, style: 'fill:' + color }, g); }
+    else if (tipo === 'meta') { el('path', { d: 'M-1.15 1.1V-.35H1.15V1.1', style: trazo }, g); el('path', { d: 'M0 .75V-1.45M-.5 -.95L0 -1.45L.5 -.95', style: trazo }, g); }
+    return g;
+  }
+  function leyendaEventos() {
+    var ul = document.querySelector('[data-slot="leyenda-eventos"]');
+    if (!ul) return;
+    ul.innerHTML = '';
+    Object.keys(NOMBRE_EVENTO).forEach(function (t) {
+      var li = document.createElement('li'), s = el('svg', { viewBox: '-2.6 -2.6 5.2 5.2', width: 20, height: 20, 'aria-hidden': 'true' }, li);
+      iconoEvento(t, s, 'var(--c-acento)');
+      li.appendChild(document.createTextNode(NOMBRE_EVENTO[t]));
+      ul.appendChild(li);
+    });
+    var nota = document.createElement('li');
+    nota.className = 'nota-ev'; nota.textContent = 'Crema: del ' + D.equipo + '; blanco: del rival. Los cambios aparecen junto a la banca.';
+    ul.appendChild(nota);
+  }
+
   // ---------- piezas de contenido ----------
   function tarjeta(p, grande) {
     var caso = p.caso ? '<button type="button" class="insignia ir-caso" title="Ir al partido que lo ilustra">' + esc(p.caso) + ' <span aria-hidden="true">→</span></button>' : '';
@@ -337,6 +369,7 @@
     P = nuevo;
     renderExplorar(); reproductor();
     if (subir && cuerpo.dataset.vista === 'explorar') window.scrollTo(0, 0);
+    document.dispatchEvent(new CustomEvent('ojo:partido', { detail: { rival: P.rival } }));  // para motor.js (Pregúntale al motor)
     return true;
   }
   // Mostrar u ocultar la barra en escritorio (variantes en movimiento.js). Lo oculto queda inerte y el foco pasa al botón visible.
@@ -372,6 +405,8 @@
     slots('ejemplo-foto').forEach(function (c) { var s = crearCancha(c, CASO.local, D.rival); dibujarFoto(s, D.portada.ejemplo.foto); recortar(s, D.portada.ejemplo.foto); });
     html('ejemplo-datos', (D.portada.ejemplo.datos || []).map(function (d) { return '<div><dt>' + esc(d[0]) + '</dt><dd>' + esc(d[1]) + '</dd></div>'; }).join(''));
     htmlEn('portada', 'leyenda', leyenda(D.rival));
+    texto('ejemplo-lectura', D.portada.ejemplo.lectura || '');
+    slots('ejemplo-lectura-caja').forEach(function (n) { n.hidden = !D.portada.ejemplo.lectura; });
     texto('pilar-validacion', textoValidacion(D.decidir && D.decidir.validacion));
     textoEn('portada', 'que-muestra', D.portada.ejemplo.que_muestra || D.explorar.que_muestra);
     renderExplorar();
@@ -415,7 +450,7 @@
   function num(v, dec) { return v == null ? '—' : Number(v).toFixed(dec == null ? 2 : dec); }
   function riesgo(q) { return q < .01 ? 'menos de 1 %' : Math.round(q * 100) + ' %'; }  // igual que decision.texto_riesgo
   function tablaComp(filas, primera) {
-    return '<thead><tr><th>' + esc(primera) + '</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>¿Distinto? (4 filtros)</th></tr></thead><tbody>' +
+    return '<thead><tr><th>' + esc(primera) + '</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>¿Distinto? (4 parámetros)</th></tr></thead><tbody>' +
       filas.map(function (f) {
         return '<tr><th>' + esc(f.etq) + '</th><td>' + num(f.jardine) + '</td><td>' + num(f.previos) + '</td><td class="' + (f.pasa ? 'si' : '') + '">' +
           (f.pasa ? 'Sí (riesgo de falso hallazgo: ' + riesgo(f.q) + ')' : 'No') + '</td></tr>';
@@ -446,11 +481,18 @@
   function renderDecidir(X) {
     if (X.base) texto('base-decidir', 'Su partido normal (AP23–AP25, sin el torneo reservado): índice de iniciativa ' + X.base.indice + ', PPDA ' + num(X.base.ppda, 1) +
       ' y balance de ocasiones ' + (X.base.xg_dif_90 >= 0 ? '+' : '') + num(X.base.xg_dif_90) + ' xG cada 90 minutos.');
-    html('matriz', X.matriz.map(function (m) {
+    function situacion(m) {
       var n = NIVELES[m.nivel] || NIVELES.parejo;
       return '<article class="situacion"><header><h3>' + esc(m.situacion) + '</h3><span class="nivel ' + m.nivel + '">' + n[0] + ' ' + n[1] + '</span></header>' +
         '<p><strong>Qué hace.</strong> ' + esc(m.hace) + '</p><p><strong>Resultado.</strong> ' + esc(m.funciona) + '</p>' +
         '<p class="rec"><b>Recomendación (hipótesis)</b>' + esc(m.recomendacion) + '</p><p class="evid">' + esc(m.evidencia) + '</p></article>';
+    }
+    // Dos grupos (21 oct): las situaciones (cada minuto cae en una) y los contextos, que se cruzan con ellas
+    var GRUPOS = [['situacion', 'Por marcador y jugadores en la cancha', 'Cada minuto cae en una sola de estas situaciones.'],
+                  ['contexto', 'Por contexto', 'Se cruzan con las de arriba: un mismo minuto puede contar, por ejemplo, como "ganando por 1" y como "de visitante". Liguilla incluye el repechaje; «desde el 75\'» llega hasta el final, con el añadido.']];
+    html('matriz', GRUPOS.map(function (g) {
+      var filas = X.matriz.filter(function (m) { return (m.grupo || 'situacion') === g[0]; });
+      return filas.length ? '<h3 class="matriz-grupo">' + esc(g[1]) + '</h3><p class="nota">' + esc(g[2]) + '</p><div class="matriz">' + filas.map(situacion).join('') + '</div>' : '';
     }).join(''));
     var sel = document.getElementById('rival-ficha');
     sel.innerHTML = X.fichas.map(function (f, k) { return '<option value="' + k + '">' + esc(f.rival) + ' (' + f.partidos + ' partidos)</option>'; }).join('');
@@ -493,14 +535,14 @@
       (p.mismo_signo ? 'las 8 empujan en la dirección esperada' : 'no todas empujan en la dirección esperada') + ', resumen el ' + Math.round(p.varianza * 100) + ' % de la variación y el promedio con pesos iguales coincide en ' + num(p.correlacion) + ' (correlación) con la combinación que sale de los datos.');
     if (M.criterio) {
       var c = M.criterio;
-      texto('met-criterio', 'Prueba en falso (placebo): en ' + c.placebo_pruebas + ' momentos clave inventados (tramos donde no pasó nada), la primera versión de los filtros, sin el filtro 4, aprobaba ' + c.placebo_v1 +
-        '; con los 4 filtros, ' + c.placebo_v2 + '. De las ' + c.pruebas + ' pruebas del análisis pasan ' + c.pasan_v2 + ' (con la primera versión pasaban ' + c.pasan_v1 + ').' +
-        (c.reales_1a3 == null ? '' : ' Sin el filtro 4, los filtros 1 a 3 aprueban ' + c.placebo_1a3 + ' de ' + c.placebo_pruebas + ' momentos inventados frente a ' + c.reales_1a3 + ' de ' + c.reales_pruebas + ' reales: esa diferencia es la que muestra que el método no inventa.') +
+      texto('met-criterio', 'Prueba en falso (placebo): en ' + c.placebo_pruebas + ' momentos clave inventados (tramos donde no pasó nada), la primera versión de los parámetros, sin el parámetro 4, aprobaba ' + c.placebo_v1 +
+        '; con los 4 parámetros, ' + c.placebo_v2 + '. De las ' + c.pruebas + ' pruebas del análisis pasan ' + c.pasan_v2 + ' (con la primera versión pasaban ' + c.pasan_v1 + ').' +
+        (c.reales_1a3 == null ? '' : ' Sin el parámetro 4, los parámetros 1 a 3 aprueban ' + c.placebo_1a3 + ' de ' + c.placebo_pruebas + ' momentos inventados frente a ' + c.reales_1a3 + ' de ' + c.reales_pruebas + ' reales: esa diferencia es la que muestra que el método no inventa.') +
         ' La prueba en falso se hizo con los momentos clave de ' + D.nuevo + '; la comparación con Solari y Ortiz no tiene una propia.');
     }
     var val = {};
     ((D.decidir && D.decidir.validacion) || []).forEach(function (v) { val[v.principio] = v; });
-    html('met-principios', '<thead><tr><th>Principio</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>Diferencia</th><th>Torneos</th><th>4 filtros</th><th>En el CL26</th></tr></thead><tbody>' +
+    html('met-principios', '<thead><tr><th>Principio</th><th>' + esc(D.nuevo) + '</th><th>Solari y Ortiz</th><th>Diferencia</th><th>Torneos</th><th>4 parámetros</th><th>En el CL26</th></tr></thead><tbody>' +
       D.portada.principios.map(function (pr) {
         var v = val[pr.titulo];
         return '<tr><th>' + esc(pr.titulo) + '</th><td>' + esc(pr.jardine) + '</td><td>' + esc(pr.previos) + '</td><td>' + esc(pr.diferencia) + '<br><small>' + esc(pr.intervalo) + '</small></td><td>' +
@@ -531,6 +573,50 @@
     var PASO_MINUTO = 650;  // ms por minuto en el modo partido (solo presentación)
     var PAUSA_FOTO = 1000 * (A.pausa_foto == null ? .6 : A.pausa_foto);  // en cada foto real de una jugada (A1)
     var insignia = document.getElementById('insignia-foto');
+    var capaEv = svg.querySelector('.eventos'), listaEv = document.getElementById('eventos-min'), banner = document.getElementById('gol-banner');
+    var esperaGol = 0, timerBanner = null, minutoEv = -1;
+    leyendaEventos();
+    function limpiarEventos() {
+      while (capaEv.firstChild) capaEv.removeChild(capaEv.firstChild);
+      listaEv.innerHTML = ''; banner.hidden = true; clearTimeout(timerBanner); minutoEv = -1;
+    }
+    // Los eventos del minuto en su lugar de la cancha; al avanzar de a un minuto aparecen en el orden en que pasaron
+    function mostrarEventos(m, animar) {
+      while (capaEv.firstChild) capaEv.removeChild(capaEv.firstChild);
+      var ev = m.ev || [], banca = [0, 0];
+      ev.forEach(function (e) {
+        var x = e.x, y = e.y;
+        if (x == null || y == null) { x = 60 + (e.f ? -1 : 1) * (4.5 + 5.2 * banca[e.f]++); y = 76.5; }  // los cambios, junto a la banca
+        var g = el('g', { transform: 'translate(' + Math.max(2.4, Math.min(117.6, x)) + ',' + Math.max(2.4, Math.min(77.6, y)) + ')' }, capaEv);
+        var ico = iconoEvento(e.t, g, e.f ? 'var(--c-acento)' : '#fff');
+        if (animar && !reducido()) { ico.style.animationDelay = Math.round(e.s / 60 * PASO_MINUTO * .8) + 'ms'; ico.classList.add('entra'); }
+        el('title', {}, g).textContent = e.txt;
+      });
+      listaEv.innerHTML = ev.map(function (e) {
+        return '<li class="' + (e.f ? 'propio' : 'ajeno') + (e.t === 'gol' ? ' gol' : '') + '"><span class="seg">' + m.m + ':' + ('0' + e.s).slice(-2) + '</span>' + esc(e.txt) + '</li>';
+      }).join('');
+      var gol = ev.filter(function (e) { return e.t === 'gol'; }).pop();
+      if (gol) mostrarGol(gol, animar);
+      else { banner.hidden = true; clearTimeout(timerBanner); }
+    }
+    // Gol: aviso grande sobre la cancha; reproduciendo, el partido se detiene un momento para leerlo
+    function mostrarGol(e, animar) {
+      var autor = e.txt.replace(/^Gol de /, ''), equipoGol = e.f ? D.equipo : RIVAL;
+      banner.className = 'gol-banner ' + (e.f ? 'propio' : 'ajeno') + (animar && !reducido() ? ' entra' : '');
+      banner.innerHTML = '<strong>¡Gol!</strong><span class="autor">' + esc(autor) + (autor.indexOf(equipoGol) < 0 ? ' · ' + esc(equipoGol) : '') + '</span>' +
+        '<span class="marcador-gol">' + esc(D.equipo) + ' ' + esc(e.m) + ' ' + esc(RIVAL) + '</span>';
+      banner.hidden = false;
+      // centrado sobre la cancha, no sobre todo el bloque (en el teléfono los controles ocupan buena parte de la altura)
+      function centrar() {
+        var rc = svg.getBoundingClientRect(), rb = banner.parentNode.getBoundingClientRect();
+        if (rc.height) banner.style.top = Math.round(rc.top - rb.top + rc.height / 2) + 'px';
+        return rc.height > 0;
+      }
+      if (!centrar()) setTimeout(centrar, 400);  // la vista todavía se está mostrando
+      clearTimeout(timerBanner);
+      timerBanner = setTimeout(function () { banner.hidden = true; }, 2600);
+      if (animar && timer) esperaGol = Date.now() + 2200;
+    }
     // A1 · cada cuadro dice si es dato (foto 360) o relleno (posición estimada entre fotos): insignia y borde
     function marcarFoto(estado) {
       svg.classList.toggle('foto-real', estado === 'real'); svg.classList.toggle('foto-estimada', estado === 'estimado');
@@ -640,12 +726,13 @@
       reloj.textContent = m.etq + ' · ' + m.marcador;
       tiempo.setAttribute('aria-valuetext', 'Minuto ' + m.etq + ', marcador ' + m.marcador);
       panelMinuto(m); marcarLinea();
+      if (i !== minutoEv) { mostrarEventos(m, i === minutoEv + 1); minutoEv = i; }
     }
     function lista() { return modo === 'partido' ? R.minutos : jugada.fotos; }
     function actualizar() {
       var L = lista(); i = Math.max(0, Math.min(i, L.length - 1)); tiempo.max = L.length - 1; tiempo.value = i;
       if (modo === 'partido') mostrarMinuto();
-      else { mostrarJugada(); var mm = R.minutos[jugada.minuto]; if (mm) panelMinuto(mm); }
+      else { limpiarEventos(); mostrarJugada(); var mm = R.minutos[jugada.minuto]; if (mm) panelMinuto(mm); }
     }
     function detener() {
       if (timer) clearInterval(timer); if (raf) cancelAnimationFrame(raf);
@@ -668,7 +755,11 @@
     function reproducir() {
       if (i >= lista().length - 1) { i = 0; p = 0; }
       play.textContent = '❚❚'; play.setAttribute('aria-label', 'Pausar'); repro.classList.add('reproduciendo');
-      if (modo === 'partido') timer = setInterval(function () { if (i >= lista().length - 1) { detener(); return; } i++; actualizar(); }, PASO_MINUTO);
+      if (modo === 'partido') timer = setInterval(function () {
+        if (Date.now() < esperaGol) return;  // pausa breve tras un gol
+        if (i >= lista().length - 1) { detener(); return; }
+        i++; actualizar();
+      }, PASO_MINUTO);
       else { if (p === 0) { pausa = PAUSA_FOTO; pulsoActor(jugada.fotos[i]); } raf = requestAnimationFrame(cuadro); }
     }
     play.addEventListener('click', function () { if (timer || raf) detener(); else reproducir(); });
@@ -770,7 +861,12 @@
     }
     i = R.inicio || 0;
     actualizar();
-    reproductor.apagar = detener;
+    reproductor.apagar = function () { detener(); limpiarEventos(); };
+    reproductor.irA = function (k) {  // para motor.js: el modo partido en el minuto k (índice de R.minutos)
+      var b = modos.querySelector('[data-modo="partido"]');
+      if (modo !== 'partido' && b) b.click();
+      detener(); i = k; p = 0; actualizar();
+    };
   }
 
   // ---------- vistas, cajón (teléfono), entrada y ícono ----------
@@ -879,6 +975,18 @@
     mostrar(['#explorar', '#decidir', '#metodo'].indexOf(location.hash) >= 0 ? location.hash.slice(1) : 'portada');
     // FIX1: el navegador salta al #vista de la dirección (es el id de la vista) o restaura la posición anterior; se vuelve arriba
     // ya, al terminar de cargar y un instante después (el salto puede llegar después del evento load)
+    // API mínima para motor.js (Pregúntale al motor, app/maquetachatbot.html); maqueta.html no la usa
+    window.OjoApp = {
+      partido: function () { return P; },
+      elegirRival: function (nombre) {  // como un clic en la barra; el rival del caso vuelve con "Restablecer"
+        if (P && P.rival === nombre) return true;
+        if (nombre === D.rival) { montarBarra(); return true; }
+        var b = Array.prototype.filter.call(document.querySelectorAll('aside.barra .rival-btn'), function (x) { return x.dataset.rival === nombre; })[0];
+        if (!b) return false;
+        cambiarRival(b); actualizarResumenes(); return true;
+      },
+      irAMinuto: function (k) { if (reproductor.irA) reproductor.irA(k); }
+    };
     var arriba = function () { window.scrollTo(0, 0); };
     arriba();
     if (document.readyState === 'complete') { requestAnimationFrame(arriba); setTimeout(arriba, 150); }

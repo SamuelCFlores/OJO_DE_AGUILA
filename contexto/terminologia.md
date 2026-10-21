@@ -33,7 +33,7 @@ Cada pestaña lleva debajo una descripción corta (en pantallas de 1180 px o má
 
 **¿"Métricas" en lugar de Método? No.**
 
-- La vista no es una lista de métricas. Su centro es cómo se decidió que algo es un hallazgo (los 4 filtros y la prueba en falso), la validación en el CL26 y los límites.
+- La vista no es una lista de métricas. Su centro es cómo se decidió que algo es un hallazgo (los 4 parámetros y la prueba en falso), la validación en el CL26 y los límites.
 - "Método" es la palabra del criterio de la rúbrica ("metodología y visualización"): quien califica ese criterio va directo ahí.
 
 En el teléfono las pestañas van sin descripción; "Plan de juego" ocupa dos líneas.
@@ -52,6 +52,10 @@ La página ya no usa "ficha de 10 segundos". Se adapta según el lugar:
 | Límites (Método §7) | "La lectura del motor describe al rival promedio" |
 
 En el código y en los datos el objeto sigue llamándose `ficha` (`decidir.fichas`, `#ficha`, `ojo.salidas.decision.ficha`). El guion del video y el animatic todavía dicen "una ficha que se lee en diez segundos".
+
+### Glosario de Método (21 oct, chamuel)
+
+El glosario pasa de 15 a 42 términos: además de los que ya tenía, entra cada término "traducido" de esta tabla que aparece en la página (los 4 parámetros, principio, tramos de comparación, cambio neto, variación típica, remuestreo, comprobación de los pesos, propone · equilibrado · espera, ataque elaborado, contragolpe, juego directo y pase largo, presión alta, presión tras perder el balón, altura sin balón, altura de recuperación, espacio en campo rival, forma de pasar, peligro por envío, foto real y estimado, matriz de situaciones, ▲ ● ▼, recomendación, muestra chica, lectura del motor, partido clave, torneos analizados y los veredictos). Cada uno lleva entre paréntesis el nombre técnico.
 
 Los ids internos (`portada`, `explorar`, `decidir`, `metodo`) y las direcciones (`#explorar`…) no cambian.
 
@@ -110,7 +114,7 @@ Los ids internos (`portada`, `explorar`, `decidir`, `metodo`) y las direcciones 
 | IC 95 % | **rango probable** | |
 | Bootstrap | **remuestreo de partidos** | Solo en Método. |
 | q / FDR / Benjamini-Hochberg | **riesgo de falso hallazgo**, en % | Por ejemplo, "menos de 1 %" o "6 %". |
-| Criterio v2 | **los 4 filtros**, con nombre: **Claro** (rango probable sin cero) · **Grande** (al menos media variación típica) · **Constante** (4 de 5 torneos) · **A prueba de suerte** (riesgo de falso hallazgo ≤ 10 %) | Nombres del 19 oct, en el Resumen y en Método |
+| Criterio v2 | **los 4 parámetros** (antes "4 filtros"; cambio de chamuel del 21 oct, también en el video), con nombre: **Claro** (rango probable sin cero) · **Grande** (al menos media variación típica) · **Constante** (4 de 5 torneos) · **A prueba de suerte** (riesgo de falso hallazgo ≤ 10 %) | Nombres del 19 oct, en el Resumen y en Método |
 | Placebo | **prueba en falso (placebo)** | |
 | DE / desviación estándar | **variación típica** | |
 | PCA / cargas / varianza | **comprobación de los pesos** | El término técnico va entre paréntesis en Método. |

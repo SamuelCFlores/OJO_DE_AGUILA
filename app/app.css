@@ -251,7 +251,7 @@
   .kpi .fila strong { grid-area: valor; font-size: 20px; font-weight: 900; line-height: 1.05; text-align: right; font-variant-numeric: tabular-nums; }
   .kpi .fila.nuevo strong { font-size: 32px; color: var(--c-acento); }
   .kpi .fila.nuevo .quien { color: var(--c-acento); }
-  /* Los 4 filtros con nombre (OBS3) */
+  /* Los 4 parámetros con nombre (OBS3) */
   .filtros-nombres { list-style: none; margin: 0 0 4px; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(max(200px, calc(25% - 8px)), 1fr)); gap: 8px; counter-reset: filtro; }  /* 4 en fila o 2 × 2, nunca 3 + 1 */
   .filtros-nombres li { counter-increment: filtro; background: #fff; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--borde); padding: 8px 10px; font-size: 12.5px; line-height: 1.35; }
   .filtros-nombres b { display: block; font-size: 13px; font-weight: 900; text-transform: uppercase; }
@@ -531,3 +531,43 @@
     .enlace, .ver-todos { display: inline-flex; align-items: center; }
     #tiempo { min-height: 44px; }
   }
+
+  /* ===== 21 oct · Resumen: simbología en fila y lectura del juego hasta la foto ===== */
+  .leyenda.en-fila { gap: 8px 18px; font-size: 12.5px; }
+  .leyenda.en-fila .pastilla { width: 38px; height: 26px; }
+  .lectura-foto { background: var(--c-azul); color: #fff; border-radius: 10px; padding: 10px 14px 12px; display: grid; gap: 4px; }
+  .ejemplo-datos .lectura-foto .etq-p { color: var(--c-acento); }
+  .lectura-foto p { margin: 0; font-size: 14.5px; line-height: 1.5; }
+
+  /* ===== 21 oct · Reproductor: eventos del minuto (íconos en la cancha, lista bajo el reloj) y aviso de gol ===== */
+  .cancha-svg .ev-ico { transform-box: fill-box; transform-origin: center; }
+  .cancha-svg .ev-ico.entra { animation: ev-entra 420ms cubic-bezier(.2, .8, .2, 1) both; }
+  @keyframes ev-entra { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.35); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  .eventos-min { list-style: none; margin: 2px 4px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; min-height: 26px; }
+  .eventos-min li { font-size: 12.5px; font-weight: 600; color: #fff; background: rgba(255,255,255,.08); border-radius: 6px; padding: 3px 8px 3px 10px; display: flex; gap: 6px; align-items: baseline; }
+  .eventos-min li.propio { box-shadow: inset 3px 0 0 var(--c-acento); }
+  .eventos-min li.ajeno { box-shadow: inset 3px 0 0 #fff; }
+  .eventos-min li.gol { background: var(--c-acento); color: var(--c-azul); font-weight: 800; }
+  .eventos-min .seg { font-variant-numeric: tabular-nums; opacity: .75; font-weight: 700; }
+  .leyenda-eventos { list-style: none; margin: 8px 4px 2px; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: rgba(255,255,255,.78); }
+  .leyenda-eventos li { display: flex; align-items: center; gap: 6px; }
+  .figura .leyenda-eventos svg { width: 20px; height: 20px; flex: none; }  /* .figura svg los estira al 100 % */
+  .leyenda-eventos .nota-ev { flex-basis: 100%; color: rgba(255,255,255,.6); }
+  .gol-banner { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 2px; z-index: 2;
+    padding: 14px 30px 12px; border-radius: 14px; pointer-events: none; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .gol-banner.propio { background: var(--c-acento); color: var(--c-azul); }
+  .gol-banner.ajeno { background: #fff; color: var(--c-azul); box-shadow: inset 0 -5px 0 var(--c-rojo), 0 10px 30px rgba(0,0,0,.35); }
+  .gol-banner strong { font-size: clamp(34px, 5vw, 64px); font-weight: 900; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
+  .gol-banner .autor { font-size: 15px; font-weight: 800; }
+  .gol-banner .marcador-gol { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; opacity: .85; }
+  .gol-banner.entra { animation: gol-entra 650ms cubic-bezier(.2, .9, .25, 1.25) both; }
+  .gol-banner.entra strong { animation: gol-latido 900ms 450ms ease-in-out 2; }
+  @keyframes gol-entra { 0% { transform: translate(-50%, -50%) scale(.3) rotate(-6deg); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; } }
+  @keyframes gol-latido { 50% { transform: scale(1.08); } }
+  @media (prefers-reduced-motion: reduce) { .cancha-svg .ev-ico.entra, .gol-banner.entra, .gol-banner.entra strong { animation: none; } }
+  @media (max-width: 640px) { .gol-banner { padding: 8px 18px 7px; border-radius: 10px; } .gol-banner strong { font-size: 30px; } .gol-banner .autor { font-size: 13px; } .gol-banner .marcador-gol { font-size: 12px; } }
+
+  /* ===== 21 oct · Matriz en dos grupos: situaciones y contextos ===== */
+  .matriz-grupo { margin: 22px 0 2px; font-size: 15px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+  .matriz-grupo:first-child { margin-top: 6px; }
+  .matriz-grupo + .nota { margin: 0 0 10px; }

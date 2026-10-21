@@ -43,3 +43,15 @@ def test_resumir_usa_sumas_por_minuto() -> None:
     assert r["xg_dif_90"] == pytest.approx(90 * (.3 - .1) / 3)
     assert r["field_tilt"] == pytest.approx(4 / 8) and r["ppda"] == pytest.approx(16 / 4)
     assert r["altura_recuperacion"] == pytest.approx(50) and r["indice"] == pytest.approx(60)
+
+
+def test_contextos_se_cruzan_con_las_situaciones() -> None:
+    import pandas as pd
+    from ojo.lentes import situaciones as sit
+    t = pd.DataFrame({"periodo": [1, 2, 2, 2, 3], "minuto": [80 - 40, 74, 75, 93, 100], "dif_goles": [1, 1, 1, 0, 1],
+                      "localia": ["local", "visitante", "local", "neutral", "local"], "liguilla": [False, True, True, False, True]})
+    assert sit.en_contexto(t, "cerrar", 75).tolist() == [False, False, True, False, False]   # sin la prórroga
+    assert sit.en_contexto(t, "ultimos_15", 75).tolist() == [False, False, True, True, False]  # con el añadido
+    assert sit.en_contexto(t, "local", 75).sum() == 3 and sit.en_contexto(t, "visitante", 75).sum() == 1  # neutral, en ninguno
+    assert sit.en_contexto(t, "liguilla", 75).sum() == 3 and sit.en_contexto(t, "fase_regular", 75).sum() == 2
+    assert set(sit.CONTEXTOS) == {"local", "visitante", "cerrar", "ultimos_15", "liguilla", "fase_regular"}

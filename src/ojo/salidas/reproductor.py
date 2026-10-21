@@ -13,6 +13,7 @@ import pandas as pd
 import shapely
 
 from ojo.config import params
+from ojo.framework import contexto
 from ojo.lentes import voronoi
 from ojo.salidas import caso as sc
 
@@ -83,6 +84,59 @@ def por_minuto(eventos: pd.DataFrame, frames: pd.DataFrame, jugadores: pd.DataFr
         if resultado is not None:
             fotos[clave] = foto(resultado, sc.reloj(e.minuto, e.segundo), describir(e), del_equipo, flecha_de(e, del_equipo))
     return fotos
+
+
+# Eventos que se animan en el reproductor (21 oct, chamuel): tipo de la página → cómo se reconoce en Events
+# (contexto/api/events.md: pass.type 61 Corner, 63 Goal Kick, 67 Throw-in; Substitution; Foul Committed; goles de
+# contexto.goles_por_evento). NOTA1: solo se dibujan; ninguna medida los usa.
+PASES_ANIMADOS = {"Corner": "corner", "Throw-in": "banda", "Goal Kick": "meta"}
+TEXTO_PASE = {"corner": "Tiro de esquina", "banda": "Saque de banda", "meta": "Saque de meta"}
+
+
+def eventos_por_minuto(eventos: pd.DataFrame, equipo_id: int, nombres: dict[int, str],
+                       nombre_equipo: dict[int, str]) -> dict[tuple[int, int], list[dict]]:
+    """Goles, cambios, faltas, tiros de esquina y saques de banda y de meta de cada minuto, para animarlos.
+
+    Cada evento: t (gol, cambio, falta, corner, banda o meta), f (1 si es del equipo), x e y en la perspectiva del
+    equipo (ataca hacia x = 120; None si el evento no trae lugar, como los cambios), s (segundo) y txt. Los goles
+    llevan además m, el marcador del equipo después del gol. Sin la tanda de penales.
+    """
+    ev = eventos[eventos["periodo"] != contexto.PERIODO_PENALES].sort_values("indice")
+    anotador = contexto.goles_por_evento(ev)
+    orientado = contexto.orientar(ev, equipo_id, columnas=(("x", "y"),))
+    tarjetas = ev["tarjeta"] if "tarjeta" in ev else pd.Series(index=ev.index, dtype="object")
+    favor = contra = 0
+    salida: dict[tuple[int, int], list[dict]] = {}
+    for k, e in ev.iterrows():
+        quien = nombres.get(e["jugador_id"], "") if pd.notna(e.get("jugador_id")) else ""
+        equipo = nombre_equipo.get(e["equipo_id"], "")
+        extra = {}
+        if pd.notna(anotador.loc[k]):
+            del_equipo = anotador.loc[k] == equipo_id
+            favor, contra = favor + del_equipo, contra + (not del_equipo)
+            tipo = "gol"
+            txt = (f"Gol de {quien}" if e["tipo"] == "Shot" and quien
+                   else f"Autogol: gol de {nombre_equipo.get(anotador.loc[k], '')}")
+            extra = {"m": f"{favor}-{contra}"}
+        elif e["tipo"] == "Substitution":
+            del_equipo, tipo = e["equipo_id"] == equipo_id, "cambio"
+            entra = nombres.get(e["sustitucion_entra_id"], "") if pd.notna(e.get("sustitucion_entra_id")) else ""
+            txt = f"Cambio de {equipo}: sale {quien or '—'}, entra {entra or '—'}"
+        elif e["tipo"] == "Foul Committed":
+            del_equipo, tipo = e["equipo_id"] == equipo_id, "falta"
+            tarjeta = sc.TARJETAS.get(tarjetas.loc[k]) if pd.notna(tarjetas.loc[k]) else None
+            txt = f"Falta de {quien or equipo}" + (f" ({tarjeta})" if tarjeta else "")
+        elif e["tipo"] == "Pass" and e.get("pase_tipo") in PASES_ANIMADOS:
+            del_equipo, tipo = e["equipo_id"] == equipo_id, PASES_ANIMADOS[e["pase_tipo"]]
+            txt = f"{TEXTO_PASE[tipo]} de {equipo}"
+        else:
+            continue
+        o = orientado.loc[k]
+        con_lugar = pd.notna(o["x"]) and pd.notna(o["y"]) and tipo != "cambio"
+        salida.setdefault((int(e["periodo"]), int(e["minuto"])), []).append({
+            "t": tipo, "f": int(del_equipo), "x": round(float(o["x"]), DECIMALES) if con_lugar else None,
+            "y": round(float(o["y"]), DECIMALES) if con_lugar else None, "s": int(e["segundo"]), "txt": txt, **extra})
+    return salida
 
 
 def segundos(timestamp: str) -> float:

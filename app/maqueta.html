@@ -78,7 +78,7 @@
         <div class="figura" data-slot="torneos"></div>
         <p class="pie">0 = espera (va directo, vive del contragolpe) · 100 = propone (tiene el balón y juega en campo rival); de 40 a 60, equilibrado. Ocho señales con el mismo peso, comprobadas con los datos. AP = Apertura, CL = Clausura; el Clausura 2026 no aparece: se guardó para comprobar al final.</p></div>
       <div class="col-principios"><h3 class="sub-h">Los seis principios de Jardine</h3>
-        <p class="pie">Cada tarjeta compara a Jardine con Solari y Ortiz. Para entrar aquí, la diferencia tuvo que pasar 4 filtros (detalle en Método):</p>
+        <p class="pie">Cada tarjeta compara a Jardine con Solari y Ortiz. Para entrar aquí, la diferencia tuvo que pasar 4 parámetros (detalle en Método):</p>
         <ol class="filtros-nombres">
           <li><b>Claro</b>Tiene una dirección clara: su rango probable no cruza el cero.</li>
           <li><b>Grande</b>Pesa en la cancha: al menos media variación típica.</li>
@@ -96,7 +96,9 @@
       <div class="ejemplo-grid">
         <div class="figura figura-recorte" data-slot="ejemplo-foto"></div>
         <div class="ejemplo-datos"><span class="etq-p">Lo que dice esta foto</span><dl data-slot="ejemplo-datos"></dl>
-          <ul class="leyenda columna" data-slot="leyenda"></ul>
+          <ul class="leyenda en-fila" data-slot="leyenda"></ul>
+          <div class="lectura-foto" data-slot="ejemplo-lectura-caja" hidden><span class="etq-p">Lectura del juego hasta ese momento</span>
+            <p data-slot="ejemplo-lectura"></p></div>
           <p class="pie" data-slot="que-muestra"></p></div>
       </div>
     </div>
@@ -147,12 +149,15 @@
             <div class="figura cancha-js">
               <div data-slot="cancha-repro"></div>
               <span class="insignia-foto" id="insignia-foto" hidden></span>
+              <div class="gol-banner" id="gol-banner" hidden aria-live="polite"></div>
               <div class="controles">
                 <button type="button" id="play" aria-label="Reproducir">▶</button>
                 <input type="range" id="tiempo" min="0" max="0" value="0" aria-label="Momento del partido">
                 <span id="reloj">0'</span>
               </div>
               <p id="accion" class="accion"></p>
+              <ul id="eventos-min" class="eventos-min" aria-label="Lo que pasó en este minuto"></ul>
+              <ul class="leyenda-eventos" data-slot="leyenda-eventos" aria-label="Íconos de la cancha"></ul>
               <p class="teclas">Teclado: espacio reproduce o pausa · ← → paso · Inicio y Fin · RePág y AvPág, momento clave anterior y siguiente</p>
             </div>
             <div class="figura linea-js"><svg id="linea" viewBox="0 0 560 214" role="img" aria-label="Índice minuto a minuto de ambos equipos"></svg>
@@ -202,7 +207,7 @@
     <section class="bloque" id="sec-matriz"><span class="ante chico">1 · Matriz de situaciones</span>
       <h2>Una tarjeta por situación: qué hace, si le funciona y qué conviene (hipótesis)</h2>
       <p class="nota">▲ le funciona (genera más de lo que concede: el rango probable del balance de ocasiones queda arriba de 0) · ● parejo · ▼ sufre. Índice de iniciativa: 0 espera, 100 propone. PPDA: pases que el rival da antes de que le recuperen el balón; menos = más presión. Las recomendaciones salen de reglas fijas sobre estos números y son hipótesis, no órdenes.</p>
-      <div class="matriz" data-slot="matriz"></div></section>
+      <div data-slot="matriz"></div></section>
 
     <section class="bloque" id="ficha"><span class="ante chico">2 · Qué dice nuestro motor</span>
       <div class="ficha-cab"><h2>Elige un rival</h2>
@@ -212,12 +217,14 @@
 
     <section class="bloque"><span class="ante chico">3 · Balón parado</span>
       <h2>A favor y en contra, frente a Solari y Ortiz</h2>
-      <div class="dos-col"><div class="tabla-scroll"><table class="tabla-comp" data-slot="bp-resumen"></table></div>
+      <div class="dos-col"><div><div class="tabla-scroll"><table class="tabla-comp" data-slot="bp-resumen"></table></div>
+        <p class="nota">«¿Distinto?» se lee igual que en Uso de jugadores (abajo).</p></div>
         <div><h3 class="sub-h">Goles esperados (xG) de balón parado por partido, por zona de remate</h3><div class="zonas" data-slot="bp-zonas"></div></div></div></section>
 
     <section class="bloque"><span class="ante chico">4 · Uso de jugadores</span>
       <h2>Cuántos cambios, cuándo y de qué línea</h2>
-      <div class="tabla-scroll"><table class="tabla-comp" data-slot="uso-resumen"></table></div></section>
+      <div class="tabla-scroll"><table class="tabla-comp" data-slot="uso-resumen"></table></div>
+      <p class="nota explica-distinto"><b>Cómo leer «¿Distinto?».</b> «Sí» quiere decir que la diferencia entre Jardine y Solari y Ortiz pasa los 4 parámetros (clara, grande, constante y a prueba de suerte). «Riesgo de falso hallazgo: menos de 1 %» dice cuánta suerte cabe ahí: como comparamos cientos de cosas, algunas saldrían distintas por pura casualidad, y este porcentaje ya lo descuenta. Menos de 1 % significa que, de cada 100 diferencias marcadas con un riesgo así de bajo, se espera que menos de una sea casualidad (en estadística, el valor q de la corrección FDR). «No» quiere decir que la diferencia no alcanza para afirmarlo.</p></section>
 
     <section class="bloque"><span class="ante chico">5 · Casos de decisión del Clausura 2026</span>
       <h2>Qué marcaba la herramienta y qué pasó</h2>
@@ -257,7 +264,7 @@
       </div></section>
 
     <section class="bloque"><span class="ante chico">4 · Cuándo algo es un hallazgo</span>
-      <h2>Los 4 filtros y una prueba en falso</h2>
+      <h2>Los 4 parámetros y una prueba en falso</h2>
       <ol class="lista-met">
         <li><strong>Claro: rango probable sin cero.</strong> El rango donde cae la diferencia con 95 % de confianza (intervalo de confianza, por remuestreo de partidos completos) no cruza 0.</li>
         <li><strong>Grande: tamaño.</strong> La diferencia mide al menos media variación típica (desviación estándar); en los momentos clave, la de lo que cambia el partido solo en los tramos de comparación.</li>
@@ -303,6 +310,33 @@
         <div><dt>Riesgo de falso hallazgo</dt><dd>Con cientos de pruebas, algunas salen por suerte; este riesgo ya lo descuenta (valor q, corrección FDR).</dd></div>
         <div><dt>Prueba en falso (placebo)</dt><dd>Repetir la prueba donde no pasó nada. Si ahí aparecen "hallazgos", el método está inventando.</dd></div>
         <div><dt>Torneo reservado</dt><dd>El Clausura 2026: se apartó desde el principio y se abrió una sola vez para comprobar.</dd></div>
+        <div><dt>Los 4 parámetros</dt><dd>Lo que debe cumplir una diferencia para llamarse principio: clara, grande, constante y a prueba de suerte (en el análisis, "criterio de hallazgo").</dd></div>
+        <div><dt>Principio</dt><dd>Una diferencia de Jardine frente a Solari y Ortiz que pasa los 4 parámetros.</dd></div>
+        <div><dt>Tramos de comparación</dt><dd>Minutos de otros partidos, en el mismo periodo, con el mismo marcador y minuto parecido, donde no pasó nada (en el análisis, "ventanas de control").</dd></div>
+        <div><dt>Cambio neto</dt><dd>Lo que cambia tras un momento clave menos lo que cambia en los tramos de comparación ("diferencia en diferencias").</dd></div>
+        <div><dt>Variación típica</dt><dd>Cuánto se mueve normalmente una medida de un partido a otro ("desviación estándar").</dd></div>
+        <div><dt>Remuestreo de partidos</dt><dd>Repetir el cálculo miles de veces con partidos sorteados para obtener el rango probable ("bootstrap").</dd></div>
+        <div><dt>Comprobación de los pesos</dt><dd>Revisión con los datos de que las ocho señales del índice empujan en la dirección esperada ("PCA", análisis de componentes principales).</dd></div>
+        <div><dt>Propone · equilibrado · espera</dt><dd>Cómo se lee el índice de iniciativa: 60 o más, propone; entre 40 y 60, equilibrado; 40 o menos, espera.</dd></div>
+        <div><dt>Ataque elaborado</dt><dd>Minutos en que el equipo tiene el balón y arma la jugada con calma ("juego asentado", fases de juego de StatsBomb).</dd></div>
+        <div><dt>Contragolpe</dt><dd>Ataque rápido justo después de recuperar el balón ("transición").</dd></div>
+        <div><dt>Juego directo y pase largo</dt><dd>Cuánto avanza hacia la portería cada pase y qué tan largo es; en el índice restan ("directness").</dd></div>
+        <div><dt>Presión alta</dt><dd>Presiones del equipo en el tercio de cancha del rival.</dd></div>
+        <div><dt>Presión tras perder el balón</dt><dd>Presión inmediata para recuperar la pelota que se acaba de perder ("contrapresión").</dd></div>
+        <div><dt>Altura sin balón</dt><dd>A cuántos metros de su portería se para el equipo cuando no tiene el balón ("altura del bloque").</dd></div>
+        <div><dt>Altura de recuperación</dt><dd>A cuántos metros de su portería recupera el balón el equipo, en promedio.</dd></div>
+        <div><dt>Espacio en campo rival</dt><dd>La parte del mapa de control del espacio que el equipo domina en la mitad del rival.</dd></div>
+        <div><dt>Forma de pasar</dt><dd>Los 60 tipos de pase de StatsBomb por partido ("huella de pases") y la red de pases entre posiciones.</dd></div>
+        <div><dt>Peligro por envío (xG)</dt><dd>Goles esperados que produce, en promedio, cada envío a balón parado ("xG por envío").</dd></div>
+        <div><dt>Foto real y estimado</dt><dd>En las jugadas animadas, "foto real" es una foto de posiciones (360); entre dos fotos, las posiciones son estimadas.</dd></div>
+        <div><dt>Matriz de situaciones</dt><dd>Una tarjeta por situación de juego (marcador, jugadores de más o de menos, local o visitante, liguilla…): qué hace Jardine, si le funciona y qué conviene.</dd></div>
+        <div><dt>▲ Le funciona · ● Parejo · ▼ Sufre</dt><dd>Si el rango probable del balance de ocasiones queda arriba de 0, cruza el 0 o queda abajo.</dd></div>
+        <div><dt>Recomendación (hipótesis)</dt><dd>Lo que conviene según reglas fijas sobre los números: una idea para probar, no una orden.</dd></div>
+        <div><dt>Muestra chica</dt><dd>Pasó pocas veces (en la matriz, menos de 300 minutos): se lee con cautela.</dd></div>
+        <div><dt>Lectura del motor</dt><dd>Lo que dice nuestro motor de cada rival: cómo progresa, cómo defiende, dónde concede, su balón parado y cómo le fue a Jardine contra rivales parecidos ("ficha de 10 segundos").</dd></div>
+        <div><dt>Partido clave</dt><dd>El partido de cada rival que se muestra en El partido, elegido con una regla fija: la liguilla más avanzada o, si no hubo, el momento clave de más peso.</dd></div>
+        <div><dt>Torneos analizados</dt><dd>AP23 a AP25: los torneos de Jardine con los que se eligieron los principios ("entrenamiento").</dd></div>
+        <div><dt>✓ Se sostiene · ≈ Misma dirección · — Sin muestra</dt><dd>Los veredictos de la validación en el torneo reservado.</dd></div>
         <div><dt>AP, CL y PR</dt><dd>Apertura, Clausura y prórroga (tiempo extra).</dd></div>
       </dl></section>
 
@@ -312,7 +346,7 @@
       <div class="tarjetas-met etapa">
         <article><span class="etq-etapa">Siguiente etapa</span><h3>Video y seguimiento</h3><p>Procesar el video y los datos de seguimiento (tracking) para tener a los 22 jugadores todo el tiempo, no solo a los que ve la cámara en cada acción.</p></article>
         <article><span class="etq-etapa">Siguiente etapa</span><h3>Diagramas en tiempo real</h3><p>Dibujar el mapa de control del espacio y el índice de iniciativa mientras se juega: en partidos oficiales o en interescuadras del entrenamiento.</p></article>
-        <article><span class="etq-etapa fijo">Siempre</span><h3>El motor sigue al centro</h3><p>El video y el tiempo real apoyan casos puntuales; las decisiones se siguen leyendo con el motor, con los mismos 4 filtros, la misma prueba en falso y los mismos tramos de comparación.</p></article>
+        <article><span class="etq-etapa fijo">Siempre</span><h3>El motor sigue al centro</h3><p>El video y el tiempo real apoyan casos puntuales; las decisiones se siguen leyendo con el motor, con los mismos 4 parámetros, la misma prueba en falso y los mismos tramos de comparación.</p></article>
       </div>
       <h3 class="sub-h">Lo que la siguiente etapa refuerza</h3>
       <ul class="lista-met">

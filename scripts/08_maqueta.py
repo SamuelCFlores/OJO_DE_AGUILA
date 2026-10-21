@@ -103,8 +103,8 @@ def principios(caso_tipo: str, caso_texto: str, n_torneos: int, nombre_nuevo: st
         fmt = (lambda v: f"{v * d['escala']:+.{d['dec']}f}{d['unidad']}") if d["cambio"] else (lambda v: f"{v * d['escala']:.{d['dec']}f}{d['unidad']}")
         sin_unidad = lambda v: f"{v * d['escala']:+.{d['dec']}f}"  # noqa: E731
         dif = lambda v: sin_unidad(v) + d["unidad"]  # noqa: E731
-        estado = (f"Pasa los 4 filtros · riesgo de falso hallazgo: {decision.texto_riesgo(f['q'])}" if f["pasa"]
-                  else "No pasa los 4 filtros")
+        estado = (f"Pasa los 4 parámetros · riesgo de falso hallazgo: {decision.texto_riesgo(f['q'])}" if f["pasa"]
+                  else "No pasa los 4 parámetros")
         if f.get("muestra_chica", False):
             estado += " · muestra chica"
         p = datos_app.Principio(
@@ -132,8 +132,10 @@ def tabla_indice(partidos: pd.DataFrame) -> tuple[pd.DataFrame, indice.Verificac
 
 
 def datos_reproductor(tab: pd.DataFrame, ev: pd.DataFrame, fotos: dict, jugadas: list[dict], todos_q: pd.DataFrame,
-                      equipo: str, rival: str, team: int, q: pd.Series) -> dict:
-    """JSON del reproductor: un paso por minuto (índice, radar, componentes, marcador y foto) y la jugada."""
+                      equipo: str, rival: str, team: int, q: pd.Series, eventos_min: dict | None = None) -> dict:
+    """JSON del reproductor: un paso por minuto (índice, radar, componentes, marcador, foto y los eventos que se animan:
+    goles, cambios, faltas, tiros de esquina y saques) y la jugada."""
+    eventos_min = eventos_min or {}
     comps = list(params()["indice"]["componentes"])
     a_metros = [YARDA_M if FORMATOS[c] == "m" else 1 for c in comps]  # los valores en yardas se muestran en metros
     a = tab[tab["lado"] == minuto.PROPIO].set_index(["periodo", "minuto"])
@@ -157,6 +159,7 @@ def datos_reproductor(tab: pd.DataFrame, ev: pd.DataFrame, fotos: dict, jugadas:
             "va": [None if fa is None else redondo(fa[c] * k_) for c, k_ in zip(comps, a_metros)],
             "vr": [None if fr is None else redondo(fr[c] * k_) for c, k_ in zip(comps, a_metros)],
             "marcador": "—" if g is None else f"{int(g['goles_favor'])}-{int(g['goles_contra'])}", "foto": foto_k,
+            "ev": eventos_min.get((int(p), int(m)), []),
         })
     pos = {c: k for k, c in enumerate(claves)}
     marcas = [{"k": pos[(r_.periodo, r_.minuto)], "corto": CLAVES_CORTAS[r_.tipo],
@@ -243,7 +246,7 @@ def generar(args: argparse.Namespace) -> int:
              f"dirección esperada ({pca.varianza * 100:.0f} % de la variación) y el promedio con pesos iguales coincide en "
              f"{pca.correlacion:.2f} (correlación) con la combinación que sale de los datos.",
              ("Cada principio pasa" if all(t.estado.startswith("Pasa") for t in tarjetas) else "Un principio es hallazgo si pasa")
-             + " los 4 filtros: rango probable sin cero, tamaño mayor que lo que cambia el partido solo, "
+             + " los 4 parámetros: rango probable sin cero, tamaño mayor que lo que cambia el partido solo, "
              f"misma dirección en {p['hallazgo']['min_torneos_misma_direccion']} de los torneos de {nuevo} y riesgo de falso hallazgo de "
              f"{p['hallazgo']['fdr_q'] * 100:.0f} % o menos. La prueba en falso (placebo) se hizo con los momentos clave de {nuevo}.",
              "Página con datos reales de StatsBomb: solo para la competencia; no se sube a git ni se publica."]
@@ -262,6 +265,7 @@ def generar(args: argparse.Namespace) -> int:
                         f"1 partido · {len(repro['fotos'])} minutos con foto de posiciones (360)")
     kpis = cuadros_resumen(partidos, entr, tarjetas, nuevo, team)
     ejemplo_datos = datos_del_ejemplo(principal, ev, d0, q, args.tipo, equipo, rival, team)
+    ejemplo_lectura = lectura_hasta(tab_todos[tab_todos["match_id"] == args.partido], ev, d0, q, equipo, rival, team)
     datos = {
         "meta": {"generado": date.today().isoformat(), "partido": int(args.partido), "tipo": args.tipo,
                  "aviso": "Datos reales de StatsBomb: solo para la competencia; no se suben a git ni se publican."},
@@ -273,7 +277,7 @@ def generar(args: argparse.Namespace) -> int:
             "principios": [datos_app.principio(x) for x in tarjetas],
             "ejemplo": {"texto": f"{equipo} vs {rival}, {fase} del {info['torneo']} {pd.Timestamp(info['fecha']).year}: "
                                  f"{sb.minuscula(titulo)}.", "foto": principal, "que_muestra": caso["explorar"]["que_muestra"],
-                         "datos": ejemplo_datos, "local": info["localia"] == "local"},
+                         "datos": ejemplo_datos, "lectura": ejemplo_lectura, "local": info["localia"] == "local"},
         },
         "explorar": caso["explorar"],
         "barra": barra, "reproductor": repro, "decidir": decidir,
@@ -366,7 +370,9 @@ def armar_caso(p: dict, partidos: pd.DataFrame, info: pd.Series, tab_todos: pd.D
         jugadas.insert(0, {"titulo": f"{titulo_jugada} ({d0['minuto']}')",
                            "fotos": reproductor.secuencia(ev, indice_destacada, frames, jugadores_f, team, describir, noms),
                            "clave": (int(d0["periodo"]), int(d0["minuto"]))})
-    repro = datos_reproductor(tab, ev, fotos, [j for j in jugadas if len(j["fotos"]) > 1], todos_q, equipo, rival, team, q)
+    eventos_min = reproductor.eventos_por_minuto(ev, team, noms, nombre_equipo)
+    repro = datos_reproductor(tab, ev, fotos, [j for j in jugadas if len(j["fotos"]) > 1], todos_q, equipo, rival, team, q,
+                              eventos_min)
 
     # Lectura: índice y field tilt antes y después del quiebre
     def media(lado: str, desde: int, hasta: int, col: str) -> float:
@@ -525,6 +531,39 @@ def datos_del_ejemplo(foto: dict, ev: pd.DataFrame, evento: pd.Series, q: pd.Ser
                ["Jugadores a la vista", f"{len(propios)} del {equipo} · {len(ajenos)} de {rival}"]]
     salida.append(["La jugada", foto["texto"]])
     return salida
+
+
+# Cómo se nombra el momento clave en la lectura de la foto del Resumen ("Desde la expulsión (79')…")
+DESDE_MOMENTO = {"expulsion_favor": "la expulsión", "expulsion_contra": "la expulsión", "gol_favor": "el gol",
+                 "gol_contra": "el gol rival", "cambio_sistema_propio": "el cambio de sistema"}
+
+
+def lectura_hasta(tab: pd.DataFrame, ev: pd.DataFrame, evento: pd.Series, q: pd.Series, equipo: str, rival: str,
+                  team: int) -> str:
+    """Lectura del juego hasta la foto del Resumen: marcador, quién propuso más, qué cambió desde el momento clave y
+    los goles esperados (xG) de cada equipo hasta ese instante. Solo con lo que ya había pasado."""
+    m = contexto.marcador(ev, team).loc[evento.name]
+    hasta = (int(evento["periodo"]), int(evento["minuto"]))
+    clave = list(zip(tab["periodo"].astype(int), tab["minuto"].astype(int)))
+    jugado = tab[[c <= hasta for c in clave]]
+    def media(sel: pd.DataFrame, lado: str, col: str) -> float:
+        return float(sel.loc[sel["lado"] == lado, col].mean())
+    ia, ir = media(jugado, minuto.PROPIO, "indice"), media(jugado, minuto.RIVAL, "indice")
+    texto = f"Hasta el {sc.reloj(evento['minuto'], evento['segundo'])} iba {int(m['goles_favor'])}-{int(m['goles_contra'])}."
+    if not np.isnan(ia) and not np.isnan(ir):
+        quien = f"el {equipo} propuso más que {rival}" if ia >= ir else f"{rival} propuso más que el {equipo}"
+        texto += f" En el partido, {quien}: índice de iniciativa {ia:.0f} contra {ir:.0f}."
+    desde = (int(q["periodo"]), int(q["minuto"]))
+    tras = jugado[[desde <= c for c in zip(jugado["periodo"].astype(int), jugado["minuto"].astype(int))]]
+    if desde <= hasta and not tras.empty and q["tipo"] in DESDE_MOMENTO:
+        ia1, ir1, ft1 = media(tras, minuto.PROPIO, "indice"), media(tras, minuto.RIVAL, "indice"), media(tras, minuto.PROPIO, "field_tilt")
+        if not any(np.isnan(v) for v in (ia1, ir1, ft1)):
+            texto += (f" Desde {DESDE_MOMENTO[q['tipo']]} ({q['minuto']}'), el índice queda {ia1:.0f} contra {ir1:.0f} y el dominio del "
+                      f"último tercio del {equipo} es de {ft1 * 100:.0f} %.")
+    tiros = ev[(ev["tipo"] == "Shot") & (ev["indice"] < evento["indice"]) & (ev["periodo"] != contexto.PERIODO_PENALES)]
+    xg = tiros.groupby(tiros["equipo_id"] == team)["tiro_xg"].sum()
+    texto += (f" Goles esperados (xG) hasta ese momento: {equipo} {xg.get(True, 0):.2f}, {rival} {xg.get(False, 0):.2f}.")
+    return texto
 
 
 def siguiente_paso(decidir: dict, tipo: str, rival: str, principio: datos_app.Principio | None) -> list[dict]:

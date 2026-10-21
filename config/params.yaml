@@ -29,7 +29,7 @@ pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
 jugadores: {cambio_temprano_min: 60}   # cambios tácticos "tempranos": antes de este minuto de reloj (lectura del reporte)
 ficha: {umbral_z: 0.5, similares: 4}   # ficha de 10 segundos: un rasgo distingue si |z| ≥ umbral_z frente a la liga; rivales parecidos por estilo
-matriz: {dif_indice: 5, dif_ppda: 2, minutos_min: 300}   # recomendaciones de la matriz: diferencias frente a la base de Jardine y minutos para no marcar muestra chica
+matriz: {dif_indice: 5, dif_ppda: 2, minutos_min: 300, minuto_cierre: 75}   # recomendaciones de la matriz: diferencias frente a la base de Jardine y minutos para no marcar muestra chica; minuto_cierre: desde dónde cuenta el último cuarto de hora (contextos, 21 oct)
 tramos_min: 15            # 5 para lectura fina del flujo
 red_pases: {min_pases_arista: 3, min_pases_ventana: 15}   # min_pases_ventana: mínimo para la red de una ventana
 voronoi:
