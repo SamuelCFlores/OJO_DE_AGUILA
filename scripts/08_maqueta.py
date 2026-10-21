@@ -9,6 +9,7 @@ app/ (maqueta.html, app.css y app.js) y se edita directo, sin Python.
 Cómo correrlo (desde la raíz del repo y con el entorno activado; antes 03, 04, 05 y los notebooks 02 y 03):
     python scripts/08_maqueta.py --partido 3918375 --tipo expulsion_favor
 y abrir app/maqueta.html (doble clic, o con el servidor de .claude/launch.json en /app/maqueta.html).
+Además arma el partido clave de cada rival (ojo.salidas.partido_clave; unos minutos). Con --sin-rivales se salta.
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import replace
 from datetime import date
 
 import numpy as np
@@ -28,7 +30,7 @@ from ojo.framework import partidos as fp
 from ojo.lentes import balon_parado, indice, jugadores, minuto, pases, rivales, simulacion, voronoi
 from ojo.salidas import barra as sb
 from ojo.salidas import caso as sc
-from ojo.salidas import datos_app, decision, reproductor
+from ojo.salidas import datos_app, decision, partido_clave, reproductor
 
 DIR_HALLAZGOS = DIR_SALIDAS / "hallazgos"
 COLUMNAS_INDICE = ["match_id", "periodo", "minuto", "equipo_id", "tipo", "duracion", "es_transicion", "directness",
@@ -184,6 +186,7 @@ def main() -> int:
     parser.add_argument("--partido", type=int, required=True, metavar="MATCH_ID")
     parser.add_argument("--tipo", choices=quiebres.TIPOS, default="expulsion_favor", metavar="TIPO")
     parser.add_argument("--n", type=int, default=1, help="cuál quiebre de ese tipo (1 = el primero)")
+    parser.add_argument("--sin-rivales", action="store_true", help="no arma el partido clave de cada rival (más rápido)")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
     return generar(args)
@@ -218,7 +221,7 @@ def generar(args: argparse.Namespace) -> int:
     n_nuevo = partidos[(partidos["entrenador_corto"] == nuevo) & ~partidos["prueba"]].shape[0]
     n_previos = partidos[(partidos["entrenador_corto"] != nuevo) & ~partidos["prueba"]].shape[0]
 
-    # Caso: quiebre, marcador, global y protagonista
+    # Caso: el quiebre elegido del partido
     ev = almacen.cargar("eventos", [args.partido]).sort_values("indice").reset_index(drop=True)
     todos_q = quiebres.ventanas(quiebres.detectar(ev, team), quiebres.limites_periodo(ev))
     del_tipo = todos_q[todos_q["tipo"] == args.tipo]
@@ -226,8 +229,84 @@ def generar(args: argparse.Namespace) -> int:
         print(f"✗ El partido tiene {len(del_tipo)} quiebres de tipo {args.tipo}.")
         return 1
     q = del_tipo.iloc[args.n - 1]
+
+    # Principios (la tarjeta del caso lleva su insignia "Caso: …")
+    fase = sb.minuscula(sb.etiqueta_partido(partidos, info)).replace(" · ", " de ")
+    caso_texto = f"Caso: {fase} {info['torneo_corto']}"
+    n_torneos = partidos.loc[(partidos["entrenador_corto"] == nuevo) & ~partidos["prueba"], "torneo_corto"].nunique()
+    tarjetas, del_caso = principios(args.tipo, caso_texto, n_torneos, nuevo, (n_nuevo, n_previos))
+    if del_caso is None:
+        print("✗ Faltan los resultados de los notebooks 02 y 03 (outputs/hallazgos) o el principio del caso.")
+        return 1
+    decidir = datos_decidir(p, team)
+    notas = [f"Pesos del índice comprobados (PCA): {'las 8 señales empujan' if pca.mismo_signo else 'no todas las señales empujan'} en la "
+             f"dirección esperada ({pca.varianza * 100:.0f} % de la variación) y el promedio con pesos iguales coincide en "
+             f"{pca.correlacion:.2f} (correlación) con la combinación que sale de los datos.",
+             ("Cada principio pasa" if all(t.estado.startswith("Pasa") for t in tarjetas) else "Un principio es hallazgo si pasa")
+             + " los 4 filtros: rango probable sin cero, tamaño mayor que lo que cambia el partido solo, "
+             f"misma dirección en {p['hallazgo']['min_torneos_misma_direccion']} de los torneos de {nuevo} y riesgo de falso hallazgo de "
+             f"{p['hallazgo']['fdr_q'] * 100:.0f} % o menos. La prueba en falso (placebo) se hizo con los momentos clave de {nuevo}.",
+             "Página con datos reales de StatsBomb: solo para la competencia; no se sube a git ni se publica."]
+    caso = armar_caso(p, partidos, info, tab_todos, pca, q, ev, todos_q, del_caso, decidir, notas,
+                      antetitulo="Principio → caso", etiqueta="Un partido donde se ve", regla=None)
+    if caso["principal"] is None:
+        print("✗ No hay una foto analizable del equipo en campo rival después del quiebre.")
+        return 1
+    principal, d0, titulo, repro = caso["principal"], caso["d0"], caso["titulo"], caso["reproductor"]
+
+    # El partido de cada rival (regla fija de ojo.salidas.partido_clave; Tigres conserva la final del caso)
+    partidos_rival = {} if args.sin_rivales else partidos_por_rival(p, partidos, tab_todos, pca, tarjetas, decidir, notas, rival)
+
+    # Barra y textos de la página
+    barra = sb.compacta(partidos, info, q["tipo"], q["estado_antes"],
+                        f"1 partido · {len(repro['fotos'])} minutos con foto de posiciones (360)")
+    kpis = cuadros_resumen(partidos, entr, tarjetas, nuevo, team)
+    ejemplo_datos = datos_del_ejemplo(principal, ev, d0, q, args.tipo, equipo, rival, team)
+    datos = {
+        "meta": {"generado": date.today().isoformat(), "partido": int(args.partido), "tipo": args.tipo,
+                 "aviso": "Datos reales de StatsBomb: solo para la competencia; no se suben a git ni se publican."},
+        "titulo": titulo, "equipo": equipo, "rival": rival, "nuevo": nuevo,
+        "portada": {
+            "kpis": kpis,
+            "torneos": [{"torneo": r_.torneo, "entrenador": r_.entrenador, "propio": round(float(r_.propio), 1),
+                         "rival": round(float(r_.rival), 1), "nuevo": r_.entrenador == nuevo} for r_ in por_torneo.itertuples()],
+            "principios": [datos_app.principio(x) for x in tarjetas],
+            "ejemplo": {"texto": f"{equipo} vs {rival}, {fase} del {info['torneo']} {pd.Timestamp(info['fecha']).year}: "
+                                 f"{sb.minuscula(titulo)}.", "foto": principal, "que_muestra": caso["explorar"]["que_muestra"],
+                         "datos": ejemplo_datos, "local": info["localia"] == "local"},
+        },
+        "explorar": caso["explorar"],
+        "barra": barra, "reproductor": repro, "decidir": decidir,
+        "metodo": datos_metodo(partidos, pca, nuevo),
+        "partidos": partidos_rival,
+    }
+    ruta = datos_app.escribir(datos)
+    print(f"Maqueta 3: {titulo} · {len(partidos_rival)} partidos de rivales\nDatos: {ruta.relative_to(RAIZ)} "
+          f"({ruta.stat().st_size // 1024} KB; reales: no se publican ni se suben a git)\nPágina: app/maqueta.html")
+    return 0
+
+
+# Cómo se nombra cada tipo de momento en el caso: (antes, Después, después, título de la jugada destacada)
+TEXTO_MOMENTO = {
+    "expulsion_favor": ("antes de la roja", "Después de la roja", "después de la expulsión", "Con uno más, arriba"),
+    "expulsion_contra": ("antes de la roja", "Después de la roja", "después de la expulsión", "Con uno menos"),
+    "gol_contra": ("antes del gol rival", "Después del gol rival", "después del gol rival", "Tras el gol rival"),
+    "cambio_sistema_propio": ("antes del cambio de sistema", "Después del cambio", "después del cambio de sistema", "Con el nuevo sistema"),
+    "gol_favor": ("antes del gol", "Después del gol", "después del gol", "Tras el gol"),
+}
+CLAVE_DEL_TIPO = {d["tipo_caso"]: d["clave"] for d in PRINCIPIOS if "tipo_caso" in d}  # momento → principio relacionado
+
+
+def armar_caso(p: dict, partidos: pd.DataFrame, info: pd.Series, tab_todos: pd.DataFrame, pca: indice.VerificacionPCA,
+               q: pd.Series, ev: pd.DataFrame, todos_q: pd.DataFrame, tarjeta: datos_app.Principio | None, decidir: dict,
+               notas: list[str], antetitulo: str, etiqueta: str, regla: str | None) -> dict:
+    """El caso de un partido alrededor de un momento clave: textos de El partido, reproductor y foto destacada."""
+    team, equipo = p["equipo"]["team_id"], p["equipo"]["nombre"]
+    mid, rival, tipo = int(info["match_id"]), info["rival"], q["tipo"]
+    antes_txt, despues_may, despues_min, titulo_jugada = TEXTO_MOMENTO.get(
+        tipo, ("antes del momento", "Después del momento", "después del momento", "Después del momento"))
     e = ev[ev["indice"] == q["indice"]].iloc[0]
-    noms = sc.nombres(crudo.leer("lineups", match_id=args.partido))
+    noms = sc.nombres(crudo.leer("lineups", match_id=mid))
     nombre_equipo = {team: equipo, info["rival_id"]: rival}
     protagonista = noms.get(e["jugador_id"], nombre_equipo.get(e["equipo_id"], ""))
     marcador = contexto.marcador(ev, team).loc[e.name]
@@ -246,27 +325,33 @@ def generar(args: argparse.Namespace) -> int:
                        + (f" ({noms.get(ev.loc[ev['indice'] == r.indice, 'jugador_id'].iloc[0], '')})" if r.tipo.startswith(("gol", "expulsion")) else ""),
                        r.indice == q["indice"]) for r in todos_q.itertuples() if r.tipo.rsplit("_", 1)[0] in clave_q]
 
-    # Reproductor: foto por minuto, jugada del primer gol a favor después del quiebre
-    frames = almacen.cargar("frames", [args.partido])
-    jugadores = almacen.cargar("frames_jugadores", [args.partido])
+    # Reproductor: foto por minuto y jugadas (la destacada, el gol del momento y el primer gol a favor después)
+    frames = almacen.cargar("frames", [mid])
+    jugadores_f = almacen.cargar("frames_jugadores", [mid])
     describir = lambda x: sc.describir(x, noms, nombre_equipo)  # noqa: E731
-    fotos = reproductor.por_minuto(ev, frames, jugadores, team, describir)
-    tab = tab_todos[tab_todos["match_id"] == args.partido]
+    fotos = reproductor.por_minuto(ev, frames, jugadores_f, team, describir)
+    tab = tab_todos[tab_todos["match_id"] == mid]
     goles = todos_q[(todos_q["tipo"] == "gol_favor") & (todos_q["indice"] > q["indice"])]
     jugadas = []
     frames_i = frames.set_index("event_uuid")
+    if tipo in ("gol_favor", "gol_contra"):
+        autor = noms.get(e["jugador_id"], "")
+        jugadas.append({"titulo": (f"El gol del {q['minuto']}'" + (f" ({autor})" if autor else "")) if tipo == "gol_favor"
+                        else f"El gol de {rival} ({q['minuto']}')",
+                        "fotos": reproductor.secuencia(ev, int(q["indice"]), frames, jugadores_f, team, describir, noms),
+                        "clave": (int(q["periodo"]), int(q["minuto"]))})
     if not goles.empty:
         g0 = goles.iloc[0]
         autor = noms.get(ev.loc[ev["indice"] == g0["indice"], "jugador_id"].iloc[0], "")
         jugadas.append({"titulo": f"El gol del {g0['minuto']}' ({autor})",
-                        "fotos": reproductor.secuencia(ev, int(g0["indice"]), frames, jugadores, team, describir, noms),
+                        "fotos": reproductor.secuencia(ev, int(g0["indice"]), frames, jugadores_f, team, describir, noms),
                         "clave": (int(g0["periodo"]), int(g0["minuto"]))})
 
     # Foto destacada: la acción del equipo con más control en campo rival en la ventana después del quiebre
     ventana = ev[(ev["periodo"] == q["periodo"]) & ev["minuto"].between(q["despues_desde"], q["despues_hasta"])
                  & (ev["equipo_id"] == team) & ev["id"].isin(frames_i.index) & (ev["x"] >= p["presion"]["campo_rival_min_x"])]
-    por_uuid = dict(tuple(jugadores[jugadores["event_uuid"].isin(ventana["id"])].groupby("event_uuid")))
-    principal, mejor, indice_destacada = None, -1.0, None
+    por_uuid = dict(tuple(jugadores_f[jugadores_f["event_uuid"].isin(ventana["id"])].groupby("event_uuid")))
+    principal, mejor, indice_destacada, d0 = None, -1.0, None, None
     for c in ventana.itertuples():
         if c.id not in por_uuid:
             continue
@@ -276,13 +361,11 @@ def generar(args: argparse.Namespace) -> int:
             principal = reproductor.foto(res, sc.reloj(c.minuto, c.segundo), describir(c), True, reproductor.flecha_de(c, True))
             principal["nombre"] = noms.get(c.jugador_id, "")
             mejor, indice_destacada = res.control, int(c.indice)
-    if principal is None:
-        print("✗ No hay una foto analizable del equipo en campo rival después del quiebre.")
-        return 1
-    d0 = ev[ev["indice"] == indice_destacada].iloc[0]
-    jugadas.insert(0, {"titulo": f"Con uno más, arriba ({d0['minuto']}')",
-                       "fotos": reproductor.secuencia(ev, indice_destacada, frames, jugadores, team, describir, noms),
-                       "clave": (int(d0["periodo"]), int(d0["minuto"]))})
+    if principal is not None:
+        d0 = ev[ev["indice"] == indice_destacada].iloc[0]
+        jugadas.insert(0, {"titulo": f"{titulo_jugada} ({d0['minuto']}')",
+                           "fotos": reproductor.secuencia(ev, indice_destacada, frames, jugadores_f, team, describir, noms),
+                           "clave": (int(d0["periodo"]), int(d0["minuto"]))})
     repro = datos_reproductor(tab, ev, fotos, [j for j in jugadas if len(j["fotos"]) > 1], todos_q, equipo, rival, team, q)
 
     # Lectura: índice y field tilt antes y después del quiebre
@@ -298,12 +381,15 @@ def generar(args: argparse.Namespace) -> int:
                  f"al {sistema.iloc[0]['minuto']}'." if not sistema.empty else "")
     goles_txt = ", ".join(f"{g.minuto}'" for g in goles.itertuples())
     quiebre_txt = sc.etiqueta_quiebre(q, equipo, rival)
-    lectura = (f"Al {q['minuto']}', con {gf}-{gc}, {quiebre_txt[0].lower() + quiebre_txt[1:]} ({protagonista}). "
-               f"En los minutos siguientes, el índice de iniciativa del {equipo} pasó de {ia0:.0f} a {ia1:.0f} y su dominio "
-               f"del último tercio, de {ft0 * 100:.0f} % a {ft1 * 100:.0f} %.{respuesta}" + (f" Goles del {equipo} después: {goles_txt}." if goles_txt else "")
-               + (" Es lo que dice el principio: con uno más, se instala arriba." if args.tipo == "expulsion_favor" and ft1 > ft0 else ""))
-    que_muestra = (f"Foto de posiciones (360) del {principal['reloj']}, después de la expulsión: {principal['texto']}. Crema: zonas del {equipo}; "
-                   f"blanco: de {rival}; la línea blanca marca dónde chocan los equipos. El {equipo} ataca hacia la derecha.")
+    quien_txt = f" ({protagonista})" if protagonista and protagonista not in (equipo, rival) else ""
+    hay_cambio = not any(pd.isna(x) for x in (ia0, ia1, ft0, ft1))
+    lectura = (f"Al {q['minuto']}', con {gf}-{gc}, {quiebre_txt[0].lower() + quiebre_txt[1:]}{quien_txt}."
+               + (f" En los minutos siguientes, el índice de iniciativa del {equipo} pasó de {ia0:.0f} a {ia1:.0f} y su dominio "
+                  f"del último tercio, de {ft0 * 100:.0f} % a {ft1 * 100:.0f} %." if hay_cambio else "")
+               + respuesta + (f" Goles del {equipo} después: {goles_txt}." if goles_txt else "")
+               + (" Es lo que dice el principio: con uno más, se instala arriba." if tipo == "expulsion_favor" and hay_cambio and ft1 > ft0 else ""))
+    que_muestra = ((f"Foto de posiciones (360) del {principal['reloj']}, {despues_min}: {principal['texto']}. " if principal else "")
+                   + f"Crema: zonas del {equipo}; blanco: de {rival}; la línea blanca marca dónde chocan los equipos. El {equipo} ataca hacia la derecha.")
     v = p["voronoi"]
     metodo = (f"Índice de iniciativa por minuto: ocho señales de los últimos {p['indice']['ventana_min']} minutos, con el mismo peso, "
               f"de 0 (espera) a 100 (propone), frente a los minutos de AP21–AP25. Comprobación de los pesos (PCA): correlación de "
@@ -319,68 +405,67 @@ def generar(args: argparse.Namespace) -> int:
     sim_total = simulacion.simular(tiros.loc[tiros["equipo_id"] == team, "tiro_xg"].fillna(0),
                                    tiros.loc[tiros["equipo_id"] != team, "tiro_xg"].fillna(0))
     xg_desp = tiros[tiros["indice"] > q["indice"]].groupby(tiros["equipo_id"] == team)["tiro_xg"].sum()
+    prorroga = " (incluida la prórroga)" if ev["periodo"].isin([3, 4]).any() else ""
     montecarlo = [
-        datos_app.montecarlo(f"Hasta el {q['minuto']}' (antes de la roja)",
+        datos_app.montecarlo(f"Hasta el {q['minuto']}' ({antes_txt})",
                              "Con los tiros de los dos equipos hasta ese momento, ¿qué marcador era el más probable?", sim_antes),
-        datos_app.montecarlo("El partido completo", f"Con todos los tiros (incluida la prórroga), ¿qué tan merecido fue el "
-                             f"{int(info['goles_favor'])}-{int(info['goles_contra'])}? Después de la roja, el {equipo} generó "
+        datos_app.montecarlo("El partido completo", f"Con todos los tiros{prorroga}, ¿qué tan merecido fue el "
+                             f"{int(info['goles_favor'])}-{int(info['goles_contra'])}? {despues_may}, el {equipo} generó "
                              f"{xg_desp.get(True, 0):.2f} goles esperados (xG) y {rival}, {xg_desp.get(False, 0):.2f}.", sim_total),
     ]
-
-    # Principios, barra y textos de la página
-    fase = sb.minuscula(sb.etiqueta_partido(partidos, info)).replace(" · ", " de ")
-    caso_texto = f"Caso: {fase} {info['torneo_corto']}"
-    n_torneos = partidos.loc[(partidos["entrenador_corto"] == nuevo) & ~partidos["prueba"], "torneo_corto"].nunique()
-    tarjetas, del_caso = principios(args.tipo, caso_texto, n_torneos, nuevo, (n_nuevo, n_previos))
-    if del_caso is None:
-        print("✗ Faltan los resultados de los notebooks 02 y 03 (outputs/hallazgos) o el principio del caso.")
-        return 1
-    barra = sb.compacta(partidos, info, q["tipo"], q["estado_antes"],
-                        f"1 partido · {len(repro['fotos'])} minutos con foto de posiciones (360)")
-    kpis = cuadros_resumen(partidos, entr, tarjetas, nuevo, team)
-    ejemplo_datos = datos_del_ejemplo(principal, ev, d0, q, args.tipo, equipo, rival, team)
-    titulo = (f"La expulsión de {protagonista} y lo que vino después" if args.tipo.startswith("expulsion")
-              else f"{sc.etiqueta_quiebre(q, equipo, rival)} y lo que vino después")
-    decidir = datos_decidir(p, team)
-    siguiente = siguiente_paso(decidir, args.tipo, rival, del_caso)
-    notas = [f"Pesos del índice comprobados (PCA): {'las 8 señales empujan' if pca.mismo_signo else 'no todas las señales empujan'} en la "
-             f"dirección esperada ({pca.varianza * 100:.0f} % de la variación) y el promedio con pesos iguales coincide en "
-             f"{pca.correlacion:.2f} (correlación) con la combinación que sale de los datos.",
-             ("Cada principio pasa" if all(t.estado.startswith("Pasa") for t in tarjetas) else "Un principio es hallazgo si pasa")
-             + " los 4 filtros: rango probable sin cero, tamaño mayor que lo que cambia el partido solo, "
-             f"misma dirección en {p['hallazgo']['min_torneos_misma_direccion']} de los torneos de {nuevo} y riesgo de falso hallazgo de "
-             f"{p['hallazgo']['fdr_q'] * 100:.0f} % o menos. La prueba en falso (placebo) se hizo con los momentos clave de {nuevo}.",
-             "Página con datos reales de StatsBomb: solo para la competencia; no se sube a git ni se publica."]
-    datos = {
-        "meta": {"generado": date.today().isoformat(), "partido": int(args.partido), "tipo": args.tipo,
-                 "aviso": "Datos reales de StatsBomb: solo para la competencia; no se suben a git ni se publican."},
-        "titulo": titulo, "equipo": equipo, "rival": rival, "nuevo": nuevo,
-        "portada": {
-            "kpis": kpis,
-            "torneos": [{"torneo": r_.torneo, "entrenador": r_.entrenador, "propio": round(float(r_.propio), 1),
-                         "rival": round(float(r_.rival), 1), "nuevo": r_.entrenador == nuevo} for r_ in por_torneo.itertuples()],
-            "principios": [datos_app.principio(x) for x in tarjetas],
-            "ejemplo": {"texto": f"{equipo} vs {rival}, {fase} del {info['torneo']} {pd.Timestamp(info['fecha']).year}: "
-                                 f"{sb.minuscula(titulo)}.", "foto": principal, "que_muestra": que_muestra,
-                         "datos": ejemplo_datos, "local": info["localia"] == "local"},
-        },
-        "explorar": {
-            "antetitulo": f"Principio → caso · {info['torneo_corto']} · {etapa} · {fecha}",
-            "filtros": [info["torneo_corto"], sb.etiqueta_partido(partidos, info), sb.MOMENTOS.get(args.tipo, args.tipo),
-                        sb.condicion(info["localia"])],
-            "principio": datos_app.principio(del_caso),
-            "caso": {"titulo": titulo, "chips": [[k_, v_] for k_, v_ in chips],
-                     "quiebres": [[m_, x_, bool(e_)] for m_, x_, e_ in lista_quiebres]},
-            "montecarlo": montecarlo, "simulaciones": p["simulacion"]["repeticiones"], "lectura": lectura, "metodo": metodo, "que_muestra": que_muestra,
-            "siguiente": siguiente, "notas": notas,
-        },
-        "barra": barra, "reproductor": repro, "decidir": decidir,
-        "metodo": datos_metodo(partidos, pca, nuevo),
+    if tipo.startswith("expulsion"):
+        titulo = f"La expulsión de {protagonista} y lo que vino después"
+    elif tipo.startswith("gol") and quien_txt:
+        titulo = f"El gol de {protagonista} y lo que vino después"
+    else:
+        titulo = f"{quiebre_txt} y lo que vino después"
+    explorar = {
+        "antetitulo": f"{antetitulo} · {info['torneo_corto']} · {etapa} · {fecha}",
+        "filtros": [info["torneo_corto"], sb.etiqueta_partido(partidos, info), sb.MOMENTOS.get(tipo, tipo), sb.condicion(info["localia"])],
+        "principio": datos_app.principio(tarjeta) if tarjeta is not None else None,
+        "caso": {"titulo": titulo, "chips": [[k_, v_] for k_, v_ in chips], "quiebres": [[m_, x_, bool(e_)] for m_, x_, e_ in lista_quiebres],
+                 "etiqueta": etiqueta, "regla": regla},
+        "montecarlo": montecarlo, "simulaciones": p["simulacion"]["repeticiones"], "lectura": lectura, "metodo": metodo,
+        "que_muestra": que_muestra, "siguiente": siguiente_paso(decidir, tipo, rival, tarjeta), "notas": notas,
     }
-    ruta = datos_app.escribir(datos)
-    print(f"Maqueta 3: {titulo}\nDatos: {ruta.relative_to(RAIZ)} ({ruta.stat().st_size // 1024} KB; reales: no se publican ni se suben a git)\n"
-          "Página: app/maqueta.html")
-    return 0
+    return {"titulo": titulo, "explorar": explorar, "reproductor": repro, "principal": principal, "d0": d0,
+            "local": info["localia"] == "local"}
+
+
+def partidos_por_rival(p: dict, partidos: pd.DataFrame, tab_todos: pd.DataFrame, pca: indice.VerificacionPCA,
+                       tarjetas: list[datos_app.Principio], decidir: dict, notas: list[str], rival_del_caso: str) -> dict:
+    """El partido clave de cada rival de las fichas con el entrenador nuevo (ojo.salidas.partido_clave), torneo reservado incluido."""
+    team = p["equipo"]["team_id"]
+    nuevo = sb.corto(p["entrenador"]["nombre"])
+    con_fotos = set(almacen.cargar("frames", columnas=["match_id"])["match_id"].unique())
+    suyos = partidos[(partidos["entrenador_corto"] == nuevo) & partidos["match_id"].isin(con_fotos)]
+    por_clave = {t.clave: t for t in tarjetas}
+    salida = {}
+    for f in decidir["fichas"]:
+        nombre = f["rival"]
+        g = suyos[suyos["rival"] == nombre]
+        if nombre == rival_del_caso or g.empty:
+            continue
+        eventos, tipos = {}, {}
+        for mid in g["match_id"].astype(int):
+            eventos[mid] = almacen.cargar("eventos", [mid]).sort_values("indice").reset_index(drop=True)
+            tipos[mid] = set(quiebres.detectar(eventos[mid], team)["tipo"])
+        elegido = partido_clave.elegir_partido(g, tipos)
+        ev = eventos[elegido]
+        todos_q = quiebres.ventanas(quiebres.detectar(ev, team), quiebres.limites_periodo(ev))
+        q = partido_clave.elegir_momento(todos_q)
+        if q is None:
+            print(f"  · {nombre}: sin momento clave en el partido elegido; queda fuera")
+            continue
+        info = g[g["match_id"] == elegido].iloc[0]
+        tarjeta = por_clave.get(CLAVE_DEL_TIPO.get(q["tipo"]))
+        tarjeta = replace(tarjeta, caso="") if tarjeta is not None else None
+        caso = armar_caso(p, partidos, info, tab_todos, pca, q, ev, todos_q, tarjeta, decidir, notas,
+                          antetitulo="Partido clave", etiqueta=f"Su partido clave con {nuevo}",
+                          regla=f"Elegido con una regla fija: {partido_clave.razon(g, elegido)}.")
+        salida[nombre] = {"rival": nombre, "local": caso["local"], "explorar": caso["explorar"], "reproductor": caso["reproductor"]}
+        print(f"  · {nombre}: {info['torneo_corto']} {sb.etapa_legible(info['etapa'], False) or 'fase regular'} — {caso['titulo']}")
+    return salida
 
 
 def cuadros_resumen(partidos: pd.DataFrame, entr: pd.DataFrame, tarjetas: list[datos_app.Principio], nuevo: str,
@@ -442,7 +527,7 @@ def datos_del_ejemplo(foto: dict, ev: pd.DataFrame, evento: pd.Series, q: pd.Ser
     return salida
 
 
-def siguiente_paso(decidir: dict, tipo: str, rival: str, principio: datos_app.Principio) -> list[dict]:
+def siguiente_paso(decidir: dict, tipo: str, rival: str, principio: datos_app.Principio | None) -> list[dict]:
     """Bloque 6 de El partido: del caso a la decisión (la fila de la matriz, lo que dice el motor del rival y qué tan sólido es)."""
     salida = []
     fila = next((m for m in decidir["matriz"] if m.get("clave") == SITUACION_DEL_CASO.get(tipo)), None)
@@ -455,6 +540,8 @@ def siguiente_paso(decidir: dict, tipo: str, rival: str, principio: datos_app.Pr
         salida.append({"titulo": f"Si el rival es {rival}", "texto": f"Progresa: {rasgos(ficha['progresa'])}. Defiende: "
                        f"{rasgos(ficha['defiende'])}. Concede: {rasgos(ficha['concede'])}.",
                        "boton": "Ver la lectura del motor", "vista": "decidir", "ancla": "ficha", "rival": rival})
+    if principio is None:
+        return salida
     val = next((v for v in decidir["validacion"] if v["principio"] == principio.titulo), None)
     salida.append({"titulo": "¿Qué tan sólido es?", "texto": f"{principio.titulo}: {principio.estado[0].lower() + principio.estado[1:]}."
                    + (f" En el Clausura 2026, que el análisis no vio: {val['texto'][0].lower() + val['texto'][1:]}." if val else ""),

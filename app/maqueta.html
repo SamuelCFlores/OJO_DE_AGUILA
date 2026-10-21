@@ -131,12 +131,12 @@
       <div class="tira-filtros" data-slot="tira" role="group" aria-label="Rival elegido">
         <button type="button" class="btn-tira" data-ocultar aria-expanded="true">Rival</button><span class="chips-tira"></span></div>
       <div class="filtros" data-slot="filtros"></div>
-      <p class="maqueta">Datos reales de StatsBomb. El minuto a minuto está armado para este partido. En la barra, elige un rival para ver qué dice nuestro motor de él.</p>
+      <p class="maqueta">Datos reales de StatsBomb. En la barra, elige un rival: aquí aparece su partido clave con Jardine, minuto a minuto, y con un botón, qué dice nuestro motor de él.</p>
 
       <section class="bloque"><span class="ante chico">1 · El principio</span><div data-slot="principio"></div></section>
 
-      <section class="bloque" id="caso" tabindex="-1"><span class="ante chico">2 · Un partido donde se ve</span>
-        <h2 data-slot="caso-titulo"></h2><div class="datos" data-slot="caso-chips"></div><ul class="quiebres" data-slot="caso-quiebres"></ul></section>
+      <section class="bloque" id="caso" tabindex="-1"><span class="ante chico" data-slot="caso-etiqueta">2 · Un partido donde se ve</span>
+        <h2 data-slot="caso-titulo"></h2><p class="pie" data-slot="caso-regla" hidden></p><div class="datos" data-slot="caso-chips"></div><ul class="quiebres" data-slot="caso-quiebres"></ul></section>
 
       <section class="bloque repro" id="repro" aria-label="Reproductor del partido">
         <span class="ante chico">3 · El partido, minuto a minuto</span>

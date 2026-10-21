@@ -10,12 +10,20 @@
   var BANDAS = (D && D.reproductor && D.reproductor.bandas) || [40, 60];  // indice.bandas de config/params.yaml (vía datos.js): bajo 40 reactivo, sobre 60 proactivo
   var cuerpo = document.body;
   var MOV = window.OjoMov || null;  // biblioteca de movimiento (movimiento.js); sin ella todo funciona sin animar
+  // El partido que muestra El partido: el del caso (D.explorar y D.reproductor) o el partido clave del rival elegido en la
+  // barra (D.partidos, regla fija de ojo.salidas.partido_clave). Cada uno: { rival, local, explorar, reproductor }.
+  var CASO = D ? { rival: D.rival, local: !(D.portada && D.portada.ejemplo && D.portada.ejemplo.local === false), explorar: D.explorar, reproductor: D.reproductor } : null;
+  var P = CASO;
+  function partidoDe(rival) { return rival === (D && D.rival) ? CASO : ((D && D.partidos && D.partidos[rival]) || null); }
   function reducido() { return MOV ? MOV.reducido() : window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
   function movil() { return window.matchMedia('(max-width: 900px)').matches; }
 
   // ---------- utilidades ----------
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function slots(nombre) { return document.querySelectorAll('[data-slot="' + nombre + '"]'); }
+  function slotsEn(vista, nombre) { return document.querySelectorAll('#' + vista + ' [data-slot="' + nombre + '"]'); }  // los que se repiten en dos vistas
+  function htmlEn(vista, nombre, valor) { slotsEn(vista, nombre).forEach(function (n) { n.innerHTML = valor; }); }
+  function textoEn(vista, nombre, valor) { slotsEn(vista, nombre).forEach(function (n) { n.textContent = valor; }); }
   function html(nombre, valor) { slots(nombre).forEach(function (n) { n.innerHTML = valor; }); }
   function texto(nombre, valor) { slots(nombre).forEach(function (n) { n.textContent = valor; }); }
   function el(tag, attrs, padre) {
@@ -45,11 +53,10 @@
     '<text class="sin-foto" x="60" y="42" text-anchor="middle">Sin foto de posiciones en este minuto</text></svg>';
 
   // Cada portería con su nombre: el América ataca siempre hacia la derecha (orientación de StatsBomb para el equipo)
-  function crearCancha(contenedor) {
+  function crearCancha(contenedor, local, rival) {
     contenedor.innerHTML = CANCHA;
     var svg = contenedor.querySelector('svg'), rotulos = svg.querySelector('.rotulos');
-    var local = !(D.portada && D.portada.ejemplo && D.portada.ejemplo.local === false);
-    [[1.5, 'start', local ? 'Portería local' : 'Portería visitante', D.equipo], [118.5, 'end', local ? 'Portería visitante' : 'Portería local', D.rival]].forEach(function (r) {
+    [[1.5, 'start', local ? 'Portería local' : 'Portería visitante', D.equipo], [118.5, 'end', local ? 'Portería visitante' : 'Portería local', rival]].forEach(function (r) {
       var t = el('text', { x: r[0], y: 13.2, 'text-anchor': r[1], class: 'porteria' }, rotulos);
       el('tspan', { x: r[0], dy: 0 }, t).textContent = r[2];
       el('tspan', { x: r[0], dy: 2.7, class: 'quien' }, t).textContent = r[3];
@@ -217,11 +224,11 @@
     var alReves = c.no_se_sostiene ? c.no_se_sostiene + (c.no_se_sostiene === 1 ? ' salió al revés' : ' salieron al revés') : 'ninguno salió al revés';
     return alReves + (lista2 ? ': ' + lista2 : '');
   }
-  function montecarlo(m) {
+  function montecarlo(m, rival) {
     var marcadores = m.marcadores.slice(0, 3).map(function (x) { return esc(x[0]) + ' (' + pct(x[1]) + ')'; }).join(' · ');
-    var partes = [['g', m.gana, 'Gana ' + D.equipo], ['e', m.empata, 'Empate'], ['p', m.pierde, 'Gana ' + D.rival]];
+    var partes = [['g', m.gana, 'Gana ' + D.equipo], ['e', m.empata, 'Empate'], ['p', m.pierde, 'Gana ' + rival]];
     return '<article class="mc"><h3>' + esc(m.titulo) + '</h3><p>' + esc(m.texto) + '</p>' +
-      '<div class="mc-barra" role="img" aria-label="Gana ' + esc(D.equipo) + ' ' + pct(m.gana) + ', empate ' + pct(m.empata) + ', gana ' + esc(D.rival) + ' ' + pct(m.pierde) + '">' +
+      '<div class="mc-barra" role="img" aria-label="Gana ' + esc(D.equipo) + ' ' + pct(m.gana) + ', empate ' + pct(m.empata) + ', gana ' + esc(rival) + ' ' + pct(m.pierde) + '">' +
       partes.map(function (s) { return '<span class="' + s[0] + '" style="width:' + (s[1] * 100).toFixed(1) + '%"></span>'; }).join('') + '</div>' +
       '<div class="mc-cifras" aria-hidden="true" style="grid-template-columns:' + partes.map(function (s) { return 'minmax(64px,' + Math.max(1, s[1] * 100).toFixed(1) + 'fr)'; }).join(' ') + '">' +
       partes.map(function (s) { return '<span><i class="c' + s[0] + '"></i><strong>' + pct(s[1]) + '</strong><small>' + esc(s[2]) + '</small></span>'; }).join('') + '</div>' +
@@ -283,12 +290,14 @@
       '<div class="barra-cab"><span class="titulo-barra">Rivales</span><div class="acciones-cab"><button type="button" class="enlace" data-volver>Restablecer</button>' +
       '<button type="button" class="btn-ocultar" data-ocultar aria-label="Ocultar la barra de rivales" aria-expanded="true">‹</button></div></div>' +
       seccion('rival', 'Rival', rival, true) +
-      '<div class="pie-barra"><p class="muestra">Qué dice nuestro motor de este rival: cómo progresa, cómo defiende, dónde concede, su balón parado y cómo le fue a ' + esc(D.nuevo) +
-      ' (AP23–AP25). El número es de partidos con ' + esc(D.nuevo) + '.</p>' +
+      '<div class="pie-barra"><p class="muestra">Al elegir un rival, El partido muestra su partido clave con ' + esc(D.nuevo) + ' (regla fija: la liguilla más avanzada o, si no hubo, ' +
+      'el partido con el momento clave de más peso). Con el botón, qué dice nuestro motor de él: cómo progresa, cómo defiende, dónde concede, su balón parado y cómo le fue a ' +
+      esc(D.nuevo) + ' (AP23–AP25). El número es de partidos con ' + esc(D.nuevo) + '.</p>' +
       '<button type="button" class="btn-borde" data-ir-ficha>Ver la lectura del motor →</button></div>');
   }
-  function montarBarra() {  // también "Restablecer": vuelve al rival del caso sin recargar
+  function montarBarra() {  // también "Restablecer": vuelve al rival del caso (y a su partido) sin recargar
     renderBarra((D.decidir && D.decidir.fichas) || [], D.rival);
+    if (P !== CASO) cargarPartido(D.rival, false);
     if (MOV) document.querySelectorAll('details.seccion').forEach(MOV.plegable);
     actualizarResumenes();
   }
@@ -317,7 +326,18 @@
     nombre.style.fontSize = tamanoNombre(b.dataset.rival) + 'px';
     b.dataset.rival = antes[0]; b.dataset.n = antes[1];
     b.firstElementChild.textContent = antes[0]; b.lastElementChild.textContent = antes[1];
-    // el cajón del teléfono sigue abierto: el siguiente paso es "Ver su ficha", dentro de la barra
+    // El partido pasa al partido clave del rival elegido; en el teléfono se cierra el cajón para verlo
+    if (cargarPartido(nombre.textContent, true) && movil()) cerrarCajon();
+  }
+  // Cambia El partido al del rival (D.partidos); devuelve false si ese rival no tiene partido armado
+  function cargarPartido(rival, subir) {
+    var nuevo = partidoDe(rival);
+    if (!nuevo) return false;
+    if (nuevo === P) return true;
+    P = nuevo;
+    renderExplorar(); reproductor();
+    if (subir && cuerpo.dataset.vista === 'explorar') window.scrollTo(0, 0);
+    return true;
   }
   // Mostrar u ocultar la barra en escritorio (variantes en movimiento.js). Lo oculto queda inerte y el foco pasa al botón visible.
   function ocultarBarra(oculta, porUsuario) {
@@ -349,32 +369,45 @@
     slots('torneos').forEach(function (c) { graficaTorneos(c, D.portada.torneos); });
     html('principios', D.portada.principios.map(function (p) { return tarjeta(p, false); }).join(''));
     texto('ejemplo-texto', 'Ejemplo: ' + D.portada.ejemplo.texto);
-    slots('ejemplo-foto').forEach(function (c) { var s = crearCancha(c); dibujarFoto(s, D.portada.ejemplo.foto); recortar(s, D.portada.ejemplo.foto); });
+    slots('ejemplo-foto').forEach(function (c) { var s = crearCancha(c, CASO.local, D.rival); dibujarFoto(s, D.portada.ejemplo.foto); recortar(s, D.portada.ejemplo.foto); });
     html('ejemplo-datos', (D.portada.ejemplo.datos || []).map(function (d) { return '<div><dt>' + esc(d[0]) + '</dt><dd>' + esc(d[1]) + '</dd></div>'; }).join(''));
-    html('leyenda', '<li><span class="pastilla">' + OJO_LEYENDA + '</span>' + esc(D.equipo) + '</li><li><span class="pastilla"><span class="punto"></span></span>' + esc(D.rival) +
-      '</li><li><span class="pastilla"><span class="raya"></span></span>Frontera entre equipos</li>' +
-      '<li><span class="pastilla"><span class="balon-ley"></span></span>Balón (junto a quien juega; entre fotos, estimado)</li>');
+    htmlEn('portada', 'leyenda', leyenda(D.rival));
     texto('pilar-validacion', textoValidacion(D.decidir && D.decidir.validacion));
-    texto('que-muestra', D.explorar.que_muestra);
-    var X = D.explorar;
+    textoEn('portada', 'que-muestra', D.portada.ejemplo.que_muestra || D.explorar.que_muestra);
+    renderExplorar();
+    if (D.decidir) renderDecidir(D.decidir);
+    if (D.metodo) renderMetodo(D.metodo);
+  }
+  function leyenda(rival) {
+    return '<li><span class="pastilla">' + OJO_LEYENDA + '</span>' + esc(D.equipo) + '</li><li><span class="pastilla"><span class="punto"></span></span>' + esc(rival) +
+      '</li><li><span class="pastilla"><span class="raya"></span></span>Frontera entre equipos</li>' +
+      '<li><span class="pastilla"><span class="balon-ley"></span></span>Balón (junto a quien juega; entre fotos, estimado)</li>';
+  }
+  // ---------- El partido: el caso o el partido clave del rival elegido (P) ----------
+  function renderExplorar() {
+    var X = P.explorar, rival = P.rival;
+    textoEn('explorar', 'equipo', D.equipo); textoEn('explorar', 'rival', rival);
+    htmlEn('explorar', 'leyenda', leyenda(rival));
+    textoEn('explorar', 'que-muestra', X.que_muestra);
     texto('antetitulo', X.antetitulo);
-    texto('titulo-explorar', D.equipo.toUpperCase() + ' VS ' + D.rival.toUpperCase());
+    texto('titulo-explorar', D.equipo.toUpperCase() + ' VS ' + rival.toUpperCase());
     html('filtros', X.filtros.map(function (f) { return '<span class="filtro">' + esc(f) + '</span>'; }).join(''));
-    html('principio', tarjeta(X.principio, true));
+    html('principio', X.principio ? tarjeta(X.principio, true)
+      : '<p class="pie">El momento clave de este partido no corresponde a ninguno de los seis principios: aquí se lee el partido tal como fue, con el mismo motor.</p>');
+    texto('caso-etiqueta', '2 · ' + ((X.caso && X.caso.etiqueta) || 'Un partido donde se ve'));
     texto('caso-titulo', X.caso.titulo);
+    slots('caso-regla').forEach(function (n) { n.textContent = X.caso.regla || ''; n.hidden = !X.caso.regla; });
     html('caso-chips', X.caso.chips.map(function (c) { return '<div class="dato"><span>' + esc(c[0]) + '</span><strong>' + esc(c[1]) + '</strong></div>'; }).join(''));
     html('caso-quiebres', X.caso.quiebres.map(function (q) { return '<li class="' + (q[2] ? 'caso' : '') + '"><span class="min">' + esc(q[0]) + '</span>' + esc(q[1]) + '</li>'; }).join(''));
-    html('montecarlo', X.montecarlo.map(montecarlo).join(''));
+    html('montecarlo', X.montecarlo.map(function (m) { return montecarlo(m, rival); }).join(''));
     if (X.simulaciones) texto('simulaciones', X.simulaciones.toLocaleString('es-MX'));
-    if (MOV) document.querySelectorAll('.mc-barra').forEach(function (b) { MOV.alVer(b, function () { MOV.crecer(b.children, { escalon: 80 }); }); });  // A6, una vez
+    if (MOV) document.querySelectorAll('#explorar .mc-barra').forEach(function (b) { MOV.alVer(b, function () { MOV.crecer(b.children, { escalon: 80 }); }); });  // A6, una vez
     texto('lectura', X.lectura); texto('metodo', X.metodo);
-    html('siguiente', (X.siguiente || []).map(function (s) {  // bloque 6: del caso a la matriz, a la ficha del rival y a la evidencia
+    html('siguiente', (X.siguiente || []).map(function (s) {  // bloque 6: del caso a la matriz, a la lectura del motor del rival y a la evidencia
       return '<article class="paso-sig"><h3>' + esc(s.titulo) + '</h3><p>' + esc(s.texto) + '</p><button type="button" class="btn-ir" data-ir="' + esc(s.vista + '#' + s.ancla) + '"' +
         (s.rival ? ' data-rival="' + esc(s.rival) + '"' : '') + (s.situacion ? ' data-situacion="' + esc(s.situacion) + '"' : '') + '>' + esc(s.boton) + ' →</button></article>';
     }).join(''));
-    html('notas', X.notas.map(function (n) { return '<p class="nota">' + esc(n) + '</p>'; }).join(''));
-    if (D.decidir) renderDecidir(D.decidir);
-    if (D.metodo) renderMetodo(D.metodo);
+    html('notas', (X.notas || []).map(function (n) { return '<p class="nota">' + esc(n) + '</p>'; }).join(''));
   }
 
   // ---------- Decidir: matriz de situaciones, qué dice el motor de cada rival, balón parado y uso de jugadores ----------
@@ -482,7 +515,15 @@
 
   // ---------- reproductor: minuto a minuto (fundido) y jugadas animadas (Voronoi en movimiento) ----------
   function reproductor() {
-    var R = D.reproductor, svg = crearCancha(document.querySelector('[data-slot="cancha-repro"]'));
+    if (reproductor.apagar) {
+      reproductor.apagar();
+      var viejo = document.getElementById('repro'), limpio = viejo.cloneNode(true);
+      viejo.parentNode.replaceChild(limpio, viejo);
+      limpio.querySelector('#radar').innerHTML = ''; limpio.querySelector('#linea').innerHTML = '';
+      limpio.querySelector('.linea-js').hidden = false;
+    }
+    var RIVAL = P.rival;
+    var R = P.reproductor, svg = crearCancha(document.querySelector('[data-slot="cancha-repro"]'), P.local, RIVAL);
     var repro = document.getElementById('repro'), tiempo = document.getElementById('tiempo');
     var reloj = document.getElementById('reloj'), accion = document.getElementById('accion'), play = document.getElementById('play');
     var A = R.animacion || { escala: 1.5, duracion: [0.35, 2.5], alcance: 20, cuartos_circulo: 8 };
@@ -542,9 +583,9 @@
       document.getElementById('m-r').style.left = (m.ir == null ? 50 : m.ir) + '%';
       var fa = m.ia == null ? '—' : Math.round(m.ia), fr = m.ir == null ? '—' : Math.round(m.ir);
       document.getElementById('frase-momento').innerHTML = '<strong>' + esc(D.equipo) + ' ' + fa + '</strong> (' + (m.ia == null ? 'sin dato' : etiquetaIndice(m.ia)) +
-        ') · ' + esc(D.rival) + ' ' + fr + ' (' + (m.ir == null ? 'sin dato' : etiquetaIndice(m.ir)) + '). Marcador ' + esc(m.marcador) + '.';
+        ') · ' + esc(RIVAL) + ' ' + fr + ' (' + (m.ir == null ? 'sin dato' : etiquetaIndice(m.ir)) + '). Marcador ' + esc(m.marcador) + '.';
       radar(m);
-      var filas = '<thead><tr><th></th><th>' + esc(D.equipo) + '</th><th>' + esc(D.rival) + '</th></tr></thead><tbody>';
+      var filas = '<thead><tr><th></th><th>' + esc(D.equipo) + '</th><th>' + esc(RIVAL) + '</th></tr></thead><tbody>';
       R.componentes.forEach(function (c, k) { filas += '<tr><th>' + esc(c.nombre) + '</th><td>' + formato(c, m.va[k]) + '</td><td>' + formato(c, m.vr[k]) + '</td></tr>'; });
       document.getElementById('tabla-momento').innerHTML = filas + '</tbody>';
     }
@@ -686,7 +727,7 @@
     });
     // Rival discontinuo y etiquetas directas al final de cada serie: se distinguen en gris y con daltonismo (V-A1)
     // A2 · lo ya jugado se ve opaco (recortado hasta el cursor) y lo que falta al 25 %
-    var SERIES = [['ir', '#fff', 1.6, '5 4', D.rival], ['ia', 'var(--c-acento)', 2.4, 'none', D.equipo]];
+    var SERIES = [['ir', '#fff', 1.6, '5 4', RIVAL], ['ia', 'var(--c-acento)', 2.4, 'none', D.equipo]];
     var finales = [], recorte = el('rect', { x: 0, y: 0, width: 0, height: H }, el('clipPath', { id: 'linea-jugado' }, el('defs', {}, linea)));
     SERIES.forEach(function (s) {
       var ps = [], ultimo = null; R.minutos.forEach(function (m, k) { if (m[s[0]] != null) { ps.push(xDe(k) + ',' + yDe(m[s[0]])); ultimo = yDe(m[s[0]]); } });
@@ -729,6 +770,7 @@
     }
     i = R.inicio || 0;
     actualizar();
+    reproductor.apagar = detener;
   }
 
   // ---------- vistas, cajón (teléfono), entrada y ícono ----------
@@ -787,6 +829,7 @@
   // A5 · de la tarjeta del principio al partido que lo ilustra: desplazamiento y resaltado
   document.addEventListener('click', function (e) {
     if (!e.target.closest('.ir-caso')) return;
+    if (P !== CASO) montarBarra();  // el principio se ilustra con el partido del caso
     var destino = document.getElementById('caso');
     cambiarVista('explorar', function () {
       if (MOV) MOV.irA(destino, { foco: true }); else { destino.scrollIntoView(); destino.focus({ preventScroll: true }); }

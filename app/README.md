@@ -2,7 +2,7 @@
 
 **Esta es la maqueta definitiva desde el 18 oct: todo cambio visual se hace aquí.** Tiene cuatro vistas:
 - **Resumen** (id `portada`): tesis, cifras clave, índice de iniciativa por torneo y principios.
-- **El partido** (id `explorar`): principio → caso, reproductor con el mapa de control del espacio, "¿qué tan merecido?" y el bloque 6, que lleva a la matriz, a la ficha del rival y a la evidencia.
+- **El partido** (id `explorar`): principio → caso, reproductor con el mapa de control del espacio, "¿qué tan merecido?" y el bloque 6, que lleva a la matriz, a la lectura del motor sobre el rival y a la evidencia. Al elegir un rival en la barra, la vista se vuelve a dibujar con su partido clave (`D.partidos`); "Restablecer" vuelve al caso.
 - **Plan de juego** (id `decidir`): matriz de situaciones, qué dice nuestro motor de cada rival (su ficha, `#ficha`), balón parado, uso de jugadores y casos del CL26.
 - **Método** (id `metodo`): el reporte, con datos, mediciones, los 4 filtros, principios con evidencia, validación, límites y glosario.
 
@@ -53,6 +53,7 @@ Lo valida `ojo.salidas.datos_app.validar` (claves obligatorias y JSON válido). 
 | `barra` | Barra compacta (ver `contexto/barra_lateral.md`): `rival`, `rivales`, `torneos`, `momento`, `condicion`, `partidos`, `mas`, `muestra`. Desde la versión 5 la app no usa este bloque: la lista de rivales y sus conteos salen de `decidir.fichas` |
 | `decidir` (vista Plan de juego) | `casos` [{id, titulo, regla, marcaba, paso[], lectura}] (notebook 07), `validacion` [{principio, veredicto, texto, entrenamiento, prueba, bajo, alto, partidos}] (notebook 06), `matriz` [{situacion, clave, hace, funciona, recomendacion, evidencia, nivel, muestra_chica}], `base` {indice, ppda, xg_dif_90}, `fichas` [{rival, progresa, defiende, concede, balon_parado, balon_parado_rasgos, jardine, parecidos, jardine_parecidos, partidos}], `balon_parado` {resumen, zonas}, `jugadores` {resumen} |
 | `metodo` (vista Método) | `datos` {liga, nuevo, previos, prueba, torneos_*}, `pca` {varianza, correlacion, mismo_signo, minutos}, `criterio` {placebo_pruebas, placebo_v1, placebo_v2, pruebas, pasan_v1, pasan_v2} |
+| `partidos` | Partido clave de cada rival de las fichas, salvo el del caso: `{rival: {rival, local, explorar, reproductor}}`, con `explorar` y `reproductor` de la misma forma que los de arriba (regla fija en `ojo.salidas.partido_clave`; `08_maqueta.py --sin-rivales` lo deja vacío). En `explorar.caso`, `etiqueta` (título del bloque 2) y `regla` (por qué ese partido); `principio` puede ser `null` si el momento no tiene principio relacionado |
 | `reproductor` | `componentes`, `minutos` (índice, z, valores y marcador por minuto), `fotos` (Voronoi por minuto), `quiebres`, `etiquetasX`, `jugadas` [{titulo, fotos, minuto}], `animacion` {escala, duracion, pausa_foto, alcance, cuartos_circulo}, `bandas` (40/60 del índice), `inicio` |
 
 Una **foto** (`ojo.salidas.reproductor.foto`) trae celdas y a quién pertenecen, frontera, área visible, jugadores `[x, y, propio, actor]`, la flecha del pase o la conducción y el control, siempre con el América atacando hacia la derecha. En las **jugadas** cada foto agrega `t` (segundos), `ids` (pista estimada de cada jugador, `ojo.lentes.seguimiento`) y `nombre` (quien ejecuta, de Events + Lineups).

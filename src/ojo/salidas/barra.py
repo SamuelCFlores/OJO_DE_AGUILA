@@ -13,8 +13,8 @@ from ojo.framework import partidos as fp
 from ojo.salidas.app import Barra
 from ojo.salidas.resumenes import SITUACIONES
 
-ETAPAS = {"Semi-finals": "Semifinal", "Quarter-finals": "Cuartos de final", "Final": "Final", "Finals": "Final",
-          "Play-offs": "Repechaje"}
+ETAPAS = {"Semi-finals": "Semifinal", "Semi-Finals": "Semifinal", "Quarter-finals": "Cuartos de final", "Final": "Final",
+          "Finals": "Final", "Play-offs": "Repechaje"}
 GRUPOS_SITUACION = {"todas": "General", "fase": "Fase", "marcador": "Marcador", "balon_parado": "Balón parado"}
 ESTADO_SITUACION = {"gana": "Ganando", "empata": "Empatando", "pierde": "Perdiendo"}
 # Situaciones "tras un quiebre" (propuesta para el contrato de resumenes.json): una por tipo, sin separar propio/rival

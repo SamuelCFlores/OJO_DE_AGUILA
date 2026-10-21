@@ -62,4 +62,7 @@ animacion:   # Voronoi animado en las jugadas (seguimiento estimado entre fotos;
   duracion_s: [0.35, 2.5]    # límites de cada paso de la animación
   max_fotos: 30              # fotos por jugada animada
   pausa_foto_s: 0.6          # pausa en cada foto real de la jugada animada (la página marca "Foto real")
+partido_clave:   # El partido por rival (21 oct, chamuel): regla fija; incluye el torneo reservado (ojo.salidas.partido_clave)
+  peso_momento: {expulsion: 3, gol_contra: 2, cambio_sistema_propio: 1}   # fase regular: suma por tipo presente
+  prioridad_momento: [expulsion_favor, expulsion_contra, gol_contra, cambio_sistema_propio, gol_favor]   # momento que se resalta
 hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10, fdr_q: 0.10}   # criterio v1 del 12 oct y v2 del 18 oct (framework.md); partidos_aviso solo marca, no filtra; fdr_q: q máximo de Benjamini-Hochberg (condición 4, v2)
