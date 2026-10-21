@@ -24,7 +24,7 @@
 - **Lo que el jurado debe recordar al terminar:**
   1. El índice de iniciativa: 57 con Jardine, 54 con Ortiz y 50 con Solari.
   2. Con uno más, el rival de Jardine se mete 15 metros atrás.
-  3. En 280 momentos inventados, los filtros no encuentran nada.
+  3. En 280 momentos inventados, ninguno pasa los cuatro parámetros.
   4. Una ficha por rival que se lee en diez segundos.
 - **La emoción:**
   1. La "magia" de Guardiola.
@@ -47,12 +47,12 @@
 | 1 | 0:00–0:25 | La magia | Pizarra animada con Guardiola recortado → Resumen: foto del caso ilustrativo (el mapa de control) | Comunicación |
 | 2 | 0:25–0:47 | La pregunta | Resumen: titular con la tesis | Comunicación |
 | 3 | 0:47–2:01 | Identidad | Resumen: los tres cuadros → El partido: reproductor, jugada "Con uno más, arriba (85')"; pausa en una foto real | Innovación |
-| 4 | 2:01–2:49 | Evidencia | Método: los 4 filtros y la prueba en falso → tabla de principios → validación en el Clausura 2026 | Metodología y visualización |
+| 4 | 2:01–2:49 | Evidencia | Método: los 4 parámetros y la prueba en falso → tabla de principios → validación en el Clausura 2026 | Metodología y visualización |
 | 5 | 2:49–3:51 | Decisión | Plan de juego: matriz (tarjetas "Con uno más" y "Ganando por 1") → ficha de Pumas UNAM → casos del Clausura 2026 | Accionabilidad |
 | 6 | 3:51–4:01 | Lo que no decimos | Método: límites | Metodología |
 | 7 | 4:01–4:28 | Cierre | Resumen: pilares y banda final → entrada animada de Ojo de Águila (5 s), que termina en el logotipo | Comunicación |
 
-Los tiempos son los del animatic (140 palabras por minuto, con pausas). La narración, ya con los tres recortes, termina hacia las 4:21; la entrada animada lleva el video a unas 4:28. Si se narra más despacio, el margen hasta los 5 minutos alcanza.
+Los tiempos de los bloques 1 a 3 y 7 son los de la voz grabada de Samuel (21 oct); los de 4 a 6 siguen siendo los del animatic (140 palabras por minuto, con pausas) hasta que Tilin grabe. La narración termina hacia las 3:58 y la entrada animada lleva el video a unas 4:05. Si Tilin narra más despacio, el margen hasta los 5 minutos alcanza.
 
 **Títulos en pantalla** (los del animatic): 1 · Antecedente, 2 · La pregunta, 3 · La lectura (con el cuadro "El espacio" cuando entra la cancha), 4 · Evidencia, 5 · Decisión, 6 · Lo que no decimos y 7 · Cierre.
 
@@ -60,48 +60,49 @@ Los tiempos son los del animatic (140 palabras por minuto, con pausas). La narra
 
 | Voz | Bloques | Tiempo | Palabras |
 | --- | --- | --- | --- |
-| Samuel (chamuel) | 1 a 3: antecedente, pregunta y lectura | 0:00–2:01 | 257 |
-| Tilin | 4 a 7: evidencia, decisión, límites y cierre | 2:01–4:21 | 301 |
+| Samuel (chamuel) | 1 a 3: antecedente, pregunta y lectura; y 7: cierre | 0:00–1:41 y 3:41–3:58 (grabado) | 298 |
+| Tilin | 4 a 6: evidencia, decisión y límites | 1:41–3:41 (estimado) | 257 |
 
-El relevo es "Una buena historia no basta: hay que desconfiar de ella": la historia pasa a la prueba y el cambio de voz se oye como parte del relato. Página para ensayar y compartir (privada): https://claude.ai/artifact/DkLP9aZEPqQoekeCovwUUw
+El relevo es "Una buena historia no basta: hay que desconfiar de ella": la historia pasa a la prueba y el cambio de voz se oye como parte del relato. **Cambio del 21 oct:** el cierre lo dice Samuel (ya grabado), así que la voz del inicio también cierra; Tilin graba solo los bloques 4 a 6. Con la voz de Samuel ya alineada, el video dura unas 4:05 (los tiempos de Tilin son estimados). Página para ensayar y compartir (privada): https://claude.ai/artifact/DkLP9aZEPqQoekeCovwUUw
 
 ## Narración
 
-**1 · La magia (0:00–0:25) · Samuel**
+**1 · La magia (0:00–0:19) · Samuel**
 "2008. Pep Guardiola toma al Barcelona y cambia la forma de jugar. Desde afuera, el tiki-taka parecía magia: el rival corría y nunca alcanzaba el balón. Años después, los analistas lo leyeron con datos. Y los mapas del espacio mostraron algo más: no se pasaban solo el balón, se pasaban espacios."
 
-**2 · La pregunta (0:25–0:47) · Samuel**
+**2 · La pregunta (0:19–0:38) · Samuel**
 "Diciembre de 2023: André Jardine le da al América la 14, y después dos títulos más, seguidos. Desde afuera, otra vez, parece magia. Nuestra pregunta: ¿es una idea de juego que se puede medir? ¿Y le sirve a un cuerpo técnico para decidir, sin ver un solo video?"
 
-**3 · Identidad (0:47–2:01) · Samuel**
+**3 · Identidad (0:38–1:41) · Samuel**
 "Su idea cabe en una frase: tiene más iniciativa que sus rivales y sale jugando desde atrás; cuando el partido se rompe, se instala arriba.
 *(los tres cuadros)*
 La medimos minuto a minuto con un índice de iniciativa: cero es esperar y salir al contragolpe; cien, tener el balón y presionar arriba. Jardine promedia 57; Ortiz, 54; Solari, 50. Y sale más corto: sus pases miden 18.7 metros; los de Solari, 21.4.
 *(cambio a El partido)*
 La idea la vemos con el mapa de control del espacio: en cada foto de posiciones, cada metro es del jugador que llega primero. Siempre frente a frente: el América y el rival, en el mismo minuto.
 *(pausa en la foto real)*
-Final del Apertura 2023, minuto 79, cero a cero: expulsan a Fulgencio. Con uno más, el América de Jardine hunde al rival: tras una expulsión, su rival se mete 15 metros más cerca de su portería; con Solari y Ortiz, casi no se movía. Esa noche termina 3-0. Y llega la 14."
+Final del Apertura 2023, minuto 79, cero a cero: expulsan a Fulgencio. Con uno más, el América de Jardine hunde al rival: tras una expulsión, su rival se mete 15 metros más cerca de su portería; con Solari y Ortiz, casi no se movía. Esa noche termina 3-0. Y llega la ansiada 14."
 
-**4 · Evidencia (2:01–2:49) · Tilin**
-"Una buena historia no basta: hay que desconfiar de ella. Para llamar principio a algo, le pusimos cuatro filtros: claro, grande, constante y a prueba de suerte. Y una prueba en falso: en 280 momentos inventados, los filtros no encuentran nada. De 636 pruebas sobreviven 30; tres ideas que nos gustaban se quedaron fuera.
+**4 · Evidencia (1:41–2:29) · Tilin**
+"Una buena historia no basta: hay que desconfiar de ella. Para llamar principio a algo, le pusimos cuatro parámetros: claro, grande, constante y a prueba de suerte. Y una prueba en falso: en 280 momentos inventados, ninguno pasa los cuatro parámetros. De 636 pruebas sobreviven 30; tres ideas que nos gustaban se quedaron fuera.
 *(validación)*
 Además, guardamos un torneo entero sin abrir, el Clausura 2026, como examen final. Dos principios se confirman: la salida corta y la alerta del cambio de sistema. Tres van en la misma dirección, sin certeza todavía. El de la expulsión no tuvo casos suficientes. Ninguno salió al revés."
 
-**5 · Decisión (2:49–3:51) · Tilin**
+**5 · Decisión (2:29–3:31) · Tilin**
 "Lo que sobrevive se vuelve plan de juego. Situación por situación: qué hace Jardine, si le funciona y qué conviene. Con uno más le funciona, así que hay que sostener el plan. Ganando por uno, el balance de ocasiones deja de ser claro; la hipótesis a probar es sostener la iniciativa.
 *(ficha de Pumas)*
 Para cada rival, una ficha que se lee en diez segundos: cómo progresa, cómo defiende, dónde concede, su balón parado y cómo le fue a Jardine contra rivales parecidos.
 *(casos del Clausura 2026)*
 ¿Sirve en partidos reales? Contra Querétaro, ganando por uno, el rival generó 1.17 goles esperados contra 0.21: el partido se emparejó, aunque esta vez el América no se replegó. En los cuartos, Pumas jugó distinto a su ficha; aun así, dos de sus seis goles llegaron de balón parado, el peligro que la ficha marcaba."
 
-**6 · Lo que no decimos (3:51–4:01) · Tilin**
+**6 · Lo que no decimos (3:31–3:41) · Tilin**
 "Lo que no decimos: comparamos, no probamos causas, y hay muestras chicas. Por eso, las recomendaciones son hipótesis, no órdenes."
 *(en pantalla, sin narrarlo: "la cámara solo ve lo que ve")*
 
-**7 · Cierre (4:01–4:28) · Tilin**
-"Con Guardiola, los datos tardaron años en explicar la magia. Ojo de Águila no espera tanto: es un motor para leer a cualquier entrenador frente a cualquier rival.
+**7 · Cierre (3:41–4:05) · Samuel**
+"Con Guardiola, los datos tardaron años en explicar lo que parecía magia. Ojo de Águila no espera tanto: es un motor para leer a cualquier entrenador frente a cualquier rival.
 *(logotipo)*
-Ojo de Águila: la intuición del entrenador, convertida en evidencia. Esta vez, Jardine en el América."
+Ojo de Águila: la intuición del entrenador, convertida en evidencia."
+*(en pantalla, sin narrarlo: "Esta vez, Jardine en el América")*
 *(entrada animada de Ojo de Águila, 5 s, sin narración; termina en el logotipo)*
 
 ## Antes de grabar
@@ -122,7 +123,7 @@ Ojo de Águila: la intuición del entrenador, convertida en evidencia. Esta vez,
 
    Que el del Apertura 2023 fue el título 14 es un dato público; confírmalo. Si se quiere decir "el primer tricampeonato de torneos cortos", confírmalo antes; mientras tanto, el guion dice solo "dos títulos más, seguidos".
 2. **El principio de la expulsión:**
-   - pasa los 4 filtros con 15 expulsiones con Jardine y 12 con Solari y Ortiz;
+   - pasa los 4 parámetros con 15 expulsiones con Jardine y 12 con Solari y Ortiz;
    - en el Clausura 2026 no tuvo casos, y el bloque 4 lo dice;
    - si chamuel revisa a mano esas rojas (pendiente de la auditoría de Tilin, N2) y alguna no aplica, cambia "15 metros" por "el juego se instala cerca del área rival".
 3. **Las cifras en pantalla:**
