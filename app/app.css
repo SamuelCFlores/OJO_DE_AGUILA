@@ -490,6 +490,20 @@
   .tarjetas-met p { margin: 0; font-size: 14px; }
   .tabla-met td, .tabla-met th { vertical-align: top; }
   .tabla-met td.ver-se_sostiene { font-weight: 800; }
+  /* Método §9 · Lo siguiente: más grande que el resto, en la banda azul club (es la visión, no algo construido) */
+  .metodo .lo-siguiente { margin-top: 28px; background: var(--c-azul); color: #fff; border-radius: 16px; padding: clamp(20px, 3vw, 40px); gap: 18px; box-shadow: 8px 8px 0 var(--c-rojo); }
+  .lo-siguiente .ante { color: var(--c-acento); font-size: 14px; }
+  .lo-siguiente h2 { font-size: clamp(28px, 3.6vw, 46px); font-weight: 900; line-height: 1.04; text-transform: uppercase; color: var(--c-acento); text-wrap: balance; }
+  .metodo .lo-siguiente .parrafo.grande { font-size: clamp(17px, 1.5vw, 20px); max-width: 70ch; }
+  .lo-siguiente .tarjetas-met article { background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1px rgba(240,235,154,.28); padding: 18px; gap: 8px; }
+  .lo-siguiente .tarjetas-met h3 { font-size: 19px; color: #fff; }
+  .lo-siguiente .tarjetas-met p { font-size: 15.5px; color: rgba(255,255,255,.9); }
+  .etq-etapa { justify-self: start; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--c-azul); background: var(--c-acento); border-radius: 6px; padding: 3px 8px; }
+  .etq-etapa.fijo { background: #fff; }
+  .lo-siguiente .sub-h { color: var(--c-acento); margin: 6px 0 0; }
+  .lo-siguiente .lista-met { font-size: 16px; gap: 10px; }
+  .lo-siguiente .pie { color: rgba(255,255,255,.75); }
+  .lo-siguiente :focus-visible { outline-color: var(--c-acento); }
   .glosario { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px 20px; }
   .glosario div { border-top: 2px solid var(--c-azul); padding-top: 6px; }
   .glosario dt { font-weight: 900; text-transform: uppercase; font-size: 13px; }

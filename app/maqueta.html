@@ -24,6 +24,8 @@
     var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches || /[?&]movimiento=reducido(&|$)/.test(location.search);
     var sinIntro = /[?&]sin-intro(&|=|$)/.test(location.search);
     window.__ojoMostrarIntro = !reducir && !sinIntro;
+    // FIX1: la página abre siempre hasta arriba; sin esto, el navegador restauraba la posición anterior o saltaba al #vista de la dirección
+    try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) { /* sin historial */ }
     if (window.__ojoMostrarIntro) document.documentElement.classList.add('con-intro');
     else document.getElementById('intro').classList.add('oculto');
   })();
@@ -106,11 +108,11 @@
       <button type="button" class="enlace-pilar oscuro" data-vista="explorar">Ver un partido →</button></div>
     <div class="pilar"><span class="n">2</span><h3>Evidencia</h3><p>Cada principio trae su número y un partido real donde se ve. Además, lo pusimos a prueba en el Clausura 2026, un torneo que guardamos sin mirar: <span data-slot="pilar-validacion">ninguno salió al revés</span>.</p>
       <button type="button" class="enlace-pilar oscuro" data-ir="metodo#met-evidencia">Ver la evidencia →</button></div>
-    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Qué conviene en cada situación según cómo viene el partido, una ficha por rival y, en tres partidos del Clausura 2026, lo que marcaba la herramienta frente a lo que pasó.</p>
+    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Qué conviene en cada situación según cómo viene el partido, qué dice nuestro motor de cada rival y, en tres partidos del Clausura 2026, lo que marcaba frente a lo que pasó.</p>
       <button type="button" class="enlace-pilar" data-vista="decidir">Ir al plan de juego →</button></div>
   </section>
   <section class="cierre-p"><strong>El sistema de juego contra cada rival</strong>
-    <button type="button" class="btn-explorar" data-ir="decidir#ficha">Ver las fichas<span>→</span></button></section>
+    <button type="button" class="btn-explorar" data-ir="decidir#ficha">Qué dice nuestro motor<span>→</span></button></section>
 </div>
 
 <!-- ===================== EL PARTIDO (explorar) ===================== -->
@@ -129,7 +131,7 @@
       <div class="tira-filtros" data-slot="tira" role="group" aria-label="Rival elegido">
         <button type="button" class="btn-tira" data-ocultar aria-expanded="true">Rival</button><span class="chips-tira"></span></div>
       <div class="filtros" data-slot="filtros"></div>
-      <p class="maqueta">Datos reales de StatsBomb. El minuto a minuto está armado para este partido. En la barra, elige un rival para abrir su ficha de 10 segundos.</p>
+      <p class="maqueta">Datos reales de StatsBomb. El minuto a minuto está armado para este partido. En la barra, elige un rival para ver qué dice nuestro motor de él.</p>
 
       <section class="bloque"><span class="ante chico">1 · El principio</span><div data-slot="principio"></div></section>
 
@@ -202,9 +204,9 @@
       <p class="nota">▲ le funciona (genera más de lo que concede: el rango probable del balance de ocasiones queda arriba de 0) · ● parejo · ▼ sufre. Índice de iniciativa: 0 espera, 100 propone. PPDA: pases que el rival da antes de que le recuperen el balón; menos = más presión. Las recomendaciones salen de reglas fijas sobre estos números y son hipótesis, no órdenes.</p>
       <div class="matriz" data-slot="matriz"></div></section>
 
-    <section class="bloque" id="ficha"><span class="ante chico">2 · Ficha de 10 segundos</span>
+    <section class="bloque" id="ficha"><span class="ante chico">2 · Qué dice nuestro motor</span>
       <div class="ficha-cab"><h2>Elige un rival</h2>
-        <label class="selector-rival">Rival <select id="rival-ficha" aria-label="Rival de la ficha"></select></label></div>
+        <label class="selector-rival">Rival <select id="rival-ficha" aria-label="Rival"></select></label></div>
       <article class="ficha" data-slot="ficha" aria-live="polite"></article>
       <p class="nota">Estilo de cada rival frente a la liga en los torneos de Jardine (AP23–AP25), con las estadísticas de equipo de StatsBomb. Un rasgo aparece si se separa del promedio de la liga al menos media variación típica (desviación estándar). "Quién participa poco" no está disponible: solo hay eventos de los partidos del América.</p></section>
 
@@ -281,7 +283,7 @@
         <li><strong>La cámara de las fotos de posiciones (360).</strong> El mapa de control solo ve lo que ve la cámara, y el control depende de cuántos jugadores aparecen. Por eso se recorta a la zona visible y el principio estructural se apoya en la altura y la forma del equipo, no solo en el control.</li>
         <li><strong>Posiciones estimadas.</strong> Entre dos fotos la animación interpola: es para leer la jugada, no un dato. Ninguna medida la usa.</li>
         <li><strong>Escala relativa.</strong> El índice se compara con los partidos del América y sus rivales, no con toda la liga, porque solo hay eventos de esos partidos.</li>
-        <li><strong>Las fichas describen al rival promedio.</strong> En una eliminatoria el rival se adapta (ver el caso de los cuartos de final). "Quién participa poco" no está disponible: falta el detalle de los partidos del rival sin el América.</li>
+        <li><strong>La lectura del motor describe al rival promedio.</strong> En una eliminatoria el rival se adapta (ver el caso de los cuartos de final). "Quién participa poco" no está disponible: falta el detalle de los partidos del rival sin el América.</li>
         <li><strong>Recomendaciones = hipótesis.</strong> Salen de reglas fijas sobre los números. Nunca se dice que una decisión habría cambiado el resultado.</li>
       </ul></section>
 
@@ -304,10 +306,22 @@
         <div><dt>AP, CL y PR</dt><dd>Apertura, Clausura y prórroga (tiempo extra).</dd></div>
       </dl></section>
 
-    <section class="bloque"><span class="ante chico">9 · Cómo se hizo</span>
-      <h2>Del dato crudo a esta página</h2>
-      <p class="parrafo">Para leer esta página no hace falta instalar ni correr nada: los datos, las gráficas y las animaciones vienen dentro de este mismo archivo, que se abre en cualquier navegador.</p>
-      <p class="parrafo">Detrás hay un proceso que se puede repetir de principio a fin: descarga de StatsBomb (sin pedir dos veces lo mismo), limpieza, mediciones, las pruebas con los 4 filtros, la comprobación en el torneo reservado y el armado de esta página. Todos los umbrales viven en un solo archivo de configuración y cada definición está escrita antes de ver los resultados. El código está en el repositorio del equipo; los datos de StatsBomb no se publican.</p></section>
+    <section class="bloque lo-siguiente" id="met-siguiente"><span class="ante chico">9 · Lo siguiente</span>
+      <h2>La base ya está hecha: lo que sigue es verla en movimiento</h2>
+      <p class="parrafo grande">Ojo de Águila ya lee a un entrenador con datos de eventos y fotos de posiciones: mide, lo pone a prueba y lo convierte en un plan de juego. Esa base es la que permite dar el siguiente paso sin empezar de cero.</p>
+      <div class="tarjetas-met etapa">
+        <article><span class="etq-etapa">Siguiente etapa</span><h3>Video y seguimiento</h3><p>Procesar el video y los datos de seguimiento (tracking) para tener a los 22 jugadores todo el tiempo, no solo a los que ve la cámara en cada acción.</p></article>
+        <article><span class="etq-etapa">Siguiente etapa</span><h3>Diagramas en tiempo real</h3><p>Dibujar el mapa de control del espacio y el índice de iniciativa mientras se juega: en partidos oficiales o en interescuadras del entrenamiento.</p></article>
+        <article><span class="etq-etapa fijo">Siempre</span><h3>El motor sigue al centro</h3><p>El video y el tiempo real apoyan casos puntuales; las decisiones se siguen leyendo con el motor, con los mismos 4 filtros, la misma prueba en falso y los mismos tramos de comparación.</p></article>
+      </div>
+      <h3 class="sub-h">Lo que la siguiente etapa refuerza</h3>
+      <ul class="lista-met">
+        <li><strong>Lo que la cámara no ve.</strong> Hoy el mapa de control solo cubre la zona visible de cada foto de posiciones; con seguimiento cubriría la cancha completa.</li>
+        <li><strong>Posiciones entre fotos.</strong> Hoy se estiman para animar las jugadas; con seguimiento serían medidas y podrían entrar en los cálculos.</li>
+        <li><strong>Muestras chicas.</strong> Expulsiones, lesiones y cambios de sistema son pocos por torneo; con más partidos y con los entrenamientos, más principios podrán confirmarse.</li>
+        <li><strong>Quién participa poco en el rival.</strong> Falta el detalle de los partidos del rival sin el América; sumarlo completa lo que dice el motor de cada rival.</li>
+      </ul>
+      <p class="pie">Esta sección es una propuesta: nada de lo que describe está construido todavía.</p></section>
   </div>
 </div>
 </main>

@@ -262,7 +262,7 @@
     });
   }
 
-  // ---------- barra lateral v5: elegir rival y abrir su ficha de 10 segundos; plegable y ocultable ----------
+  // ---------- barra lateral v5: elegir rival y abrir lo que dice el motor de él (su ficha); plegable y ocultable ----------
   // Los rivales y sus partidos salen de las fichas (D.decidir.fichas: partidos con Jardine, AP23–AP25), igual que en Plan de juego.
   function seccion(id, titulo, contenido, abierta, clase) {
     return '<details class="seccion ' + (clase || '') + '" data-seccion="' + id + '"' + (abierta ? ' open' : '') + '><summary>' + esc(titulo) +
@@ -283,9 +283,9 @@
       '<div class="barra-cab"><span class="titulo-barra">Rivales</span><div class="acciones-cab"><button type="button" class="enlace" data-volver>Restablecer</button>' +
       '<button type="button" class="btn-ocultar" data-ocultar aria-label="Ocultar la barra de rivales" aria-expanded="true">‹</button></div></div>' +
       seccion('rival', 'Rival', rival, true) +
-      '<div class="pie-barra"><p class="muestra">Su ficha de 10 segundos: cómo progresa, cómo defiende, dónde concede, su balón parado y cómo le fue a ' + esc(D.nuevo) +
+      '<div class="pie-barra"><p class="muestra">Qué dice nuestro motor de este rival: cómo progresa, cómo defiende, dónde concede, su balón parado y cómo le fue a ' + esc(D.nuevo) +
       ' (AP23–AP25). El número es de partidos con ' + esc(D.nuevo) + '.</p>' +
-      '<button type="button" class="btn-borde" data-ir-ficha>Ver su ficha de 10 segundos →</button></div>');
+      '<button type="button" class="btn-borde" data-ir-ficha>Ver la lectura del motor →</button></div>');
   }
   function montarBarra() {  // también "Restablecer": vuelve al rival del caso sin recargar
     renderBarra((D.decidir && D.decidir.fichas) || [], D.rival);
@@ -377,7 +377,7 @@
     if (D.metodo) renderMetodo(D.metodo);
   }
 
-  // ---------- Decidir: matriz de situaciones, ficha de 10 segundos, balón parado y uso de jugadores ----------
+  // ---------- Decidir: matriz de situaciones, qué dice el motor de cada rival, balón parado y uso de jugadores ----------
   var NIVELES = { domina: ['▲', 'Le funciona'], parejo: ['●', 'Parejo'], sufre: ['▼', 'Sufre'] };
   function num(v, dec) { return v == null ? '—' : Number(v).toFixed(dec == null ? 2 : dec); }
   function riesgo(q) { return q < .01 ? 'menos de 1 %' : Math.round(q * 100) + ' %'; }  // igual que decision.texto_riesgo
@@ -399,7 +399,7 @@
       '<div class="campo"><span>Contra rivales parecidos</span><p>' + esc(f.parecidos.join(', ')) + '</p><p>' + esc(f.jardine_parecidos) + '</p></div>' +
       notaXG('xG'));
   }
-  // De la barra a la ficha de 10 segundos del rival elegido (vista Decidir)
+  // De la barra a la lectura del motor del rival elegido (su ficha, vista Decidir)
   function irAFicha(nombre) {
     var fichas = (D.decidir && D.decidir.fichas) || [], k = fichas.map(function (f) { return f.rival; }).indexOf(nombre);
     cerrarCajon();
@@ -834,6 +834,12 @@
     try { oculta = localStorage.getItem('ojo.barraOculta') === '1'; } catch (e) { /* sin almacenamiento */ }
     ocultarBarra(oculta);
     mostrar(['#explorar', '#decidir', '#metodo'].indexOf(location.hash) >= 0 ? location.hash.slice(1) : 'portada');
+    // FIX1: el navegador salta al #vista de la dirección (es el id de la vista) o restaura la posición anterior; se vuelve arriba
+    // ya, al terminar de cargar y un instante después (el salto puede llegar después del evento load)
+    var arriba = function () { window.scrollTo(0, 0); };
+    arriba();
+    if (document.readyState === 'complete') { requestAnimationFrame(arriba); setTimeout(arriba, 150); }
+    else window.addEventListener('load', function () { requestAnimationFrame(arriba); setTimeout(arriba, 150); });
   }
 
   if (window.OjoMarca) OjoMarca.loop(document.getElementById('loop-icono'), { estatico: reducido() });
@@ -842,7 +848,7 @@
   var control = null, cerrada = false;
   function cerrar() {
     if (cerrada) return; cerrada = true;
-    intro.classList.add('saliendo'); document.documentElement.classList.remove('con-intro');
+    intro.classList.add('saliendo'); document.documentElement.classList.remove('con-intro'); window.scrollTo(0, 0);
     setTimeout(function () { if (control) control.detener(); intro.remove(); if (D) contarKPIs(); }, 650);
   }
   control = OjoMarca.intro(document.getElementById('intro-lienzo'), { segundos: 5, alTerminar: cerrar });

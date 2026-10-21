@@ -3,7 +3,7 @@
 **Esta es la maqueta definitiva desde el 18 oct: todo cambio visual se hace aquí.** Tiene cuatro vistas:
 - **Resumen** (id `portada`): tesis, cifras clave, índice de iniciativa por torneo y principios.
 - **El partido** (id `explorar`): principio → caso, reproductor con el mapa de control del espacio, "¿qué tan merecido?" y el bloque 6, que lleva a la matriz, a la ficha del rival y a la evidencia.
-- **Plan de juego** (id `decidir`): matriz de situaciones, ficha de 10 segundos, balón parado, uso de jugadores y casos del CL26.
+- **Plan de juego** (id `decidir`): matriz de situaciones, qué dice nuestro motor de cada rival (su ficha, `#ficha`), balón parado, uso de jugadores y casos del CL26.
 - **Método** (id `metodo`): el reporte, con datos, mediciones, los 4 filtros, principios con evidencia, validación, límites y glosario.
 
 Los nombres y términos que ve el jurado siguen `contexto/terminologia.md`; los ids internos y las direcciones (`#explorar`…) no cambian. Para enlazar vistas: `data-ir="vista#ancla"` (con `data-rival` abre esa ficha; con `data-situacion` resalta esa tarjeta de la matriz). Las anteriores (maqueta 2 de `scripts/07_caso.py` y los `outputs/reportes/maqueta_*.html`) quedan como históricas y no se editan.

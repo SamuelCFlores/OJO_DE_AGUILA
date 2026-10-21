@@ -120,6 +120,6 @@ Preguntas abiertas (la rúbrica oficial y el HTML único ya están confirmados):
 - **Tramo**: ventana de minutos dentro de un periodo (15 por defecto).
 - **Efecto América**: cómo cambia un rival al enfrentar al América frente a su promedio del torneo.
 - **Huella de pases**: vector de frecuencias de los 60 `pass_cluster_id` por partido.
-- **Ficha de 10 segundos**: tarjeta por rival con cómo progresa, dónde concede, quién participa poco, su balón parado vulnerable y cómo respondió Jardine ante rivales parecidos.
+- **Ficha de 10 segundos**: tarjeta por rival con cómo progresa, dónde concede, quién participa poco, su balón parado vulnerable y cómo respondió Jardine ante rivales parecidos. En la página se llama **"Qué dice nuestro motor"** o **"lectura del motor"** (21 oct; `contexto/terminologia.md`).
 - **Coach drill**: prueba del jurado; resuelve 3 escenarios de decisión en menos de 90 s usando nuestro reporte.
 - **Matriz de situaciones**: tabla situación de juego → qué hace Jardine, qué le funciona, recomendación, enlace a evidencia.

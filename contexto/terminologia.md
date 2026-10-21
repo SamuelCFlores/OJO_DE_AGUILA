@@ -38,6 +38,21 @@ Cada pestaña lleva debajo una descripción corta (en pantallas de 1180 px o má
 
 En el teléfono las pestañas van sin descripción; "Plan de juego" ocupa dos líneas.
 
+### "Ficha de 10 segundos" → "Qué dice nuestro motor" (21 oct, chamuel)
+
+La página ya no usa "ficha de 10 segundos". Se adapta según el lugar:
+
+| Dónde | Ahora |
+| --- | --- |
+| Título del bloque 2 de Plan de juego | **Qué dice nuestro motor** |
+| Botones (barra de rivales, bloque 6 de El partido) | **Ver la lectura del motor →** |
+| Botón del cierre del Resumen | **Qué dice nuestro motor →** |
+| Pilar 3 del Resumen | "qué dice nuestro motor de cada rival" |
+| Casos del CL26 (notebook 07) | "Lectura del motor sobre {rival}", "lo que marcaba el motor" |
+| Límites (Método §7) | "La lectura del motor describe al rival promedio" |
+
+En el código y en los datos el objeto sigue llamándose `ficha` (`decidir.fichas`, `#ficha`, `ojo.salidas.decision.ficha`). El guion del video y el animatic todavía dicen "una ficha que se lee en diez segundos".
+
 Los ids internos (`portada`, `explorar`, `decidir`, `metodo`) y las direcciones (`#explorar`…) no cambian.
 
 ## 2. Goles esperados y resultados

@@ -443,7 +443,7 @@ def datos_del_ejemplo(foto: dict, ev: pd.DataFrame, evento: pd.Series, q: pd.Ser
 
 
 def siguiente_paso(decidir: dict, tipo: str, rival: str, principio: datos_app.Principio) -> list[dict]:
-    """Bloque 6 de El partido: del caso a la decisión (la fila de la matriz, la ficha del rival y qué tan sólido es)."""
+    """Bloque 6 de El partido: del caso a la decisión (la fila de la matriz, lo que dice el motor del rival y qué tan sólido es)."""
     salida = []
     fila = next((m for m in decidir["matriz"] if m.get("clave") == SITUACION_DEL_CASO.get(tipo)), None)
     if fila:
@@ -454,7 +454,7 @@ def siguiente_paso(decidir: dict, tipo: str, rival: str, principio: datos_app.Pr
         rasgos = lambda lista: ", ".join(x[0].lower() + x[1:] for x in lista)  # noqa: E731  (a media frase, en minúscula)
         salida.append({"titulo": f"Si el rival es {rival}", "texto": f"Progresa: {rasgos(ficha['progresa'])}. Defiende: "
                        f"{rasgos(ficha['defiende'])}. Concede: {rasgos(ficha['concede'])}.",
-                       "boton": "Ver su ficha de 10 segundos", "vista": "decidir", "ancla": "ficha", "rival": rival})
+                       "boton": "Ver la lectura del motor", "vista": "decidir", "ancla": "ficha", "rival": rival})
     val = next((v for v in decidir["validacion"] if v["principio"] == principio.titulo), None)
     salida.append({"titulo": "¿Qué tan sólido es?", "texto": f"{principio.titulo}: {principio.estado[0].lower() + principio.estado[1:]}."
                    + (f" En el Clausura 2026, que el análisis no vio: {val['texto'][0].lower() + val['texto'][1:]}." if val else ""),
