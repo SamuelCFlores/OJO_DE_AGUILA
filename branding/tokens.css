@@ -1,0 +1,15 @@
+/* Tokens de la identidad Ojo de Águila. Fuente única de colores y tipografía (ver branding/README.md). */
+:root {
+  --oda-azul: #0B2545;      /* azul marino: fondo de marca, cancha */
+  --oda-dorado: #E8B100;    /* dorado: acento, América en las figuras */
+  --oda-blanco: #FFFFFF;    /* blanco: texto sobre azul, rival sobre cancha */
+  --oda-gris-fondo: #EEF0F3;/* fondo claro de páginas */
+  --oda-gris-texto: #4A5B70;/* texto secundario */
+  --oda-fuente: "Poppins", "Segoe UI", system-ui, sans-serif;
+  /* Paleta azulcrema del club (propuesta visual del 13 oct): alternativa a azul/dorado en páginas y figuras.
+     Desde el 18 oct la placa del logotipo en la app es azulcrema; solo el ojo conserva --oda-azul y --oda-dorado. */
+  --club-azul: #0F1D41;      /* fondos, texto principal, cancha */
+  --club-amarillo: #F0EB9A;  /* crema: acento, el América en las figuras */
+  --club-rojo: #F6303E;      /* solo acentos puntuales (ver branding/README.md) */
+  --club-azul-hover: #1C2E5E;/* hover de botones y chips azules */
+}

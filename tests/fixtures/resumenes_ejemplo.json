@@ -1,0 +1,1341 @@
+{
+ "meta": {
+  "version_esquema": 1,
+  "generado": "2026-10-09T12:00:00",
+  "equipo": {
+   "id": 1,
+   "nombre": "Equipo de ejemplo"
+  },
+  "entrenador": {
+   "id": 10,
+   "nombre": "Entrenador de ejemplo"
+  },
+  "min_partidos": 3,
+  "rejilla": {
+   "columnas": 12,
+   "filas": 8,
+   "largo": 120,
+   "ancho": 80
+  },
+  "aviso": "EJEMPLO CON DATOS INVENTADOS para probar el explorador; no son resultados."
+ },
+ "catalogos": {
+  "rivales": [
+   {
+    "id": "9001",
+    "nombre": "Rival A",
+    "n_partidos": 6
+   },
+   {
+    "id": "9002",
+    "nombre": "Rival B",
+    "n_partidos": 2
+   }
+  ],
+  "torneos": [
+   {
+    "id": "AP23",
+    "nombre": "Apertura 2023",
+    "prueba": false
+   },
+   {
+    "id": "CL26",
+    "nombre": "Clausura 2026",
+    "prueba": true
+   }
+  ],
+  "situaciones": [
+   {
+    "id": "todas",
+    "etiqueta": "Todo el partido",
+    "grupo": "todas",
+    "definicion": "Todos los eventos con 360"
+   },
+   {
+    "id": "salida",
+    "etiqueta": "Salida de balón",
+    "grupo": "fase",
+    "definicion": "El equipo tiene el balón en juego abierto en su tercio defensivo"
+   },
+   {
+    "id": "pierde",
+    "etiqueta": "Perdiendo",
+    "grupo": "marcador",
+    "definicion": "El equipo va abajo en el marcador antes del evento"
+   }
+  ]
+ },
+ "combinaciones": {
+  "todos|todos|todas": {
+   "n_partidos": 8,
+   "n_acciones": 1200,
+   "muestra_suficiente": true,
+   "resultados": {
+    "ganados": 4,
+    "empatados": 2,
+    "perdidos": 2
+   },
+   "metricas": {
+    "america": {
+     "control": 0.552,
+     "frontera": 158.2,
+     "apoyos": 1.6,
+     "rivales_cerca": 1.9,
+     "distancia_companeros": 12.1,
+     "ppda": 9.4,
+     "field_tilt": 0.612,
+     "altura_recuperacion": 48.3,
+     "xg_favor_90": 1.71,
+     "xg_contra_90": 0.93
+    },
+    "rival": {
+     "control": 0.448,
+     "frontera": 158.2,
+     "apoyos": 1.2,
+     "rivales_cerca": 2.3,
+     "distancia_companeros": 14.0,
+     "ppda": 12.8,
+     "field_tilt": 0.388,
+     "altura_recuperacion": 39.5,
+     "xg_favor_90": 0.93,
+     "xg_contra_90": 1.71
+    },
+    "liga": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": 10.8,
+     "field_tilt": 0.5,
+     "altura_recuperacion": 42.0,
+     "xg_favor_90": 1.25,
+     "xg_contra_90": 1.25
+    }
+   },
+   "mapa_control": [
+    [
+     0.784,
+     0.753,
+     0.764,
+     0.644,
+     0.614,
+     0.515,
+     0.404,
+     0.38,
+     0.283,
+     0.298,
+     0.264,
+     0.295
+    ],
+    [
+     0.754,
+     0.781,
+     0.671,
+     0.619,
+     0.584,
+     0.533,
+     0.416,
+     0.329,
+     0.337,
+     0.219,
+     0.302,
+     0.275
+    ],
+    [
+     0.686,
+     0.67,
+     0.649,
+     0.639,
+     0.499,
+     0.456,
+     0.382,
+     0.287,
+     0.254,
+     0.181,
+     0.183,
+     0.226
+    ],
+    [
+     0.7,
+     0.661,
+     0.61,
+     0.576,
+     0.486,
+     0.388,
+     0.357,
+     0.279,
+     0.184,
+     0.192,
+     0.189,
+     0.253
+    ],
+    [
+     0.665,
+     0.607,
+     0.636,
+     0.489,
+     0.443,
+     0.394,
+     0.253,
+     0.218,
+     0.124,
+     0.161,
+     0.173,
+     0.183
+    ],
+    [
+     0.64,
+     0.57,
+     0.568,
+     0.497,
+     0.419,
+     0.324,
+     0.282,
+     0.224,
+     0.127,
+     0.121,
+     0.063,
+     0.156
+    ],
+    [
+     0.577,
+     0.598,
+     0.541,
+     0.426,
+     0.359,
+     0.305,
+     0.16,
+     0.135,
+     0.056,
+     0.026,
+     0.022,
+     0.123
+    ],
+    [
+     0.485,
+     0.483,
+     0.458,
+     0.444,
+     0.289,
+     0.243,
+     0.173,
+     0.138,
+     0.082,
+     0.061,
+     0.004,
+     0.047
+    ]
+   ],
+   "mapa_cobertura": [
+    [
+     27,
+     48,
+     29,
+     19,
+     14,
+     10,
+     16,
+     14,
+     19,
+     47,
+     19,
+     5
+    ],
+    [
+     36,
+     58,
+     42,
+     16,
+     21,
+     23,
+     5,
+     14,
+     31,
+     39,
+     28,
+     44
+    ],
+    [
+     41,
+     25,
+     13,
+     49,
+     59,
+     37,
+     44,
+     46,
+     48,
+     52,
+     8,
+     34
+    ],
+    [
+     60,
+     54,
+     60,
+     48,
+     56,
+     40,
+     30,
+     30,
+     30,
+     30,
+     11,
+     35
+    ],
+    [
+     45,
+     30,
+     8,
+     17,
+     9,
+     18,
+     33,
+     15,
+     12,
+     26,
+     43,
+     8
+    ],
+    [
+     11,
+     5,
+     41,
+     14,
+     39,
+     11,
+     28,
+     44,
+     6,
+     9,
+     60,
+     18
+    ],
+    [
+     44,
+     29,
+     14,
+     45,
+     21,
+     27,
+     43,
+     28,
+     35,
+     12,
+     12,
+     59
+    ],
+    [
+     36,
+     34,
+     35,
+     35,
+     24,
+     10,
+     14,
+     11,
+     52,
+     26,
+     52,
+     21
+    ]
+   ],
+   "frase": "Contra todos sus rivales, en todo el partido el América controló el 55% del espacio que se ve (8 partidos)."
+  },
+  "9001|todos|todas": {
+   "n_partidos": 6,
+   "n_acciones": 900,
+   "muestra_suficiente": true,
+   "resultados": {
+    "ganados": 3,
+    "empatados": 2,
+    "perdidos": 1
+   },
+   "metricas": {
+    "america": {
+     "control": 0.571,
+     "frontera": 158.2,
+     "apoyos": 1.6,
+     "rivales_cerca": 1.9,
+     "distancia_companeros": 12.1,
+     "ppda": 9.4,
+     "field_tilt": 0.612,
+     "altura_recuperacion": 48.3,
+     "xg_favor_90": 1.71,
+     "xg_contra_90": 0.93
+    },
+    "rival": {
+     "control": 0.429,
+     "frontera": 158.2,
+     "apoyos": 1.2,
+     "rivales_cerca": 2.3,
+     "distancia_companeros": 14.0,
+     "ppda": 12.8,
+     "field_tilt": 0.388,
+     "altura_recuperacion": 39.5,
+     "xg_favor_90": 0.93,
+     "xg_contra_90": 1.71
+    },
+    "liga": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": 10.8,
+     "field_tilt": 0.5,
+     "altura_recuperacion": 42.0,
+     "xg_favor_90": 1.25,
+     "xg_contra_90": 1.25
+    }
+   },
+   "mapa_control": [
+    [
+     0.819,
+     0.826,
+     0.769,
+     0.677,
+     0.675,
+     0.533,
+     0.486,
+     0.44,
+     0.374,
+     0.303,
+     0.34,
+     0.314
+    ],
+    [
+     0.816,
+     0.769,
+     0.768,
+     0.652,
+     0.562,
+     0.511,
+     0.427,
+     0.372,
+     0.32,
+     0.312,
+     0.311,
+     0.284
+    ],
+    [
+     0.715,
+     0.717,
+     0.718,
+     0.596,
+     0.549,
+     0.49,
+     0.436,
+     0.347,
+     0.266,
+     0.213,
+     0.256,
+     0.259
+    ],
+    [
+     0.732,
+     0.71,
+     0.632,
+     0.634,
+     0.468,
+     0.387,
+     0.344,
+     0.262,
+     0.227,
+     0.252,
+     0.217,
+     0.185
+    ],
+    [
+     0.702,
+     0.632,
+     0.622,
+     0.58,
+     0.432,
+     0.376,
+     0.328,
+     0.208,
+     0.228,
+     0.157,
+     0.179,
+     0.153
+    ],
+    [
+     0.666,
+     0.629,
+     0.564,
+     0.53,
+     0.388,
+     0.313,
+     0.316,
+     0.151,
+     0.158,
+     0.12,
+     0.141,
+     0.166
+    ],
+    [
+     0.591,
+     0.565,
+     0.571,
+     0.432,
+     0.395,
+     0.259,
+     0.257,
+     0.181,
+     0.069,
+     0.108,
+     0.05,
+     0.163
+    ],
+    [
+     0.51,
+     0.565,
+     0.44,
+     0.397,
+     0.35,
+     0.293,
+     0.17,
+     0.123,
+     0.102,
+     0,
+     0.07,
+     0.114
+    ]
+   ],
+   "mapa_cobertura": [
+    [
+     47,
+     42,
+     57,
+     38,
+     31,
+     57,
+     37,
+     13,
+     39,
+     14,
+     38,
+     37
+    ],
+    [
+     6,
+     60,
+     33,
+     54,
+     16,
+     43,
+     5,
+     54,
+     56,
+     14,
+     16,
+     14
+    ],
+    [
+     35,
+     44,
+     51,
+     12,
+     40,
+     8,
+     25,
+     48,
+     38,
+     38,
+     40,
+     35
+    ],
+    [
+     55,
+     54,
+     11,
+     40,
+     8,
+     20,
+     17,
+     22,
+     7,
+     54,
+     11,
+     37
+    ],
+    [
+     33,
+     40,
+     6,
+     53,
+     9,
+     33,
+     25,
+     44,
+     37,
+     43,
+     37,
+     17
+    ],
+    [
+     49,
+     22,
+     33,
+     37,
+     39,
+     56,
+     35,
+     37,
+     20,
+     49,
+     38,
+     21
+    ],
+    [
+     40,
+     17,
+     58,
+     33,
+     13,
+     31,
+     12,
+     30,
+     33,
+     25,
+     9,
+     47
+    ],
+    [
+     20,
+     32,
+     9,
+     18,
+     47,
+     24,
+     55,
+     12,
+     54,
+     14,
+     50,
+     46
+    ]
+   ],
+   "frase": "Contra Rival A, en todo el partido el América controló el 57% del espacio que se ve (6 partidos)."
+  },
+  "9001|todos|salida": {
+   "n_partidos": 6,
+   "n_acciones": 900,
+   "muestra_suficiente": true,
+   "resultados": {
+    "ganados": 3,
+    "empatados": 2,
+    "perdidos": 1
+   },
+   "metricas": {
+    "america": {
+     "control": 0.583,
+     "frontera": 158.2,
+     "apoyos": 1.6,
+     "rivales_cerca": 1.9,
+     "distancia_companeros": 12.1,
+     "ppda": 9.4,
+     "field_tilt": 0.612,
+     "altura_recuperacion": 48.3,
+     "xg_favor_90": 1.71,
+     "xg_contra_90": 0.93
+    },
+    "rival": {
+     "control": 0.417,
+     "frontera": 158.2,
+     "apoyos": 1.2,
+     "rivales_cerca": 2.3,
+     "distancia_companeros": 14.0,
+     "ppda": 12.8,
+     "field_tilt": 0.388,
+     "altura_recuperacion": 39.5,
+     "xg_favor_90": 0.93,
+     "xg_contra_90": 1.71
+    },
+    "liga": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": 10.8,
+     "field_tilt": 0.5,
+     "altura_recuperacion": 42.0,
+     "xg_favor_90": 1.25,
+     "xg_contra_90": 1.25
+    }
+   },
+   "mapa_control": [
+    [
+     0.849,
+     0.784,
+     0.818,
+     0.765,
+     0.614,
+     0.604,
+     0.469,
+     0.409,
+     0.41,
+     0.369,
+     0.304,
+     0.36
+    ],
+    [
+     0.795,
+     0.763,
+     0.709,
+     0.66,
+     0.624,
+     0.471,
+     0.444,
+     0.364,
+     0.272,
+     0.279,
+     0.31,
+     0.328
+    ],
+    [
+     0.709,
+     0.788,
+     0.728,
+     0.685,
+     0.522,
+     0.456,
+     0.353,
+     0.358,
+     0.258,
+     0.218,
+     0.25,
+     0.328
+    ],
+    [
+     0.745,
+     0.675,
+     0.624,
+     0.64,
+     0.529,
+     0.459,
+     0.318,
+     0.246,
+     0.259,
+     0.208,
+     0.175,
+     0.291
+    ],
+    [
+     0.686,
+     0.689,
+     0.578,
+     0.594,
+     0.438,
+     0.435,
+     0.314,
+     0.234,
+     0.206,
+     0.218,
+     0.154,
+     0.17
+    ],
+    [
+     0.636,
+     0.593,
+     0.54,
+     0.484,
+     0.397,
+     0.329,
+     0.26,
+     0.191,
+     0.187,
+     0.114,
+     0.138,
+     0.134
+    ],
+    [
+     0.578,
+     0.531,
+     0.515,
+     0.43,
+     0.425,
+     0.324,
+     0.208,
+     0.168,
+     0.164,
+     0.056,
+     0.129,
+     0.12
+    ],
+    [
+     0.553,
+     0.573,
+     0.489,
+     0.439,
+     0.381,
+     0.327,
+     0.183,
+     0.164,
+     0.101,
+     0.069,
+     0.048,
+     0.071
+    ]
+   ],
+   "mapa_cobertura": [
+    [
+     8,
+     58,
+     13,
+     5,
+     9,
+     45,
+     52,
+     21,
+     32,
+     15,
+     8,
+     10
+    ],
+    [
+     47,
+     58,
+     29,
+     60,
+     37,
+     47,
+     23,
+     43,
+     20,
+     49,
+     23,
+     7
+    ],
+    [
+     34,
+     16,
+     15,
+     22,
+     33,
+     5,
+     21,
+     28,
+     26,
+     40,
+     25,
+     20
+    ],
+    [
+     7,
+     24,
+     18,
+     27,
+     16,
+     5,
+     26,
+     29,
+     10,
+     35,
+     22,
+     37
+    ],
+    [
+     46,
+     17,
+     20,
+     37,
+     54,
+     5,
+     10,
+     21,
+     57,
+     10,
+     14,
+     30
+    ],
+    [
+     42,
+     7,
+     30,
+     6,
+     24,
+     24,
+     45,
+     19,
+     10,
+     42,
+     38,
+     59
+    ],
+    [
+     53,
+     14,
+     47,
+     50,
+     55,
+     43,
+     29,
+     53,
+     25,
+     51,
+     36,
+     14
+    ],
+    [
+     23,
+     51,
+     44,
+     46,
+     14,
+     7,
+     57,
+     58,
+     50,
+     37,
+     45,
+     32
+    ]
+   ],
+   "frase": "Contra Rival A, en la salida de balón el América controló el 58% del espacio que se ve (6 partidos)."
+  },
+  "9001|AP23|salida": {
+   "n_partidos": 4,
+   "n_acciones": 600,
+   "muestra_suficiente": true,
+   "resultados": {
+    "ganados": 2,
+    "empatados": 1,
+    "perdidos": 1
+   },
+   "metricas": {
+    "america": {
+     "control": 0.601,
+     "frontera": 158.2,
+     "apoyos": 1.6,
+     "rivales_cerca": 1.9,
+     "distancia_companeros": 12.1,
+     "ppda": 9.4,
+     "field_tilt": 0.612,
+     "altura_recuperacion": 48.3,
+     "xg_favor_90": 1.71,
+     "xg_contra_90": 0.93
+    },
+    "rival": {
+     "control": 0.399,
+     "frontera": 158.2,
+     "apoyos": 1.2,
+     "rivales_cerca": 2.3,
+     "distancia_companeros": 14.0,
+     "ppda": 12.8,
+     "field_tilt": 0.388,
+     "altura_recuperacion": 39.5,
+     "xg_favor_90": 0.93,
+     "xg_contra_90": 1.71
+    },
+    "liga": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": 10.8,
+     "field_tilt": 0.5,
+     "altura_recuperacion": 42.0,
+     "xg_favor_90": 1.25,
+     "xg_contra_90": 1.25
+    }
+   },
+   "mapa_control": [
+    [
+     0.874,
+     0.868,
+     0.761,
+     0.738,
+     0.66,
+     0.611,
+     0.527,
+     0.461,
+     0.387,
+     0.393,
+     0.374,
+     0.404
+    ],
+    [
+     0.784,
+     0.75,
+     0.721,
+     0.682,
+     0.58,
+     0.571,
+     0.463,
+     0.401,
+     0.351,
+     0.332,
+     0.315,
+     0.295
+    ],
+    [
+     0.801,
+     0.782,
+     0.718,
+     0.66,
+     0.596,
+     0.454,
+     0.441,
+     0.324,
+     0.256,
+     0.25,
+     0.299,
+     0.275
+    ],
+    [
+     0.755,
+     0.765,
+     0.677,
+     0.604,
+     0.538,
+     0.475,
+     0.404,
+     0.32,
+     0.273,
+     0.191,
+     0.2,
+     0.24
+    ],
+    [
+     0.715,
+     0.658,
+     0.644,
+     0.527,
+     0.456,
+     0.394,
+     0.354,
+     0.288,
+     0.236,
+     0.173,
+     0.197,
+     0.221
+    ],
+    [
+     0.648,
+     0.599,
+     0.637,
+     0.506,
+     0.508,
+     0.421,
+     0.249,
+     0.224,
+     0.211,
+     0.2,
+     0.151,
+     0.162
+    ],
+    [
+     0.582,
+     0.642,
+     0.529,
+     0.504,
+     0.384,
+     0.339,
+     0.302,
+     0.152,
+     0.171,
+     0.114,
+     0.154,
+     0.165
+    ],
+    [
+     0.544,
+     0.597,
+     0.516,
+     0.409,
+     0.33,
+     0.296,
+     0.212,
+     0.129,
+     0.063,
+     0.058,
+     0.057,
+     0.139
+    ]
+   ],
+   "mapa_cobertura": [
+    [
+     5,
+     25,
+     53,
+     26,
+     58,
+     30,
+     12,
+     17,
+     50,
+     5,
+     52,
+     23
+    ],
+    [
+     21,
+     28,
+     9,
+     30,
+     29,
+     60,
+     42,
+     9,
+     28,
+     32,
+     53,
+     22
+    ],
+    [
+     59,
+     8,
+     22,
+     11,
+     8,
+     58,
+     47,
+     23,
+     45,
+     14,
+     20,
+     22
+    ],
+    [
+     32,
+     37,
+     25,
+     17,
+     54,
+     28,
+     55,
+     32,
+     6,
+     56,
+     53,
+     45
+    ],
+    [
+     30,
+     40,
+     40,
+     18,
+     51,
+     10,
+     8,
+     51,
+     31,
+     33,
+     44,
+     53
+    ],
+    [
+     13,
+     46,
+     60,
+     23,
+     36,
+     8,
+     40,
+     13,
+     15,
+     35,
+     31,
+     26
+    ],
+    [
+     23,
+     24,
+     21,
+     52,
+     52,
+     46,
+     21,
+     30,
+     46,
+     20,
+     24,
+     35
+    ],
+    [
+     40,
+     47,
+     30,
+     12,
+     15,
+     46,
+     15,
+     9,
+     18,
+     37,
+     56,
+     36
+    ]
+   ],
+   "frase": "Contra Rival A, en la salida de balón el América controló el 60% del espacio que se ve (4 partidos)."
+  },
+  "9001|CL26|salida": {
+   "n_partidos": 2,
+   "n_acciones": 300,
+   "muestra_suficiente": false,
+   "resultados": {
+    "ganados": 1,
+    "empatados": 1,
+    "perdidos": 0
+   },
+   "metricas": {
+    "america": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": null,
+     "field_tilt": null,
+     "altura_recuperacion": null,
+     "xg_favor_90": null,
+     "xg_contra_90": null
+    },
+    "rival": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": null,
+     "field_tilt": null,
+     "altura_recuperacion": null,
+     "xg_favor_90": null,
+     "xg_contra_90": null
+    },
+    "liga": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": 10.8,
+     "field_tilt": 0.5,
+     "altura_recuperacion": 42.0,
+     "xg_favor_90": 1.25,
+     "xg_contra_90": 1.25
+    }
+   },
+   "mapa_control": null,
+   "mapa_cobertura": null,
+   "frase": "Muestra insuficiente: 2 partidos."
+  },
+  "9002|todos|pierde": {
+   "n_partidos": 2,
+   "n_acciones": 300,
+   "muestra_suficiente": false,
+   "resultados": {
+    "ganados": 1,
+    "empatados": 1,
+    "perdidos": 0
+   },
+   "metricas": {
+    "america": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": null,
+     "field_tilt": null,
+     "altura_recuperacion": null,
+     "xg_favor_90": null,
+     "xg_contra_90": null
+    },
+    "rival": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": null,
+     "field_tilt": null,
+     "altura_recuperacion": null,
+     "xg_favor_90": null,
+     "xg_contra_90": null
+    },
+    "liga": {
+     "control": null,
+     "frontera": null,
+     "apoyos": null,
+     "rivales_cerca": null,
+     "distancia_companeros": null,
+     "ppda": 10.8,
+     "field_tilt": 0.5,
+     "altura_recuperacion": 42.0,
+     "xg_favor_90": 1.25,
+     "xg_contra_90": 1.25
+    }
+   },
+   "mapa_control": null,
+   "mapa_cobertura": null,
+   "frase": "Muestra insuficiente: 2 partidos."
+  }
+ },
+ "fichas": {
+  "9001": {
+   "progresa_por": {
+    "izquierda": 0.42,
+    "centro": 0.21,
+    "derecha": 0.37
+   },
+   "concede_en": [
+    [
+     0.01,
+     0.02,
+     0.03,
+     0.05,
+     0.08,
+     0.12
+    ],
+    [
+     0.01,
+     0.02,
+     0.04,
+     0.07,
+     0.15,
+     0.22
+    ],
+    [
+     0.01,
+     0.01,
+     0.03,
+     0.06,
+     0.1,
+     0.18
+    ]
+   ],
+   "participa_poco": {
+    "posicion": "Extremo derecho",
+    "acciones_90": 18.4
+   },
+   "balon_parado": {
+    "xg_concedido_por_corner": 0.071,
+    "zona": "segundo palo"
+   },
+   "respuesta_jardine": "Ejemplo: ante rivales parecidos, salida en tres y lateral izquierdo alto."
+  }
+ },
+ "entrenadores": {
+  "10": {
+   "nombre": "Entrenador de ejemplo",
+   "n_partidos": 8,
+   "situaciones": {
+    "todas": {
+     "control": 0.552,
+     "ppda": 9.4
+    }
+   }
+  }
+ },
+ "caso_por_defecto": {
+  "rival": "9001",
+  "torneo": "todos",
+  "situacion": "salida"
+ }
+}

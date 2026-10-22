@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ojo de Águila</title>
+<link rel="icon" href="fuente/marca-2a/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="dist/marca.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+<style>
+  /* NOTA1: maqueta de la experiencia del reporte; el contenido es de ejemplo. */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--oda-gris-fondo); color: var(--oda-azul); font-family: var(--oda-fuente); line-height: 1.55; }
+  html.con-intro { overflow: hidden; }
+
+  /* Entrada: pantalla completa, solo la primera vez */
+  #intro { position: fixed; inset: 0; z-index: 1000; background: var(--oda-azul); transition: opacity .6s ease; cursor: pointer; }
+  #intro.oculto { display: none; }
+  #intro.saliendo { opacity: 0; pointer-events: none; }
+  #intro-lienzo { position: absolute; inset: 0; }
+  #intro-saltar {
+    position: absolute; right: 24px; bottom: 22px; font: 500 13px/1 var(--oda-fuente); letter-spacing: .06em;
+    color: rgba(255,255,255,.7); background: transparent; border: 1px solid rgba(255,255,255,.35);
+    border-radius: 999px; padding: 9px 16px; cursor: pointer; opacity: 0; animation: aparecer .4s ease 1.2s forwards;
+  }
+  #intro-saltar:hover, #intro-saltar:focus-visible { color: #fff; border-color: var(--oda-dorado); outline: none; }
+  @keyframes aparecer { to { opacity: 1; } }
+
+  /* Encabezado con el ícono en loop junto al nombre */
+  header { position: sticky; top: 0; z-index: 10; background: var(--oda-azul); color: #fff; }
+  .barra { max-width: 1120px; margin: 0 auto; padding: 10px 24px; display: flex; align-items: center; gap: 12px; }
+  #loop-icono { position: relative; width: 46px; height: 46px; flex: none; }
+  .nombre { font-weight: 700; font-size: 20px; letter-spacing: .01em; }
+  .nombre b { color: var(--oda-dorado); font-weight: 700; }
+  .lema { margin-left: auto; font-size: 12px; color: rgba(255,255,255,.65); letter-spacing: .04em; }
+
+  main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 72px; display: grid; gap: 48px; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--oda-gris-texto); }
+  h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.08; margin: 8px 0 14px; text-wrap: balance; }
+  h2 { font-size: 26px; margin: 4px 0 10px; }
+  p { max-width: 66ch; margin: 0; }
+  .figura { background: var(--oda-azul); border-radius: 12px; overflow: hidden; }
+  .figura img { display: block; width: 100%; height: auto; }
+  .figura .sin-figura { color: rgba(255,255,255,.7); padding: 48px 24px; text-align: center; font-size: 14px; }
+  .pilares { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .pilar { background: #fff; border-radius: 10px; padding: 18px; display: grid; gap: 6px; align-content: start; box-shadow: inset 0 0 0 1px rgba(11,37,69,.12); }
+  .pilar .n { font-size: 34px; font-weight: 700; color: var(--oda-dorado); line-height: 1; }
+  .pilar h3 { margin: 0; font-size: 17px; }
+  .pilar p { font-size: 14px; color: var(--oda-gris-texto); }
+  .nota { font-size: 13px; color: var(--oda-gris-texto); }
+  @media (max-width: 760px) { .pilares { grid-template-columns: minmax(0, 1fr); } .lema { display: none; } }
+</style>
+</head>
+<body>
+
+<div id="intro" role="img" aria-label="Animación de entrada de Ojo de Águila">
+  <div id="intro-lienzo"></div>
+  <button id="intro-saltar" type="button">Saltar ›</button>
+</div>
+<script>
+  // Decide antes del primer pintado si la entrada se muestra: cada vez que se abre el archivo,
+  // salvo que el sistema pida reducir movimiento.
+  (function () {
+    var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.__ojoMostrarIntro = !reducir;
+    if (window.__ojoMostrarIntro) document.documentElement.classList.add('con-intro');
+    else document.getElementById('intro').classList.add('oculto');
+  })();
+</script>
+
+<header>
+  <div class="barra">
+    <div id="loop-icono" aria-hidden="true"></div>
+    <span class="nombre">Ojo de <b>Águila</b></span>
+    <span class="lema">La intuición del entrenador, convertida en evidencia</span>
+  </div>
+</header>
+
+<main>
+  <section>
+    <span class="eyebrow">Hackathon ISAC 2026 · La historia de un entrenador a través de los datos</span>
+    <h1>André Jardine en el América, leído frente a cada rival</h1>
+    <p>Maqueta de la experiencia: cada vez que se abre el reporte aparece la entrada y luego queda el contenido. Para verla otra vez, recarga la página.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Pilar 1 · Espacio</span>
+    <h2>Así se ve un dato con la identidad de Ojo de Águila</h2>
+    <div class="figura">
+      <img src="../outputs/poc/voronoi_marca.png" alt="Voronoi de un pase del América: control del espacio visible y frontera entre equipos"
+           onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'sin-figura', textContent: 'La figura usa datos reales y se genera en local (outputs/poc/voronoi_marca.png); no viaja con el repo.'}))">
+    </div>
+    <p class="nota">El mismo iris Voronoi del logo es el lenguaje de los datos: dorado para el América, blanco para el rival, la línea blanca marca dónde chocan los equipos.</p>
+  </section>
+
+  <section class="pilares">
+    <div class="pilar"><span class="n">1</span><h3>Espacio</h3><p>Voronoi sobre el 360: qué zona controla cada equipo en cada acción clave.</p></div>
+    <div class="pilar"><span class="n">2</span><h3>Validación</h3><p>Lo aprendido en AP23–AP25 se prueba en el Clausura 2026, que el modelo no vio.</p></div>
+    <div class="pilar"><span class="n">3</span><h3>Decisión</h3><p>Matriz de situaciones y ficha de 10 segundos por rival.</p></div>
+  </section>
+</main>
+
+<script src="dist/vendor/react.production.min.js"></script>
+<script src="dist/vendor/react-dom.production.min.js"></script>
+<script src="dist/marca.js"></script>
+<script>
+  (function () {
+    var reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    OjoMarca.loop(document.getElementById('loop-icono'), { estatico: reducir });
+    if (!window.__ojoMostrarIntro) return;
+
+    var intro = document.getElementById('intro');
+    var control = null, cerrada = false;
+    function cerrar() {
+      if (cerrada) return;
+      cerrada = true;
+      intro.classList.add('saliendo');
+      document.documentElement.classList.remove('con-intro');
+      setTimeout(function () { if (control) control.detener(); intro.remove(); }, 650);
+    }
+    control = OjoMarca.intro(document.getElementById('intro-lienzo'), { segundos: 5, alTerminar: cerrar });
+    intro.addEventListener('click', cerrar);
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') cerrar();
+    });
+  })();
+</script>
+</body>
+</html>

@@ -16,7 +16,7 @@ Cómo se construye Ojo de Águila. El qué y el porqué están en `contexto/prop
 | Geometría y grafos | `scipy`, `shapely`, `networkx` | Voronoi, recortes, redes |
 | Visualización | `mplsoccer` + `matplotlib` | Canchas y redes |
 | Modelos | `scikit-learn`, `statsmodels` | Perfiles, clustering, contexto |
-| Reporte | Quarto (HTML autocontenido) | Se instala la segunda semana |
+| Reporte | HTML autocontenido armado por `scripts/09_entrega.py` (sin Quarto, decisión del 18 oct) | La app y el reporte en un solo archivo |
 | Versiones | GitHub privado + `nbstripout` | Código sí, datos nunca |
 
 Comandos base (PowerShell):
@@ -93,7 +93,7 @@ Genera `reports/inspeccion_api.md` con resúmenes, sin filas de datos:
 4. Lectura a dos bandas por tramo y efecto América.
 5. Contexto, comparaciones (predecesores, liga, cambio de entrenador) y validación temporal.
 6. Balón parado y simulación Monte Carlo de xG (posesiones agrupadas, 10,000 repeticiones).
-7. Ficha de 10 segundos y reporte en Quarto.
+7. Ficha de 10 segundos y el HTML único de la entrega (sin Quarto).
 
 ## Riesgos técnicos
 

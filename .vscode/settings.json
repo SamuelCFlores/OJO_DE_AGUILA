@@ -1,0 +1,10 @@
+{
+  // Todo lo que se corre desde VS Code usa el entorno del proyecto (.venv), no el Python global.
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+  // Code Runner (botón ▶): usar el intérprete elegido en VS Code y correr en la terminal
+  // desde la raíz del repo (así se ven las barras de progreso y Ctrl+C detiene la descarga).
+  "code-runner.executorMap": { "python": "$pythonPath -u $fullFileName" },
+  "code-runner.runInTerminal": true,
+  "code-runner.fileDirectoryAsCwd": false
+}

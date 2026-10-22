@@ -34,3 +34,12 @@ Unassigned (sin iniciar) · InProgress · WithoutLocation (ubicando eventos) · 
 ## `competition_stage` relevantes para Liga MX
 
 1 Regular Season · 2 Play-In Round · 11 Quarter-finals · 15 Semi-finals · 26 Final · 28 Play-offs. (El catálogo completo incluye fases de otras ligas; verificar cuáles usa Liga MX en los datos.)
+
+## Verificado con la API real (prueba de humo, 2026-10-07)
+
+- `home_team` / `away_team` **no** traen `{id, name}`: traen `home_team_id`, `home_team_name` (y `away_team_id`, `away_team_name`) dentro del objeto.
+- `season` trae `season_id` y `season_name` (no `id`/`name`); `ojo.datos.tablas` acepta ambas formas (verificado el 9 oct).
+- Campos de nivel superior observados: `attendance`, `away_score`, `away_team`, `behind_closed_doors`, `collection_status`, `competition`, `competition_stage`, `home_score`, `home_team`, `kick_off`, `last_updated`, `last_updated_360`, `match_date`, `match_id`, `match_status`, `match_status_360`, `match_week`, `metadata`, `neutral_ground`, `play_status`, `referee`, `season`, `stadium`. No aparecen arriba `home_team_manager`/`away_team_manager`, `country_name`, `referee_name` ni `stadium_country`.
+- El entrenador viene en `home_team.managers` / `away_team.managers` (objeto o lista con `id`, `name`), no en `home_team_manager`.
+- `season_id` es el **año** (p. ej. 2023/2024), no el torneo: junta Apertura y Clausura (~340 partidos). El torneo se distingue con `competition_stage.name`, que en Liga MX usa nombres como `Apertura`, `Clausura`, `Apertura - Quarter-finals`, `Clausura - Final`, `Apertura - Reclasificación` (la grafía varía: `Clausura - Reclasificacion`, `Final`/`Finals`).
+- `"liga mx"` en `competition_name` coincide con dos competiciones: 73 `Liga MX` (`male`, con 360) y 1438 `Liga MX Femenil` (`female`, sin 360). Filtrar por `competition_gender`.

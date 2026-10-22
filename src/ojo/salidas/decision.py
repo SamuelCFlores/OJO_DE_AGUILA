@@ -1,0 +1,114 @@
+"""Del dato a la decisión: textos de la matriz de situaciones y de la ficha de 10 segundos.
+
+REF1: contexto/framework.md, "Matriz de situaciones" y "Ficha de 10 segundos" (18 oct).
+IMPOR1: las recomendaciones son hipótesis para el cuerpo técnico que salen de reglas fijas sobre los números
+(params.yaml: matriz y ficha); nunca dicen qué "habría cambiado" una decisión.
+NOTA1: los textos usan los nombres para el jurado de contexto/terminologia.md (18 oct): "balance de ocasiones" por
+xG neto, "rango probable" por IC 95 %, "riesgo de falso hallazgo" por q y "propone/espera" en el índice.
+"""
+
+from __future__ import annotations
+
+import pandas as pd
+
+from ojo.config import params
+from ojo.lentes import rivales
+
+DOMINA, PAREJO, SUFRE = "domina", "parejo", "sufre"
+GANANDO = frozenset({"gana_1", "gana_2", "cerrar"})  # situaciones y contextos en los que el América va arriba
+
+
+def banda_indice(v: float) -> str:
+    """Cómo se lee un valor del índice de iniciativa: propone, equilibrado o espera (bandas de params.yaml)."""
+    bajo, alto = params()["indice"]["bandas"]
+    return "propone" if v >= alto else ("espera" if v <= bajo else "equilibrado")
+
+
+def texto_riesgo(q: float) -> str:
+    """El q de Benjamini-Hochberg como "riesgo de falso hallazgo" en porcentaje."""
+    return "menos de 1 %" if q < .01 else f"{q * 100:.0f} %"
+
+
+def fila_matriz(r: pd.Series, base: pd.Series, equipo: str = "América", cfg: dict | None = None) -> dict:
+    """Una fila de la matriz: situación, qué hace, qué le funciona, recomendación (hipótesis) y evidencia."""
+    cfg = cfg or params()["matriz"]
+    hace = [f"Índice {r['indice']:.0f} ({banda_indice(r['indice'])}); el rival, {r['indice_rival']:.0f}"]
+    if r["indice"] - base["indice"] >= cfg["dif_indice"]:
+        hace.append("con más iniciativa que en su partido normal")
+    elif base["indice"] - r["indice"] >= cfg["dif_indice"]:
+        hace.append("se repliega frente a su partido normal")
+    if pd.notna(r["ppda"]) and base["ppda"] - r["ppda"] >= cfg["dif_ppda"]:
+        hace.append(f"presiona más (PPDA {r['ppda']:.1f})")
+    elif pd.notna(r["ppda"]) and r["ppda"] - base["ppda"] >= cfg["dif_ppda"]:
+        hace.append(f"presiona menos (PPDA {r['ppda']:.1f})")
+    nivel = DOMINA if r["xg_dif_bajo"] > 0 else (SUFRE if r["xg_dif_alto"] < 0 else PAREJO)
+    balance = f"{r['xg_dif_90']:+.2f} xG cada 90 min"
+    funciona = {DOMINA: f"Le funciona: genera más de lo que concede (balance de ocasiones {balance})",
+                SUFRE: f"Sufre: concede más de lo que genera (balance de ocasiones {balance})",
+                PAREJO: f"Parejo: el balance de ocasiones ({balance}) no se separa de cero"}[nivel]
+    replegado = base["indice"] - r["indice"] >= cfg["dif_indice"]
+    if nivel == DOMINA:
+        rec = ("Sostener, sabiendo que cede el balón: vigilar el contragolpe rival." if replegado
+               else "Sostener el plan: en esta situación le funciona.")
+    elif nivel == SUFRE:
+        rec = "Corregir: en esta situación concede más de lo que genera; proteger la pérdida."
+    elif r.get("situacion") == "uno_menos" and replegado:
+        rec = "Con uno menos, replegarse es lo esperado: el partido se sostiene parejo."
+    elif replegado:
+        rec = "Hipótesis a probar: sostener la iniciativa. Replegado, el balance de ocasiones deja de ser claro"
+        # el repliegue al ir ganando es de cualquier equipo; en los contextos sin marcador fijo no aplica esa cautela
+        rec += ("; no está probado que el repliegue lo cause (todo equipo que gana tiende a replegarse)."
+                if r.get("situacion") in GANANDO or not r.get("situacion") else ".")
+    else:
+        rec = "Buscar la ventaja: tiene el balón, pero no saca diferencia en ocasiones."
+    chica = r["minutos"] < cfg["minutos_min"]
+    evidencia = (f"{r['minutos']:.0f} minutos en {r['partidos']:.0f} partidos · balance {r['xg_dif_90']:+.2f} "
+                 f"(rango probable {r['xg_dif_bajo']:+.2f} a {r['xg_dif_alto']:+.2f})")
+    if pd.notna(r.get("previos_xg_dif_90")):
+        evidencia += f" · con Solari y Ortiz, {r['previos_xg_dif_90']:+.2f}"
+    return {"situacion": r["nombre"], "clave": str(r.get("situacion", "")), "grupo": str(r.get("grupo") or "situacion"),
+            "hace": "; ".join(hace) + ".", "funciona": funciona + ".",
+            "recomendacion": rec + (" Muestra chica: leer con cautela." if chica else ""), "evidencia": evidencia,
+            "nivel": nivel, "muestra_chica": bool(chica)}
+
+
+def registro(tabla: pd.DataFrame) -> dict:
+    """Ganados, empatados, perdidos, puntos por partido y xG neto medio de una tabla de partidos del América."""
+    g = int((tabla["goles_favor"] > tabla["goles_contra"]).sum())
+    e = int((tabla["goles_favor"] == tabla["goles_contra"]).sum())
+    p = int((tabla["goles_favor"] < tabla["goles_contra"]).sum())
+    n = len(tabla)
+    return {"partidos": n, "g": g, "e": e, "p": p, "puntos": (3 * g + e) / n if n else float("nan"),
+            "xg_neto": float(tabla["xg_neto"].mean()) if n else float("nan")}
+
+
+def _contar(n: int, singular: str, plural: str) -> str:
+    return f"{n} {singular if n == 1 else plural}"
+
+
+def texto_registro(r: dict) -> str:
+    """"7 partidos: 4 ganados, 2 empates, 1 perdido · 2.00 puntos por partido · balance de ocasiones +0.02 xG"."""
+    if not r["partidos"]:
+        return "Sin partidos en la ventana."
+    return (f"{_contar(r['partidos'], 'partido', 'partidos')}: {_contar(r['g'], 'ganado', 'ganados')}, "
+            f"{_contar(r['e'], 'empate', 'empates')}, {_contar(r['p'], 'perdido', 'perdidos')} · "
+            f"{r['puntos']:.2f} puntos por partido · balance de ocasiones {r['xg_neto']:+.2f} xG")
+
+
+def ficha(team_id: int, nombre: str, z: pd.DataFrame, medias: pd.DataFrame, contra: dict, parecidos: list[str],
+          contra_parecidos: dict) -> dict:
+    """Ficha de 10 segundos de un rival: cómo progresa, cómo defiende, dónde concede, balón parado y cómo le fue a Jardine."""
+    fila, liga = z.loc[team_id], medias.mean()
+    bp = medias.loc[team_id]
+    return {
+        "rival": nombre,
+        "progresa": rivales.destacados(fila, "progresa") or ["Sin un rasgo que lo distinga de la liga"],
+        "defiende": rivales.destacados(fila, "defiende") or ["Defiende como el promedio de la liga"],
+        "concede": rivales.destacados(fila, "concede") or ["Concede como el promedio de la liga"],
+        "balon_parado": (f"Concede {bp['bp_contra']:.2f} xG de balón parado por partido (liga {liga['bp_contra']:.2f}); "
+                         f"genera {bp['bp_favor']:.2f} (liga {liga['bp_favor']:.2f})."),
+        "balon_parado_rasgos": rivales.destacados(fila, "balon_parado"),
+        "jardine": texto_registro(contra),
+        "parecidos": parecidos,
+        "jardine_parecidos": texto_registro(contra_parecidos),
+    }

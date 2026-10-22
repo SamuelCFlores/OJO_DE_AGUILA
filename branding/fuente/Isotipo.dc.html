@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<sc-if value="{{ fFull }}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block">
+<defs><clipPath id="oda-f-iris"><circle cx="54" cy="54" r="24"></circle></clipPath><clipPath id="oda-f-eye"><path d="M4 52A50.3 50.3 0 0 1 24.1 29.2L95.4 50.6A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z"></path></clipPath></defs>
+<polygon points="12,19.6 86,30.8 99,46.7" fill="{{ brow }}"></polygon>
+<path d="M4 52A50.3 50.3 0 0 1 24.1 29.2L95.4 50.6A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z" fill="{{ ink }}"></path>
+<g clip-path="url(#oda-f-eye)">
+<circle cx="54" cy="54" r="24" fill="{{ acc }}"></circle>
+<path clip-path="url(#oda-f-iris)" d="M54.9 34.2L63.4 40.8L63.4 41.1L58.7 47.5M49.3 47.5L45.1 41.7L44.8 39.5L54.9 34.2M69.2 58.9L61.6 56.5M63.4 41.1L72.3 49.8L70.9 58.5L69.2 58.9M54 68.6L54 62M69.2 58.9L65.2 69L54 68.6M38.4 59.1L46.4 56.5M54 68.6L52.6 70.9L43.4 69.4L38.4 59.1L37.8 59L35.2 49.3L45.1 41.7M71.5 33.5L63.4 40.8M54.9 34.2L55.2 27M79.4 44.9L72.3 49.8M79.7 62.3L70.9 58.5M69.1 76.4L65.2 69M53.8 81L52.6 70.9M37.8 75.6L43.4 69.4M28.7 63.5L37.8 59M28.5 45.2L35.2 49.3M38 32.3L44.8 39.5" fill="none" stroke="{{ det }}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></path>
+<path d="M49.3 47.5L58.7 47.5L61.6 56.5L54 62L46.4 56.5Z" fill="{{ det }}" stroke="{{ det }}" stroke-width="2.4" stroke-linejoin="round"></path>
+</g>
+</svg>
+</sc-if>
+<sc-if value="{{ fSimple }}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block">
+<defs><clipPath id="oda-fs-iris"><circle cx="54" cy="54" r="24"></circle></clipPath><clipPath id="oda-fs-eye"><path d="M4 52A50.3 50.3 0 0 1 24.1 29.2L95.4 50.6A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z"></path></clipPath></defs>
+<polygon points="10,17 86,27 99,46" fill="{{ brow }}"></polygon>
+<path d="M4 52A50.3 50.3 0 0 1 24.1 29.2L95.4 50.6A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z" fill="{{ ink }}"></path>
+<g clip-path="url(#oda-fs-eye)">
+<circle cx="54" cy="54" r="24" fill="{{ acc }}"></circle>
+<path clip-path="url(#oda-fs-iris)" d="M69.9 32.2L59.8 46M48.2 46L38.1 32.2M79.7 62.3L63.4 57.1M54 81L54 63.9M28.3 62.3L44.6 57.1" fill="none" stroke="{{ det }}" stroke-width="4.5" stroke-linecap="round"></path>
+<path d="M48.2 46L59.8 46L63.4 57.1L54 63.9L44.6 57.1Z" fill="{{ det }}" stroke="{{ det }}" stroke-width="4" stroke-linejoin="round"></path>
+</g>
+</svg>
+</sc-if>
+<sc-if value="{{ vFull }}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block">
+<defs><clipPath id="oda-v-iris"><circle cx="54" cy="54" r="24"></circle></clipPath><clipPath id="oda-v-eye"><path d="M4 52A50.3 50.3 0 0 1 22.7 30.1L90.3 42.3A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z"></path></clipPath></defs>
+<g transform="translate(0 -5)">
+<path d="M4 52A50.3 50.3 0 0 1 22.7 30.1L90.3 42.3A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z" fill="{{ ink }}"></path>
+<g clip-path="url(#oda-v-eye)">
+<circle cx="54" cy="54" r="24" fill="{{ acc }}"></circle>
+<path clip-path="url(#oda-v-iris)" d="M54.9 34.2L63.4 40.8L63.4 41.1L58.7 47.5M49.3 47.5L45.1 41.7L44.8 39.5L54.9 34.2M69.2 58.9L61.6 56.5M63.4 41.1L72.3 49.8L70.9 58.5L69.2 58.9M54 68.6L54 62M69.2 58.9L65.2 69L54 68.6M38.4 59.1L46.4 56.5M54 68.6L52.6 70.9L43.4 69.4L38.4 59.1L37.8 59L35.2 49.3L45.1 41.7M71.5 33.5L63.4 40.8M54.9 34.2L55.2 27M79.4 44.9L72.3 49.8M79.7 62.3L70.9 58.5M69.1 76.4L65.2 69M53.8 81L52.6 70.9M37.8 75.6L43.4 69.4M28.7 63.5L37.8 59M28.5 45.2L35.2 49.3M38 32.3L44.8 39.5" fill="none" stroke="{{ det }}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></path>
+<path d="M49.3 47.5L58.7 47.5L61.6 56.5L54 62L46.4 56.5Z" fill="{{ det }}" stroke="{{ det }}" stroke-width="2.4" stroke-linejoin="round"></path>
+</g>
+</g>
+</svg>
+</sc-if>
+<sc-if value="{{ vSimple }}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block">
+<defs><clipPath id="oda-vs-iris"><circle cx="54" cy="54" r="24"></circle></clipPath><clipPath id="oda-vs-eye"><path d="M4 52A50.3 50.3 0 0 1 22.7 30.1L90.3 42.3A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z"></path></clipPath></defs>
+<g transform="translate(0 -5)">
+<path d="M4 52A50.3 50.3 0 0 1 22.7 30.1L90.3 42.3A50.3 50.3 0 0 1 96 52A51.8 51.8 0 0 1 4 52Z" fill="{{ ink }}"></path>
+<g clip-path="url(#oda-vs-eye)">
+<circle cx="54" cy="54" r="24" fill="{{ acc }}"></circle>
+<path clip-path="url(#oda-vs-iris)" d="M69.9 32.2L59.8 46M48.2 46L38.1 32.2M79.7 62.3L63.4 57.1M54 81L54 63.9M28.3 62.3L44.6 57.1" fill="none" stroke="{{ det }}" stroke-width="4.5" stroke-linecap="round"></path>
+<path d="M48.2 46L59.8 46L63.4 57.1L54 63.9L44.6 57.1Z" fill="{{ det }}" stroke="{{ det }}" stroke-width="4" stroke-linejoin="round"></path>
+</g>
+</g>
+</svg>
+</sc-if>
+<sc-if value="{{ isC }}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block">
+<defs><clipPath id="oda-c-head"><path d="M15 96L13 58A30 30 0 0 1 36 14L72 24A32 32 0 0 1 94 56A8 8 0 0 0 86 47L58 46L82 52L66 60L70 96Z"></path></clipPath></defs>
+<path d="M15 96L13 58A30 30 0 0 1 36 14L72 24A32 32 0 0 1 94 56A8 8 0 0 0 86 47L58 46L82 52L66 60L70 96Z" fill="{{ ink }}"></path>
+<g clip-path="url(#oda-c-head)">
+<rect x="72" y="0" width="40" height="100" fill="{{ acc }}"></rect>
+<path d="M50 0V100M72 0V100" stroke="{{ det }}" stroke-width="{{ lw }}"></path>
+<circle cx="50" cy="34" r="9.5" fill="none" stroke="{{ det }}" stroke-width="{{ lw }}"></circle>
+</g>
+<circle cx="50" cy="34" r="{{ spot }}" fill="{{ acc }}"></circle>
+</svg>
+</sc-if>
+<sc-if value="{{ isR }}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block">
+<g stroke="{{ ink }}" stroke-linecap="round" stroke-linejoin="round" fill="none">
+<path d="M5 52L20 36L38 27L58 26L77 35L95 51L78 64L60 72L40 72L21 64Z" stroke-width="{{ lw }}"></path>
+<sc-if value="{{ full }}" hint-placeholder-val="{{ true }}">
+<path d="M38 27L54 49M54 49L95 51M54 49L21 64M54 49L60 72" stroke-width="2.2"></path>
+</sc-if>
+</g>
+<g fill="{{ ink }}">
+<circle cx="5" cy="52" r="{{ n1 }}"></circle><circle cx="20" cy="36" r="{{ n2 }}"></circle><circle cx="38" cy="27" r="{{ n3 }}"></circle><circle cx="58" cy="26" r="{{ n2 }}"></circle><circle cx="77" cy="35" r="{{ n3 }}"></circle><circle cx="95" cy="51" r="{{ n2 }}"></circle><circle cx="78" cy="64" r="{{ n2 }}"></circle><circle cx="60" cy="72" r="{{ n3 }}"></circle><circle cx="40" cy="72" r="{{ n2 }}"></circle><circle cx="21" cy="64" r="{{ n1 }}"></circle>
+</g>
+<circle cx="54" cy="49" r="{{ iris }}" fill="{{ acc }}"></circle>
+<circle cx="54" cy="49" r="{{ pupil }}" fill="{{ det }}"></circle>
+</svg>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:240,&quot;height&quot;:240},&quot;dir&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;voronoi&quot;,&quot;cancha&quot;,&quot;red&quot;],&quot;default&quot;:&quot;voronoi&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;simple&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;ink&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#0B2545&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;acc&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#E8B100&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;det&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#0B2545&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const dir = this.props.dir ?? 'voronoi';
+    const simple = !!this.props.simple;
+    return {
+      ink: this.props.ink ?? '#0B2545',
+      acc: this.props.acc ?? '#E8B100',
+      det: this.props.det ?? '#0B2545',
+      brow: this.props.brow ?? this.props.acc ?? '#E8B100',
+      fFull: dir === 'furia' && !simple,
+      fSimple: dir === 'furia' && simple,
+      vFull: dir === 'voronoi' && !simple,
+      vSimple: dir === 'voronoi' && simple,
+      isC: dir === 'cancha',
+      isR: dir === 'red',
+      full: !simple,
+      lw: dir === 'cancha' ? (simple ? 6 : 4) : (simple ? 6 : 3.4),
+      spot: simple ? 6 : 4.5,
+      n1: simple ? 5.5 : 3.6, n2: simple ? 5.5 : 4.6, n3: simple ? 5.5 : 5.8,
+      iris: simple ? 17 : 15, pupil: simple ? 7 : 6
+    };
+  }
+}
+</script>
+</body>
+</html>
