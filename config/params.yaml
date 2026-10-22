@@ -2,18 +2,67 @@
 # Valores iniciales (framework v0); se confirman con la prueba de humo y el inspector.
 # Solo parámetros analíticos: la configuración técnica de la API vive en src/ojo/ingesta/.
 
-# Se completa después de la prueba de humo (ids reales de la API)
-equipo: {nombre: "América", team_id: null}
-entrenador: {nombre: "André Jardine", manager_id: null}
-liga: {competition_name: "Liga MX", season_ids: []}
+# Ids reales de la API (prueba de humo, 2026-10-07). season_id es el año: junta Apertura y Clausura;
+# el torneo se separa con competition_stage.name.
+equipo: {nombre: "América", team_id: 1229}
+entrenador: {nombre: "André Jardine", manager_id: 1000116}   # 2023-07-01 → 2026-05-11
+predecesores:
+  - {nombre: "Santiago Solari", manager_id: 25}             # 2021-07-23 → 2022-03-02
+  - {nombre: "Fernando Ortiz", manager_id: 1001173}         # 2022-03-06 → 2023-05-22
+# 108 = 2021/22, 235 = 2022/23, 281 = 2023/24, 317 = 2024/25, 318 = 2025/26.
+# 351 (2026/27, en curso, sin Jardine) queda fuera.
+liga: {competition_name: "Liga MX", competition_id: 73, season_ids: [108, 235, 281, 317, 318]}
+# Torneo de prueba que el modelo no ve hasta la evaluación final (contexto/framework.md, "Validación, causalidad y decisión").
+# plan_b: si los organizadores no permiten datos posteriores al CL25 (entrenamiento AP23–AP24).
+validacion:
+  season_id_prueba: 318          # 2025/26
+  torneo_prueba: "Clausura"
+  plan_b: {season_id_prueba: 317, torneo_prueba: "Clausura"}
+  min_partidos_prueba: 3       # partidos del torneo de prueba con el quiebre para dar veredicto (si no, "sin muestra suficiente")
+relevos: {min_partidos: 5, ventana_partidos: 10}   # interinatos < 5 partidos no cuentan
 
-campo: {largo: 120, ancho: 80, porteria: [120, 40]}
+campo: {largo: 120, ancho: 80, porteria: [120, 40], area_min_x: 102, area_y: [18, 62], area_chica_min_x: 114, area_chica_y: [30, 50], yarda_m: 0.9144}   # StatsBomb mide en yardas; yarda_m solo convierte lo que se muestra a metros
 tercios: {defensivo_max_x: 40, final_min_x: 80}
-presion: {campo_rival_min_x: 60, ultimo_tercio_min_x: 80}
+presion: {campo_rival_min_x: 60, ultimo_tercio_min_x: 80, ppda_zona_max_x: 72}   # 72 = 60 % de la cancha desde la portería del rival
 transicion: {fuente: "is_transition", plan_b_segundos: 10}
 pase_progresivo: {avance_min_yd: 10, cuenta_entrada_area: true}
 balon_parado: {lateral_peligro_min_x: 80}
+jugadores: {cambio_temprano_min: 60}   # cambios tácticos "tempranos": antes de este minuto de reloj (lectura del reporte)
+ficha: {umbral_z: 0.5, similares: 4}   # ficha de 10 segundos: un rasgo distingue si |z| ≥ umbral_z frente a la liga; rivales parecidos por estilo
+matriz: {dif_indice: 5, dif_ppda: 2, minutos_min: 300, minuto_cierre: 75}   # recomendaciones de la matriz: diferencias frente a la base de Jardine y minutos para no marcar muestra chica; minuto_cierre: desde dónde cuenta el último cuarto de hora (contextos, 21 oct)
 tramos_min: 15            # 5 para lectura fina del flujo
-red_pases: {min_pases_arista: 3}
-voronoi: {min_dist_borde: 2.0, momentos: [pase_progresivo, progresion_rival, envio_balon_parado]}
-simulacion: {repeticiones: 10000, semilla: 42}
+red_pases: {min_pases_arista: 3, min_pases_ventana: 15}   # min_pases_ventana: mínimo para la red de una ventana
+voronoi:
+  min_dist_borde: 2.0        # se excluyen jugadores (salvo el actor) a menos de esto del borde visible
+  alcance_max_yd: 20         # radio máximo de la celda de cada jugador (zonas vacías no cuentan)
+  min_borde_arista_yd: 0.5   # borde compartido mínimo para que dos jugadores sean vecinos
+  momentos: [pase_progresivo, progresion_rival, envio_balon_parado]
+simulacion: {repeticiones: 10000, semilla: 42, forma_partidos: 5}
+resumenes: {min_partidos: 3, rejilla: {columnas: 12, filas: 8}}   # explorador del reporte (contexto/resumenes.md)
+estadistica: {bootstrap_repeticiones: 2000, nivel_confianza: 0.95, min_eventos_zona: 30}   # intervalos y mapas de las exploraciones
+quiebres:
+  ventana_min: 10             # minutos antes y después del quiebre
+  exclusion_min: 1            # minutos junto al quiebre que no cuentan (celebración, reanudación)
+  min_ventana_min: 4          # una ventana truncada más corta se descarta
+  tolerancia_control_min: 5   # ventanas de control: mismo minuto ± esto
+  max_controles: 20           # ventanas de control por quiebre
+forma: {min_jugadores_equipo: 4}       # jugadores visibles mínimos para medir la forma de un equipo
+agresividad: {tramo_min: 5, tardio_min: 65}   # tramos de 5 min; tardío = tramos desde el 65'
+casos: {tramo_min: 5, max_jugadas: 12, simplificar_yd: 0.25}   # caso puntual (07 y 08): tramos, jugadas con Voronoi y simplificación de celdas del reproductor
+indice:   # Proactivo–Reactivo (definido el 14 oct, confirmado con PCA el 18 oct; framework.md). Signo: +1 proactivo, −1 reactivo
+  ventana_min: 5
+  bandas: [40, 60]   # bajo 40 se lee "reactivo", sobre 60 "proactivo", en medio "equilibrado"
+  componentes: {control: 1, posesion: 1, field_tilt: 1, control_campo_rival: 1, altura_sin_balon: 1, presion_alta: 1,
+                directness: -1, largo_pase: -1}
+animacion:   # Voronoi animado en las jugadas (seguimiento estimado entre fotos; solo para dibujar, framework.md)
+  velocidad_max_yd_s: 10     # un jugador no recorre más de esto por segundo (≈ 9 m/s, sprint)
+  tolerancia_yd: 3           # ruido de posición de la foto 360
+  min_dt_s: 0.3              # fotos más cercanas que esto se tratan como la misma
+  escala_tiempo: 1.5         # la animación dura 1.5 veces el tiempo real entre fotos
+  duracion_s: [0.35, 2.5]    # límites de cada paso de la animación
+  max_fotos: 30              # fotos por jugada animada
+  pausa_foto_s: 0.6          # pausa en cada foto real de la jugada animada (la página marca "Foto real")
+partido_clave:   # El partido por rival (21 oct, chamuel): regla fija; incluye el torneo reservado (ojo.salidas.partido_clave)
+  peso_momento: {expulsion: 3, gol_contra: 2, cambio_sistema_propio: 1}   # fase regular: suma por tipo presente
+  prioridad_momento: [expulsion_favor, expulsion_contra, gol_contra, cambio_sistema_propio, gol_favor]   # momento que se resalta
+hallazgo: {tamano_min_de: 0.5, min_torneos_misma_direccion: 4, partidos_aviso: 10, fdr_q: 0.10}   # criterio v1 del 12 oct y v2 del 18 oct (framework.md); partidos_aviso solo marca, no filtra; fdr_q: q máximo de Benjamini-Hochberg (condición 4, v2)

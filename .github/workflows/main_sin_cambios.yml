@@ -1,0 +1,20 @@
+# Guardia: la bitácora CAMBIOS/ vive solo en la rama tests y nunca debe llegar a main.
+# Si este chequeo falla, usa una rama de promoción (contexto/flujo_trabajo.md, sección 5).
+name: main sin CAMBIOS
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: CAMBIOS/ no debe llegar a main
+        run: |
+          if git ls-files -- CAMBIOS | grep -q .; then
+            echo "::error::Este PR lleva CAMBIOS/ a main. Usa una rama de promoción (contexto/flujo_trabajo.md, sección 5)."
+            exit 1
+          fi
+          echo "OK: el PR no trae CAMBIOS/."

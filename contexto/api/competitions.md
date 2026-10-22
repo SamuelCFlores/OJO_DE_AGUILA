@@ -6,7 +6,7 @@
 | Campo | Tipo | Notas |
 | --- | --- | --- |
 | `competition_id`, `season_id` | int | Llaves para Matches y para las stats de temporada |
-| `competition_name`, `season_name` | str | Buscar Liga MX y sus 8 torneos (Apertura 2021 – Clausura 2025) |
+| `competition_name`, `season_name` | str | Liga MX = 73 (`male`); 1438 es Liga MX Femenil. Temporadas con licencia: 2021/22 a 2026/27 (verificado 2026-10-07) |
 | `competition_gender` | str | |
 | `competition_youth`, `competition_international` | bool | |
 | `country_name` | str | |
