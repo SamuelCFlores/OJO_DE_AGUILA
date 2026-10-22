@@ -2,6 +2,8 @@
 
 Motor analítico reutilizable sobre las APIs de StatsBomb (Liga MX, Apertura 2021 – Clausura 2026). Primer caso: el América de André Jardine (Apertura 2023 – Clausura 2026), para el Hackathon ISAC 2026 con el Club América.
 
+**¿Eres del jurado?** Empieza por la [guía para el jurado](DOCUMENTACION.md): qué entregamos, cómo recorrerlo en cinco minutos y de dónde sale cada número.
+
 Repositorio privado. Los datos de StatsBomb son solo para la competencia: aquí se versiona código y resultados, **nunca datos ni credenciales**. Contexto completo en [`CLAUDE.md`](CLAUDE.md) y [`contexto/`](contexto/).
 
 ## Instalación (Windows, PowerShell, Python 3.13)
@@ -36,6 +38,7 @@ Los scripts se corren en orden; todos son incrementales (lo ya hecho se salta) y
 | 7 | `python scripts/07_caso.py --partido 3886547 --tipo expulsion_contra` | No | **Histórica** (maqueta 2, no se edita): caso puntual leído hasta un quiebre → `outputs/reportes/maqueta_2.html` |
 | 8 | `python scripts/08_maqueta.py --partido 3918375 --tipo expulsion_favor` | No | Datos de la **maqueta definitiva** → `outputs/app/datos.js`; la página es `app/maqueta.html` (diseño editable a mano, ver `app/README.md`) |
 | 9 | `python scripts/09_entrega.py` | No | **Entrega**: un solo HTML autocontenido con la maqueta, sus estilos, scripts, marca y datos → `outputs/entrega/ojo_de_aguila.html` (abre con doble clic; lleva datos reales, no se sube) |
+| 10 | `python scripts/10_guia.py` | No | Guía para el jurado: `DOCUMENTACION.md` → `outputs/entrega/Ojo_de_Aguila_guia_jurado.pdf` (con Chrome, sin instalar nada) |
 
 Pasos 0–2 los corre quien tenga credenciales (Samuel). Del 3 en adelante cualquiera con la caché. Después de agregar una columna a `ojo.datos.tablas`: `python scripts/03_procesar.py --rehacer eventos`.
 
@@ -68,10 +71,11 @@ Se corren en orden; el 07 necesita antes `08_maqueta.py` (las fichas).
 | Reporte y app (un solo HTML) | `python scripts/09_entrega.py` → `outputs/entrega/ojo_de_aguila.html` (doble clic) y `outputs/publicar/index.html` (lo que se aloja en Netlify) |
 | Video (máximo 5 minutos) | Guion en `contexto/guion_video.md`; el MP4 se arma fuera del repo |
 | Términos para el jurado | `contexto/terminologia.md` |
+| Guía para el jurado | [`DOCUMENTACION.md`](DOCUMENTACION.md) y su PDF (`python scripts/10_guia.py`) |
 
 ## Equipo y forma de trabajo
 
-Samuel (**chamuel**) y Héctor (**Tilin**), con apoyo de Claude Code. Todos seguimos [`contexto/flujo_trabajo.md`](contexto/flujo_trabajo.md): tamaño de la tarea, 5 fases, día a día, ramas, commits y simbología de comentarios (`NOTAn`, `OBSn`, `REFn`, `IMPORn`, `TODOn`, `FIXn`, `HACKn`, `PERFn`, `DEPRECn`).
+Samuel de María Cabrera Flores (**chamuel**) y Héctor Cortés Pérez (**Tilin**), con apoyo de Claude Code. Todos seguimos [`contexto/flujo_trabajo.md`](contexto/flujo_trabajo.md): tamaño de la tarea, 5 fases, día a día, ramas, commits y simbología de comentarios (`NOTAn`, `OBSn`, `REFn`, `IMPORn`, `TODOn`, `FIXn`, `HACKn`, `PERFn`, `DEPRECn`).
 
 Lo que hace cada quien se documenta en la bitácora `CAMBIOS/` (solo en la rama `tests`), un archivo por día: `C##_ddmm.md`.
 

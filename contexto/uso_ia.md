@@ -27,7 +27,7 @@
 - Qué principios entran, las reglas de las recomendaciones y la regla del partido clave de cada rival.
 - Los nombres que ve el jurado, el guion del video y el diseño final de la página.
 - Todo lo que se publica o se entrega.
-- Las voces del video son de Samuel y Héctor; ninguna es sintética.
+- Las voces del video son de Samuel de María Cabrera Flores y Héctor Cortés Pérez; ninguna es sintética.
 - La descarga de datos se hizo con las credenciales de Samuel en su laptop; la IA no ve ni guarda credenciales (`.env` está fuera de git).
 
 ## Cómo se verificó
