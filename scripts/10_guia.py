@@ -1,15 +1,16 @@
-"""Guía para el jurado en PDF: convierte DOCUMENTACION.md en una página con la identidad azulcrema y la imprime con Chrome.
+"""Documentación del proyecto en PDF: convierte DOCUMENTACION.md en una página con la identidad azulcrema y la imprime con Chrome.
 
 El Markdown de la raíz es la única fuente: el PDF siempre dice lo mismo que el repositorio. El conversor cubre solo lo
-que usa la guía (títulos, párrafos, citas, listas con un nivel de anidación, tablas, negritas, código y enlaces).
-NOTA1: la guía no lleva datos de StatsBomb, solo resultados agregados, como la página; aun así va a outputs/entrega/
+que usa el documento (títulos, párrafos, citas, cursivas, listas con un nivel de anidación y párrafos sangrados dentro de un
+elemento, tablas, negritas, código y enlaces).
+NOTA1: el documento no lleva datos de StatsBomb, solo resultados agregados, como la página; aun así va a outputs/entrega/
 (lo generado no se versiona).
 NOTA2: Chrome imprime sin servidor (--print-to-pdf); la tipografía Poppins llega de Google Fonts, así que hace falta
 internet para que salga con la letra de la marca.
 
 Cómo correrlo, desde la raíz del repo y con el entorno activado:
     python scripts/10_guia.py
-y abrir outputs/entrega/Ojo_de_Aguila_guia_jurado.pdf. Con --sin-pdf solo escribe el HTML (para revisarlo en el navegador).
+y abrir outputs/entrega/Ojo_de_Aguila_documentacion.pdf. Con --sin-pdf solo escribe el HTML (para revisarlo en el navegador).
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ from ojo.config import DIR_SALIDAS, RAIZ
 
 FUENTE = RAIZ / "DOCUMENTACION.md"
 DESTINO = DIR_SALIDAS / "entrega"
-NOMBRE = "Ojo_de_Aguila_guia_jurado"
+NOMBRE = "Ojo_de_Aguila_documentacion"
 CHROMES = [Path("C:/Program Files/Google/Chrome/Application/chrome.exe"),
            Path("C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"),
            Path("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe")]
@@ -58,6 +59,7 @@ blockquote p { margin: 0; }
 ul, ol { margin: 6px 0; padding-left: 20px; }
 li { margin: 3px 0; }
 li > ul { margin: 3px 0; }
+li > p { margin: 4px 0 2px; }
 table { width: 100%; border-collapse: collapse; margin: 8px 0 10px; font-size: 9.2pt; break-inside: avoid; }
 th { background: #0F1D41; color: #fff; text-align: left; font-weight: 700; padding: 6px 8px; }
 td { padding: 5px 8px; border-bottom: 1px solid rgba(15,29,65,.15); vertical-align: top; }
@@ -79,6 +81,7 @@ def en_linea(texto: str) -> str:
             continue
         s = html.escape(p, quote=False)
         s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
+        s = re.sub(r"(?<![*\w])\*([^*\s][^*]*?)\*(?![*\w])", r"<em>\1</em>", s)  # cursiva con un asterisco
         s = re.sub(r"(https?://[^\s<)]+[^\s<).,;])", r'<a href="\1">\1</a>', s)
         salida.append(s)
     return "".join(salida)
@@ -130,18 +133,28 @@ def convertir(md: str) -> tuple[str, str, list[str]]:
             continue
         elif re.match(r"^(- |\d+\. )", l):
             ordenada = bool(re.match(r"^\d+\. ", l))
-            items: list[list[str]] = []
-            while k < n and (re.match(r"^(- |\d+\. )", lineas[k]) or re.match(r"^\s{2,}- ", lineas[k])):
+            items: list[dict] = []  # {"texto", "sub": viñetas anidadas, "extra": párrafos sangrados después de ellas}
+            while k < n:
                 m = lineas[k]
+                if not m.strip():  # una línea en blanco sigue la lista si lo siguiente está sangrado
+                    sigue = next((x for x in lineas[k + 1:] if x.strip()), "")
+                    if re.match(r"^\s{2,}\S", sigue):
+                        k += 1
+                        continue
+                    break
                 if re.match(r"^\s{2,}- ", m):
-                    items[-1].append(en_linea(m.strip()[2:]))
+                    items[-1]["sub"].append(en_linea(m.strip()[2:]))
+                elif re.match(r"^\s{2,}\S", m):
+                    items[-1]["extra"].append(en_linea(m.strip()))
+                elif re.match(r"^(- |\d+\. )", m):
+                    items.append({"texto": en_linea(re.sub(r"^(- |\d+\. )", "", m).strip()), "sub": [], "extra": []})
                 else:
-                    items.append([en_linea(re.sub(r"^(- |\d+\. )", "", m).strip())])
+                    break
                 k += 1
             etiqueta = "ol" if ordenada else "ul"
             cuerpo.append(f"<{etiqueta}>" + "".join(
-                "<li>" + i[0] + ("<ul>" + "".join(f"<li>{s}</li>" for s in i[1:]) + "</ul>" if len(i) > 1 else "") + "</li>"
-                for i in items) + f"</{etiqueta}>")
+                "<li>" + i["texto"] + ("<ul>" + "".join(f"<li>{x}</li>" for x in i["sub"]) + "</ul>" if i["sub"] else "")
+                + "".join(f"<p>{x}</p>" for x in i["extra"]) + "</li>" for i in items) + f"</{etiqueta}>")
             continue
         else:
             parrafo = []
@@ -156,10 +169,11 @@ def convertir(md: str) -> tuple[str, str, list[str]]:
 
 def pagina(titulo: str, cuerpo: str, sub: list[str]) -> str:
     nombre, _, resto = titulo.partition(" · ")
+    titulo_html = html.escape(nombre) + (f" · <span>{html.escape(resto)}</span>" if resto else "")
     return (f'<!doctype html>\n<html lang="es"><head><meta charset="utf-8"><title>{html.escape(titulo)}</title>'
             '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap">'
             f"<style>{CSS}</style></head><body>"
-            f'<header class="portada">{OJO}<h1>{html.escape(nombre)} · <span>{html.escape(resto)}</span></h1>'
+            f'<header class="portada">{OJO}<h1>{titulo_html}</h1>'
             f'<div class="sub">{"".join(f"<p>{s}</p>" for s in sub)}</div></header>\n{cuerpo}\n'
             "<footer>Generado desde DOCUMENTACION.md (scripts/10_guia.py). Datos de Hudl StatsBomb, solo para la competencia.</footer>"
             "</body></html>")
