@@ -56,7 +56,7 @@ Se corren en orden; el 07 necesita antes `08_maqueta.py` (las fichas).
 ## Créditos, terceros y uso de IA
 
 - **Datos:** Hudl StatsBomb, Liga MX (Apertura 2021 – Clausura 2026), entregados para el Hackathon ISAC 2026. Solo para la competencia: no se versionan ni se publican. Del proveedor se usan tal cual xG, OBV, Phases of Play y los 60 `pass_cluster`; el índice de iniciativa, el Voronoi recortado, los quiebres, el criterio de hallazgo (los 4 parámetros), la matriz y la lectura del motor son nuestros (`contexto/framework.md`).
-- **IA generativa:** usamos Claude Code (Anthropic) como asistente de programación. Escribió y revisó buena parte del código (`src/ojo`, `scripts`, `app/`), ayudó a redactar documentación y textos de la página, y armó la animación del video, la alineación de las voces y su exportación. Las preguntas, definiciones, umbrales (`config/params.yaml`), reglas de decisión e interpretación las fijó el equipo; cada número sale del código con pruebas (`python -m pytest`). Las voces del video son del equipo, no sintéticas. Las instrucciones que le dimos están en `CLAUDE.md` y el trabajo de cada día, en la bitácora `CAMBIOS/` (rama `tests`).
+- **IA generativa** (detalle en [`contexto/uso_ia.md`](contexto/uso_ia.md)): usamos Claude Code (Anthropic) como asistente de programación. Escribió y revisó buena parte del código (`src/ojo`, `scripts`, `app/`), ayudó a redactar documentación y textos de la página, y armó la animación del video, la alineación de las voces y su exportación. Las preguntas, definiciones, umbrales (`config/params.yaml`), reglas de decisión e interpretación las fijó el equipo; cada número sale del código con pruebas (`python -m pytest`). Las voces del video son del equipo, no sintéticas. Las instrucciones que le dimos están en `CLAUDE.md` y el trabajo de cada día, en la bitácora `CAMBIOS/` (rama `tests`).
 - **Software libre:** las librerías de `requirements.txt` (pandas, NumPy, SciPy, Shapely, NetworkX, mplsoccer, Matplotlib, scikit-learn, statsmodels, DuckDB, PyArrow, requests, python-dotenv, PyYAML, tqdm, pytest, nbstripout); React en la animación de la marca (`branding/dist/vendor`); tipografía Poppins (Google Fonts, SIL Open Font License).
 - **Métodos de la literatura:** diagramas de Voronoi, bootstrap por partidos, Benjamini–Hochberg (1995) para FDR, diferencia en diferencias y PCA.
 - **Fotos del video:** fotos de prensa usadas solo como ilustración; sus derechos son de sus autores.
@@ -116,7 +116,8 @@ OJO_DE_AGUILA/
 │   ├── terminologia.md       # cada término de la página y cómo se le dice al jurado
 │   ├── guion_video.md        # guion del video a dos voces
 │   ├── resumenes.md          # contrato de datos del explorador
-│   └── api/                  # referencia condensada de las 10 APIs
+│   ├── uso_ia.md             # uso de IA generativa: qué hizo, qué decidió el equipo y cómo se verificó
+│   └── api/                  # resumen de las 10 APIs de StatsBomb: fuera del repo por las reglas de la competencia (ver api/REMOVIDO.md)
 ├── src/ojo/                  # el motor: todo el código reutilizable
 │   ├── ingesta/              # capa 1 · cliente con caché + un módulo por API
 │   ├── datos/                # JSON crudo → parquet; único punto de lectura de data/

@@ -68,3 +68,8 @@ branding/exportados/
 branding/fuente/uploads/
 branding/fuente/scraps/
 branding/fuente/.thumbnail
+
+# contexto/api/: resumen de la documentación de StatsBomb, fuera del repo por las reglas de la competencia (21 oct).
+# Se conserva en las copias locales; en el repo solo queda la nota que explica qué contenía.
+contexto/api/*
+!contexto/api/REMOVIDO.md
