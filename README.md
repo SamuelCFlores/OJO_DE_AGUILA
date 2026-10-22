@@ -53,6 +53,22 @@ Los modelos y las pruebas de hipótesis viven en notebooks:
 
 Se corren en orden; el 07 necesita antes `08_maqueta.py` (las fichas).
 
+## Créditos, terceros y uso de IA
+
+- **Datos:** Hudl StatsBomb, Liga MX (Apertura 2021 – Clausura 2026), entregados para el Hackathon ISAC 2026. Solo para la competencia: no se versionan ni se publican. Del proveedor se usan tal cual xG, OBV, Phases of Play y los 60 `pass_cluster`; el índice de iniciativa, el Voronoi recortado, los quiebres, el criterio de hallazgo (los 4 parámetros), la matriz y la lectura del motor son nuestros (`contexto/framework.md`).
+- **IA generativa:** usamos Claude Code (Anthropic) como asistente de programación. Escribió y revisó buena parte del código (`src/ojo`, `scripts`, `app/`), ayudó a redactar documentación y textos de la página, y armó la animación del video, la alineación de las voces y su exportación. Las preguntas, definiciones, umbrales (`config/params.yaml`), reglas de decisión e interpretación las fijó el equipo; cada número sale del código con pruebas (`python -m pytest`). Las voces del video son del equipo, no sintéticas. Las instrucciones que le dimos están en `CLAUDE.md` y el trabajo de cada día, en la bitácora `CAMBIOS/` (rama `tests`).
+- **Software libre:** las librerías de `requirements.txt` (pandas, NumPy, SciPy, Shapely, NetworkX, mplsoccer, Matplotlib, scikit-learn, statsmodels, DuckDB, PyArrow, requests, python-dotenv, PyYAML, tqdm, pytest, nbstripout); React en la animación de la marca (`branding/dist/vendor`); tipografía Poppins (Google Fonts, SIL Open Font License).
+- **Métodos de la literatura:** diagramas de Voronoi, bootstrap por partidos, Benjamini–Hochberg (1995) para FDR, diferencia en diferencias y PCA.
+- **Fotos del video:** fotos de prensa usadas solo como ilustración; sus derechos son de sus autores.
+
+## Entrega
+
+| Qué | Dónde |
+| --- | --- |
+| Reporte y app (un solo HTML) | `python scripts/09_entrega.py` → `outputs/entrega/ojo_de_aguila.html` (doble clic) y `outputs/publicar/index.html` (lo que se aloja en Netlify) |
+| Video (máximo 5 minutos) | Guion en `contexto/guion_video.md`; el MP4 se arma fuera del repo |
+| Términos para el jurado | `contexto/terminologia.md` |
+
 ## Equipo y forma de trabajo
 
 Samuel (**chamuel**) y Héctor (**Tilin**), con apoyo de Claude Code. Todos seguimos [`contexto/flujo_trabajo.md`](contexto/flujo_trabajo.md): tamaño de la tarea, 5 fases, día a día, ramas, commits y simbología de comentarios (`NOTAn`, `OBSn`, `REFn`, `IMPORn`, `TODOn`, `FIXn`, `HACKn`, `PERFn`, `DEPRECn`).
@@ -79,7 +95,9 @@ git pull                            # antes de empezar, para traer lo último
 OJO_DE_AGUILA/
 ├── CLAUDE.md                 # contexto y reglas para Claude Code
 ├── CAMBIOS/                  # bitácora del equipo, C##_ddmm.md (solo en la rama tests)
+├── app/                      # la página (reporte + app): maqueta.html, app.css, app.js, movimiento.js; Python solo escribe sus datos (ver app/README.md)
 ├── branding/                 # identidad: logos, animación de entrada, ícono en loop (ver branding/README.md)
+├── auditoria/                # auditorías del proyecto (14 y 19 oct) y lo que se corrigió
 ├── .github/workflows/        # guardia: un PR a main no puede traer CAMBIOS/
 ├── README.md
 ├── pyproject.toml            # metadatos del paquete `ojo` (sin dependencias)
@@ -94,14 +112,18 @@ OJO_DE_AGUILA/
 │   ├── framework.md          # definiciones de cada objeto y métrica
 │   ├── plan_trabajo.md       # cómo se construye
 │   ├── flujo_trabajo.md      # cómo trabajamos: fases, ramas, commits, simbología
+│   ├── plan_cierre.md        # plan del cierre (validación, casos, método, video)
+│   ├── terminologia.md       # cada término de la página y cómo se le dice al jurado
+│   ├── guion_video.md        # guion del video a dos voces
+│   ├── resumenes.md          # contrato de datos del explorador
 │   └── api/                  # referencia condensada de las 10 APIs
 ├── src/ojo/                  # el motor: todo el código reutilizable
 │   ├── ingesta/              # capa 1 · cliente con caché + un módulo por API
 │   ├── datos/                # JSON crudo → parquet; único punto de lectura de data/
 │   ├── framework/            # capa 2 · definiciones de contexto/framework.md
 │   ├── lentes/               # capa 3 · proveedor, redes, huella, Voronoi, dos bandas, contexto, comparaciones
-│   └── salidas/              # capa 4 · figuras, tablas del reporte, ficha de 10 segundos
-├── scripts/                  # puntos de entrada numerados: 00_prueba_humo.py, 01_inspector.py, 02_descarga.py…
+│   └── salidas/              # capa 4 · figuras, datos de la página, partido clave, matriz y lectura del motor (ficha)
+├── scripts/                  # puntos de entrada numerados, del 00_prueba_humo.py al 09_entrega.py (tabla de arriba)
 ├── notebooks/                # exploración numerada (NN_tema.ipynb); solo llaman a src/ojo
 ├── reports/                  # resúmenes revisados, sin datos crudos (la entrega es un HTML único: scripts/09_entrega.py)
 ├── tests/
@@ -111,7 +133,7 @@ OJO_DE_AGUILA/
 ├── data/
 │   ├── raw/{api}/v{n}/       # JSON gzip tal como llega de la API (caché)
 │   └── processed/            # parquet normalizados
-└── outputs/                  # todo lo generado: figuras, HTML, tablas
+└── outputs/                  # todo lo generado: hallazgos, datos de la página (app/datos.js), entrega/ y publicar/
 ```
 
 ## Reglas de la estructura
@@ -122,3 +144,5 @@ OJO_DE_AGUILA/
 4. **Scripts y notebooks son delgados:** orquestan y exploran; la lógica que sirva dos veces se mueve a `src/ojo/`.
 5. **Pruebas sin datos reales:** `tests/` usa fixtures sintéticas, así cualquiera las corre sin credenciales ni descarga.
 6. **Lo generado no se versiona:** va a `outputs/`. Un resultado se comparte a propósito, nunca por accidente.
+7. **La página se diseña a mano y se alimenta de datos:** `app/` es HTML, CSS y JS editables; `scripts/08_maqueta.py` solo escribe `outputs/app/datos.js` y `scripts/09_entrega.py` los junta en un solo HTML.
+8. **Cada métrica tiene una definición y un umbral:** la definición en `contexto/framework.md`, el umbral en `config/params.yaml` y la prueba en `tests/`.

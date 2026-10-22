@@ -369,7 +369,6 @@
     P = nuevo;
     renderExplorar(); reproductor();
     if (subir && cuerpo.dataset.vista === 'explorar') window.scrollTo(0, 0);
-    document.dispatchEvent(new CustomEvent('ojo:partido', { detail: { rival: P.rival } }));  // para motor.js (Pregúntale al motor)
     return true;
   }
   // Mostrar u ocultar la barra en escritorio (variantes en movimiento.js). Lo oculto queda inerte y el foco pasa al botón visible.
@@ -862,11 +861,6 @@
     i = R.inicio || 0;
     actualizar();
     reproductor.apagar = function () { detener(); limpiarEventos(); };
-    reproductor.irA = function (k) {  // para motor.js: el modo partido en el minuto k (índice de R.minutos)
-      var b = modos.querySelector('[data-modo="partido"]');
-      if (modo !== 'partido' && b) b.click();
-      detener(); i = k; p = 0; actualizar();
-    };
   }
 
   // ---------- vistas, cajón (teléfono), entrada y ícono ----------
@@ -975,18 +969,6 @@
     mostrar(['#explorar', '#decidir', '#metodo'].indexOf(location.hash) >= 0 ? location.hash.slice(1) : 'portada');
     // FIX1: el navegador salta al #vista de la dirección (es el id de la vista) o restaura la posición anterior; se vuelve arriba
     // ya, al terminar de cargar y un instante después (el salto puede llegar después del evento load)
-    // API mínima para motor.js (Pregúntale al motor, app/maquetachatbot.html); maqueta.html no la usa
-    window.OjoApp = {
-      partido: function () { return P; },
-      elegirRival: function (nombre) {  // como un clic en la barra; el rival del caso vuelve con "Restablecer"
-        if (P && P.rival === nombre) return true;
-        if (nombre === D.rival) { montarBarra(); return true; }
-        var b = Array.prototype.filter.call(document.querySelectorAll('aside.barra .rival-btn'), function (x) { return x.dataset.rival === nombre; })[0];
-        if (!b) return false;
-        cambiarRival(b); actualizarResumenes(); return true;
-      },
-      irAMinuto: function (k) { if (reproductor.irA) reproductor.irA(k); }
-    };
     var arriba = function () { window.scrollTo(0, 0); };
     arriba();
     if (document.readyState === 'complete') { requestAnimationFrame(arriba); setTimeout(arriba, 150); }

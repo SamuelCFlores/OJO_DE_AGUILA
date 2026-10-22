@@ -52,7 +52,7 @@
 | 6 | 3:51–4:01 | Lo que no decimos | Método: límites | Metodología |
 | 7 | 4:01–4:28 | Cierre | Resumen: pilares y banda final → entrada animada de Ojo de Águila (5 s), que termina en el logotipo | Comunicación |
 
-Los tiempos de los bloques 1 a 3 y 7 son los de la voz grabada de Samuel (21 oct); los de 4 a 6 siguen siendo los del animatic (140 palabras por minuto, con pausas) hasta que Tilin grabe. La narración termina hacia las 3:58 y la entrada animada lleva el video a unas 4:05. Si Tilin narra más despacio, el margen hasta los 5 minutos alcanza.
+Los tiempos son los de las voces grabadas (21 oct): la narración termina en el 3:48 y la entrada animada lleva el video a 3:55.
 
 **Títulos en pantalla** (los del animatic): 1 · Antecedente, 2 · La pregunta, 3 · La lectura (con el cuadro "El espacio" cuando entra la cancha), 4 · Evidencia, 5 · Decisión, 6 · Lo que no decimos y 7 · Cierre.
 
@@ -60,10 +60,10 @@ Los tiempos de los bloques 1 a 3 y 7 son los de la voz grabada de Samuel (21 oct
 
 | Voz | Bloques | Tiempo | Palabras |
 | --- | --- | --- | --- |
-| Samuel (chamuel) | 1 a 3: antecedente, pregunta y lectura; y 7: cierre | 0:00–1:41 y 3:41–3:58 (grabado) | 298 |
-| Tilin | 4 a 6: evidencia, decisión y límites | 1:41–3:41 (estimado) | 257 |
+| Samuel (chamuel) | 1 a 3: antecedente, pregunta y lectura; y 7: cierre | 0:00–1:41 y 3:31–3:48 (grabado) | 298 |
+| Tilin | 4 a 6: evidencia, decisión y límites | 1:41–3:31 (grabado) | 259 |
 
-El relevo es "Una buena historia no basta: hay que desconfiar de ella": la historia pasa a la prueba y el cambio de voz se oye como parte del relato. **Cambio del 21 oct:** el cierre lo dice Samuel (ya grabado), así que la voz del inicio también cierra; Tilin graba solo los bloques 4 a 6. Con la voz de Samuel ya alineada, el video dura unas 4:05 (los tiempos de Tilin son estimados). Página para ensayar y compartir (privada): https://claude.ai/artifact/DkLP9aZEPqQoekeCovwUUw
+El relevo es "Una buena historia no basta: hay que desconfiar de ella": la historia pasa a la prueba y el cambio de voz se oye como parte del relato. **Cambio del 21 oct:** el cierre lo dice Samuel (ya grabado), así que la voz del inicio también cierra; Tilin graba solo los bloques 4 a 6. Con las dos voces grabadas, el video dura 3:55. Página para ensayar y compartir (privada): https://claude.ai/artifact/DkLP9aZEPqQoekeCovwUUw
 
 ## Narración
 
@@ -82,23 +82,24 @@ La idea la vemos con el mapa de control del espacio: en cada foto de posiciones,
 *(pausa en la foto real)*
 Final del Apertura 2023, minuto 79, cero a cero: expulsan a Fulgencio. Con uno más, el América de Jardine hunde al rival: tras una expulsión, su rival se mete 15 metros más cerca de su portería; con Solari y Ortiz, casi no se movía. Esa noche termina 3-0. Y llega la ansiada 14."
 
-**4 · Evidencia (1:41–2:29) · Tilin**
-"Una buena historia no basta: hay que desconfiar de ella. Para llamar principio a algo, le pusimos cuatro parámetros: claro, grande, constante y a prueba de suerte. Y una prueba en falso: en 280 momentos inventados, ninguno pasa los cuatro parámetros. De 636 pruebas sobreviven 30; tres ideas que nos gustaban se quedaron fuera.
+**4 · Evidencia (1:41–2:28) · Tilin**
+*(Tilin grabó con la versión anterior y dice «cuatro filtros»; la página dice «4 parámetros». Decisión de chamuel del 21 oct: se queda así. Los subtítulos siguen lo que se oye.)*
+"Una buena historia no basta: hay que desconfiar de ella. Para llamar principio a algo, le pusimos cuatro filtros: claro, grande, constante y a prueba de suerte. Y una prueba en falso: en 280 momentos inventados, los filtros no encuentran nada. De 636 pruebas sobreviven 30; tres ideas que nos gustaban se quedaron fuera.
 *(validación)*
 Además, guardamos un torneo entero sin abrir, el Clausura 2026, como examen final. Dos principios se confirman: la salida corta y la alerta del cambio de sistema. Tres van en la misma dirección, sin certeza todavía. El de la expulsión no tuvo casos suficientes. Ninguno salió al revés."
 
-**5 · Decisión (2:29–3:31) · Tilin**
+**5 · Decisión (2:28–3:21) · Tilin**
 "Lo que sobrevive se vuelve plan de juego. Situación por situación: qué hace Jardine, si le funciona y qué conviene. Con uno más le funciona, así que hay que sostener el plan. Ganando por uno, el balance de ocasiones deja de ser claro; la hipótesis a probar es sostener la iniciativa.
 *(ficha de Pumas)*
-Para cada rival, una ficha que se lee en diez segundos: cómo progresa, cómo defiende, dónde concede, su balón parado y cómo le fue a Jardine contra rivales parecidos.
+Para cada rival, una ficha que se lee en diez segundos: cómo progresa, cómo defiende, dónde concede, su balón parado y, sobre todo, cómo le fue a Jardine contra rivales parecidos.
 *(casos del Clausura 2026)*
 ¿Sirve en partidos reales? Contra Querétaro, ganando por uno, el rival generó 1.17 goles esperados contra 0.21: el partido se emparejó, aunque esta vez el América no se replegó. En los cuartos, Pumas jugó distinto a su ficha; aun así, dos de sus seis goles llegaron de balón parado, el peligro que la ficha marcaba."
 
-**6 · Lo que no decimos (3:31–3:41) · Tilin**
+**6 · Lo que no decimos (3:21–3:31) · Tilin**
 "Lo que no decimos: comparamos, no probamos causas, y hay muestras chicas. Por eso, las recomendaciones son hipótesis, no órdenes."
 *(en pantalla, sin narrarlo: "la cámara solo ve lo que ve")*
 
-**7 · Cierre (3:41–4:05) · Samuel**
+**7 · Cierre (3:31–3:55) · Samuel**
 "Con Guardiola, los datos tardaron años en explicar lo que parecía magia. Ojo de Águila no espera tanto: es un motor para leer a cualquier entrenador frente a cualquier rival.
 *(logotipo)*
 Ojo de Águila: la intuición del entrenador, convertida en evidencia."

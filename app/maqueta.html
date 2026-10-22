@@ -356,6 +356,17 @@
         <li><strong>Quién participa poco en el rival.</strong> Falta el detalle de los partidos del rival sin el América; sumarlo completa lo que dice el motor de cada rival.</li>
       </ul>
       <p class="pie">Esta sección es una propuesta: nada de lo que describe está construido todavía.</p></section>
+
+    <section class="bloque" id="met-creditos"><span class="ante chico">10 · Créditos y uso de IA</span>
+      <h2>Qué es nuestro y qué es de terceros</h2>
+      <ul class="lista-met">
+        <li><strong>Datos.</strong> Hudl StatsBomb, Liga MX del Apertura 2021 al Clausura 2026, entregados para el Hackathon ISAC 2026: eventos, fotos de posiciones (360), alineaciones, partidos y estadísticas de equipo. Del proveedor se usan tal cual los goles esperados (xG), el valor de cada acción (OBV), las fases de juego y los 60 tipos de pase; el índice de iniciativa, el mapa de control del espacio, los momentos clave, los 4 parámetros, la matriz y la lectura del motor son cálculo nuestro.</li>
+        <li><strong>Uso de IA generativa.</strong> Usamos Claude Code (Anthropic) como asistente de programación: escribió y revisó buena parte del código en Python y de esta página, ayudó a redactar los textos y armó la animación del video, la alineación de las voces y su exportación. Las preguntas, las definiciones, los umbrales, las reglas de decisión y la interpretación las fijó el equipo, y cada número lo calcula el código del repositorio, con pruebas automáticas. Las voces del video son nuestras; ninguna es sintética.</li>
+        <li><strong>Software libre.</strong> Python 3.13 con pandas, NumPy, SciPy, Shapely, NetworkX, mplsoccer, Matplotlib, scikit-learn, statsmodels, DuckDB, PyArrow, requests, PyYAML y pytest; en el navegador, React para la animación de la marca. Tipografía Poppins (Google Fonts, licencia SIL Open Font).</li>
+        <li><strong>Métodos de la literatura.</strong> Diagramas de Voronoi para el control del espacio; remuestreo (bootstrap) para el rango probable; corrección de Benjamini y Hochberg (1995) para el riesgo de falso hallazgo; diferencia en diferencias para el cambio neto; análisis de componentes principales para comprobar los pesos del índice.</li>
+        <li><strong>Fotos del video.</strong> Las fotos de prensa (Pep Guardiola, el plantel del América, André Jardine con Paulo Víctor y Pumas contra el América) se usan solo como ilustración; sus derechos son de sus autores.</li>
+      </ul>
+      <p class="pie">Equipo: Samuel de María Cabrera Flores y Héctor. El código, las pruebas y el historial de cambios están en el repositorio del proyecto.</p></section>
   </div>
 </div>
 </main>
