@@ -112,7 +112,8 @@ Preguntas abiertas (la rúbrica oficial y el HTML único ya están confirmados):
 - `README.md`: estructura del repo, instalación y reglas de la estructura (capas, acceso único a datos).
 - `contexto/plan_trabajo.md`: ecosistema, decisiones de estructura, cliente de la API, prueba de humo, inspector, descarga, orden de construcción.
 - `contexto/api/README.md`: índice de las 10 APIs con endpoints y qué archivo leer para cada tarea.
-- `contexto/api/*.md`: referencia condensada de cada API (campos, tipos, catálogos de ids).
+- `contexto/api/*.md`: referencia condensada de cada API (campos, tipos, catálogos de ids). **Desde el 21 oct está fuera del repo** (reglas de la competencia; `.gitignore`): solo existe en las copias locales del equipo. En el repo queda `contexto/api/REMOVIDO.md` con lo que contenía. Si no está, pídela al equipo antes de usar un campo nuevo.
+- `contexto/uso_ia.md`: uso de IA generativa (qué hizo Claude Code, qué decidió el equipo y cómo se verificó), como piden las reglas del formulario.
 
 ## Glosario rápido
 
